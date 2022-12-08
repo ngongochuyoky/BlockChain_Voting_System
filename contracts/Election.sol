@@ -49,6 +49,11 @@ contract Election {
         _;
     }
 
+     //Count the number of position
+    uint8 numPosition;
+
+    mapping (uint8 => string) positions;
+
     //Candidate
     struct Candidate {
         string candidate_name;
@@ -56,6 +61,7 @@ contract Election {
         string candidate_description;
         string imgHash;
         uint8 voteCount;
+        uint8 position_id;
         string email;
     }
 
@@ -64,7 +70,7 @@ contract Election {
 
     //Voter
     struct Voter {
-        uint8 candidate_id_voted;
+        uint8[] candidateIDList;
         bool voted;
     }
 
@@ -77,20 +83,44 @@ contract Election {
     //Count the number of voter
     uint8 numVoters;
 
+    //Add Candidate
     function addCandidate(string memory candidate_name,string memory candidate_date_of_birth ,
-            string memory candidate_description, string memory imgHash,string memory email) public owner {
+            string memory candidate_description, string memory imgHash,uint8 positionID ,string memory email) public owner{
         uint8 candidateID = numCandidates++; // assign id of the candidate
         // add candidate to mapping
-        candidates[candidateID] = Candidate(candidate_name, candidate_date_of_birth, candidate_description, imgHash, 0, email);
+        candidates[candidateID] = Candidate(candidate_name, candidate_date_of_birth, candidate_description, imgHash, 0,positionID ,email);
+    }
+
+    //Function add Position
+    function addPosition(string memory _position_name) public {
+        uint8 positionID = numPosition++;
+        positions[positionID] = _position_name;
     }
 
     //function to vote and check for double voting
-    function vote(uint8 candidateID,string memory email) public {
+    function vote(uint8[] memory _candidateIDList,string memory email) public {
         // if false the vote will be registered
         require(!voters[email].voted, "Error:You cannot double vote"); 
-        voters[email] = Voter(candidateID,true); //add the values to the mapping
-        numVoters++;
-        candidates[candidateID].voteCount++;//increment vote counter of candidate
+        voters[email] = Voter(_candidateIDList,true);
+        for(uint8 i = 0; i < _candidateIDList.length; i++){
+            numVoters++;
+            candidates[_candidateIDList[i]].voteCount++;//increment vote counter of candidate
+        } //add the values to the mapping
+        
+    }
+
+    function getPosition() public view returns (string[] memory){
+        string[] memory _positions = new string[](numPosition);
+        for(uint8 i = 0; i < numPosition; i++) {
+            _positions[i] = positions[i];
+        }
+        return _positions;
+
+    }
+
+
+    function getVoter(string memory email) public view returns (Voter memory){
+        return voters[email];
     }
 
     //function to get candidate information
@@ -121,10 +151,12 @@ contract Election {
         return numVoters;
     }
 
+    function getNumOfPosition() public view returns(uint8) {
+        return numPosition;
+    }
+
     function getElectionDetails() public view returns(string memory, string memory) {
         return (election_name,election_description);    
     }
-
-
 
 }
