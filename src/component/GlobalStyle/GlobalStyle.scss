@@ -1,0 +1,21 @@
+@import 'normalize.css';
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@200;300;400;500;600;700&display=swap');
+@import '@fontsource/roboto/300.css';
+@import '@fontsource/roboto/400.css';
+@import '@fontsource/roboto/500.css';
+@import '@fontsource/roboto/700.css';
+
+
+:root {
+    --primary: #37003c;
+
+}
+
+*{
+    box-sizing: border-box;
+}
+
+
+body {
+    color: var(--primary);
+}
