@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
+import { styled, createTheme, ThemeProvider  } from '@mui/material/styles';
 import {
     Avatar,
     CssBaseline,
@@ -12,7 +12,6 @@ import {
     Divider,
     Container,
     IconButton,
-    Grid,
     Badge,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -22,7 +21,7 @@ import { deepOrange } from '@mui/material/colors';
 import { MainListItems } from './ListItems';
 import { PropTypes } from 'prop-types';
 
-const drawerWidth = 240;
+const drawerWidth = 260;
 
 const AppBar = styled(MuiAppBar, {
     shouldForwardProp: (prop) => prop !== 'open',
@@ -32,6 +31,8 @@ const AppBar = styled(MuiAppBar, {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.leavingScreen,
     }),
+    backgroundColor: '#fff',
+    boxShadow: 'none',
     ...(open && {
         marginLeft: drawerWidth,
         width: `calc(100% - ${drawerWidth}px)`,
@@ -41,6 +42,8 @@ const AppBar = styled(MuiAppBar, {
         }),
     }),
 }));
+
+
 
 const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(({ theme, open }) => ({
     '& .MuiDrawer-paper': {
@@ -52,6 +55,9 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
             duration: theme.transitions.duration.enteringScreen,
         }),
         boxSizing: 'border-box',
+        background: 'rgb(17, 25, 42)',
+        color: '#fff',
+
         ...(!open && {
             overflowX: 'hidden',
             transition: theme.transitions.create('width', {
@@ -96,9 +102,9 @@ function DashboardLayout(props) {
                             px: [1],
                         }}
                     >
-                        <h1>Company</h1>
+                       <h2>Company</h2>
                         <IconButton onClick={toggleDrawer}>
-                            <ChevronLeftIcon />
+                            <ChevronLeftIcon sx={{ color: '#fff' }} />
                         </IconButton>
                     </Toolbar>
                     <Divider />
@@ -122,14 +128,15 @@ function DashboardLayout(props) {
                                 ...(open && { display: 'none' }),
                             }}
                         >
-                            <MenuIcon />
+                            <MenuIcon color="primary" />
                         </IconButton>
+                        
                         <Typography component="h1" variant="h6" color="inherit" noWrap sx={{ flexGrow: 1 }}>
                             Dashboard
                         </Typography>
                         <IconButton color="inherit">
                             <Badge badgeContent={4} color="secondary">
-                                <NotificationsIcon />
+                                <NotificationsIcon sx={{ color: 'rgb(85, 105, 255)' }} />
                             </Badge>
                         </IconButton>
                         <IconButton>

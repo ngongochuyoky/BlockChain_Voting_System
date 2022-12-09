@@ -15,7 +15,7 @@ function createData(name, dateOfBirth, email, voteCount, description) {
 }
 
 function Dapp() {
-    const FacecontractAddress = '0x1260698380e45013716744BFeE6BF8A7792557d2';
+    const FacecontractAddress = '0xC2636c2445e0F7f5a128E9f7285624742A936722';
     let signerEth = null;
     let errorMessage = '';
     return {

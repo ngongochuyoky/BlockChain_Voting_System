@@ -8,7 +8,9 @@ const routes = {
     companyDashboard: '/election/company/dashboard',
     companyCandidateList: '/election/company/candidate_list',
     companyVoterList: '/election/company/voter_list',
+    companyPositionList: '/election/company/position_list',
     createElection: '/election/create_election',
+    createPosition: '/election/company/create_position',
     createCandidate: '/election/company/create_candidate',
 
 }

@@ -14,10 +14,14 @@ import config from '~/config';
 
 function MainListItems() {
     const [selectedIndex, setSelectedIndex] = useState(0);
-    const [open, setOpen] = useState(true);
+    const [openPosition, setOpenPosition] = useState(true);
+    const [openCandidate, setOpenCandidate] = useState(true);
 
-    const handleClick = () => {
-        setOpen(!open);
+    const handleClickCandidate = () => {
+        setOpenCandidate(!openCandidate);
+    };
+    const handleClickPosition = () => {
+        setOpenPosition(!openPosition);
     };
     const handleListItemClick = (event, index) => {
         setSelectedIndex(index);
@@ -32,29 +36,65 @@ function MainListItems() {
                 onClick={(event) => handleListItemClick(event, 0)}
             >
                 <ListItemIcon>
-                    <DashboardIcon />
+                    <DashboardIcon sx={{color: '#fff'}}/>
                 </ListItemIcon>
                 <ListItemText primary="Dashboard" />
             </ListItemButton>
 
-            <ListItemButton onClick={handleClick}>
+            <ListItemButton onClick={handleClickPosition}>
                 <ListItemIcon>
-                    <InboxIcon />
+                    <InboxIcon sx={{color: '#fff'}}/>
                 </ListItemIcon>
-                <ListItemText primary="Candidate" />
-                {open ? <ExpandLess /> : <ExpandMore />}
+                <ListItemText primary="Position" />
+                {openPosition ? <ExpandLess /> : <ExpandMore />}
             </ListItemButton>
-            <Collapse in={open} timeout="auto" unmountOnExit>
+            <Collapse in={openPosition} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
                     <ListItemButton
                         sx={{ pl: 4 }}
-                        to={config.routes.companyCandidateList}
+                        to={config.routes.companyPositionList}
                         component={RouteLink}
                         selected={selectedIndex === 1}
                         onClick={(event) => handleListItemClick(event, 1)}
                     >
                         <ListItemIcon>
-                            <RecentActorsIcon />
+                            <RecentActorsIcon sx={{color: '#fff'}} />
+                        </ListItemIcon>
+                        <ListItemText primary="Position List" />
+                    </ListItemButton>
+                    <ListItemButton
+                        sx={{ pl: 4 }}
+                        to={config.routes.createPosition}
+                        component={RouteLink}
+                        selected={selectedIndex === 2}
+                        onClick={(event) => handleListItemClick(event, 2)}
+                    >
+                        <ListItemIcon>
+                            <CreateIcon sx={{color: '#fff'}}/>
+                        </ListItemIcon>
+                        <ListItemText primary="Create Position" />
+                    </ListItemButton>
+                </List>
+            </Collapse>
+
+            <ListItemButton onClick={handleClickCandidate}>
+                <ListItemIcon>
+                    <InboxIcon sx={{color: '#fff'}}/>
+                </ListItemIcon>
+                <ListItemText primary="Candidate" />
+                {openCandidate ? <ExpandLess /> : <ExpandMore />}
+            </ListItemButton>
+            <Collapse in={openCandidate} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding>
+                    <ListItemButton
+                        sx={{ pl: 4 }}
+                        to={config.routes.companyCandidateList}
+                        component={RouteLink}
+                        selected={selectedIndex === 3}
+                        onClick={(event) => handleListItemClick(event, 3)}
+                    >
+                        <ListItemIcon>
+                            <RecentActorsIcon sx={{color: '#fff'}}/>
                         </ListItemIcon>
                         <ListItemText primary="Candidate List" />
                     </ListItemButton>
@@ -62,11 +102,11 @@ function MainListItems() {
                         sx={{ pl: 4 }}
                         to={config.routes.createCandidate}
                         component={RouteLink}
-                        selected={selectedIndex === 2}
-                        onClick={(event) => handleListItemClick(event, 2)}
+                        selected={selectedIndex === 4}
+                        onClick={(event) => handleListItemClick(event, 4)}
                     >
                         <ListItemIcon>
-                            <CreateIcon />
+                            <CreateIcon sx={{color: '#fff'}}/>
                         </ListItemIcon>
                         <ListItemText primary="Create Candidate" />
                     </ListItemButton>
@@ -76,11 +116,11 @@ function MainListItems() {
             <ListItemButton
                 to={config.routes.companyVoterList}
                 component={RouteLink}
-                selected={selectedIndex === 3}
-                onClick={(event) => handleListItemClick(event, 2)}
+                selected={selectedIndex === 5}
+                onClick={(event) => handleListItemClick(event, 5)}
             >
                 <ListItemIcon>
-                    <PeopleIcon />
+                    <PeopleIcon sx={{color: '#fff'}}/>
                 </ListItemIcon>
                 <ListItemText primary="Voter List" />
             </ListItemButton>

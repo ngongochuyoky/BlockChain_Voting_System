@@ -1,10 +1,6 @@
 import { Grid, Paper, Divider } from '@mui/material';
 import Title from '~/layout/component/Title';
 import CandidateListTable from './CandidateListTable';
-import { Link as RouterLink } from 'react-router-dom';
-import { Add as AddIcon } from '@mui/icons-material';
-import config from '~/config';
-import Button from '@mui/material/Button';
 
 function CompanyCandidateList() {
     return (

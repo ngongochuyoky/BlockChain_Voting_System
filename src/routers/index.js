@@ -5,6 +5,8 @@ import CompanyRegister from '~/pages/company/CompanyRegister';
 import CreateElection from '~/pages/company/CreateElection';
 import VoterDashBoard from '~/pages/voter/VoterDashBoard';
 import CompanyDashBoard from '~/pages/company/CompanyDashBoard';
+import CompanyPositionList from '~/pages/company/CompanyPositionList';
+import CreatePosition from '~/pages/company/CreatePosition';
 import CompanyCandidateList from '~/pages/company/CompanyCandidateList';
 import CreateCandidate from '~/pages/company/CreateCandidate';
 import CompanyVoterList from '~/pages/company/CompanyVoterList';
@@ -27,6 +29,8 @@ export const voterPrivateRoutes = [{ path: config.routes.voterDashboard, compone
 export const companyPrivateRoutes = [
     { path: config.routes.companyDashboard, component: CompanyDashBoard, layout: DashboardLayout },
     { path: config.routes.companyCandidateList, component: CompanyCandidateList, layout: DashboardLayout },
+    { path: config.routes.companyPositionList, component: CompanyPositionList, layout: DashboardLayout },
+    { path: config.routes.createPosition, component: CreatePosition, layout: DashboardLayout },
     { path: config.routes.createCandidate, component: CreateCandidate, layout: DashboardLayout },
     { path: config.routes.companyVoterList, component: CompanyVoterList, layout: DashboardLayout },
     { path: config.routes.createElection, component: CreateElection, layout: null },

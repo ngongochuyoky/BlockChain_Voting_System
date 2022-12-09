@@ -1,8 +1,8 @@
 import { Grid, Paper, Divider } from '@mui/material';
 import Title from '~/layout/component/Title';
-import Form from './Form';
+import PositionListTable from './PositionListTable';
 
-function CreateCandidate() {
+function PositionList() {
     return (
         <Grid container spacing={3}>
             {/* Title */}
@@ -10,12 +10,13 @@ function CreateCandidate() {
                 <Paper sx={{ display: 'flex', flexDirection: 'column' }}>
                     <Grid container direction="row" justifyContent="space-between" alignItems="center" sx={{ p: 2 }}>
                         <Grid item>
-                            <Title>Create Candidate</Title>
+                            <Title>Position List</Title>
                         </Grid>
                     </Grid>
+
                     <Divider />
-                    <Grid container direction="row" justifyContent="space-between" alignItems="center" >
-                        <Form />
+                    <Grid container direction="row" justifyContent="space-between" alignItems="center">
+                        <PositionListTable />
                     </Grid>
                 </Paper>
             </Grid>
@@ -23,4 +24,4 @@ function CreateCandidate() {
     );
 }
 
-export default CreateCandidate;
+export default PositionList;
