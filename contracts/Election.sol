@@ -128,17 +128,21 @@ contract Election {
         return (candidates[candidateID].candidate_name,candidates[candidateID].candidate_date_of_birth , candidates[candidateID].candidate_description, candidates[candidateID].imgHash, candidates[candidateID].voteCount, candidates[candidateID].email);
     } 
 
-    //function to return winner candidate information
-    function winner() public view returns (uint8) {
-        uint8 winnerID = 0;
-        uint8 largestVotes = candidates[0].voteCount;
-        for(uint8 i=1; i < numCandidates; i++){
-            if(largestVotes < candidates[i].voteCount){
-                largestVotes = candidates[i].voteCount;
-                winnerID = i;
+   //function to return winner candidate information
+    function winner() public view returns (int8[] memory) {
+        int8[] memory winnerIDList = new int8[](numPosition);
+        for(uint8 i = 0; i < numPosition; i++) {
+            int8 winnerID = -1;
+            uint8 largestVotes = 0;
+            for(uint8 j = 0; j < numCandidates; j++){
+                if(largestVotes < candidates[j].voteCount && candidates[j].position_id == i){
+                    largestVotes = candidates[j].voteCount;
+                    winnerID = int8(j);
+                }
             }
+            winnerIDList[i] = winnerID;
         }
-        return winnerID;
+        return winnerIDList;
     } 
 
     //function to get count of candidates
