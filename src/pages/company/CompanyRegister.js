@@ -16,7 +16,8 @@ import imageLogin from '~/assets/images/photo1.jpg';
 import { useContext } from 'react';
 import Cookies from 'js-cookie';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
-import { UpdateRoutes } from '~/App';
+import {UpdateRoutes} from '~/App';
+import config from '~/config';
 import { SnackbarProvider, useSnackbar } from 'notistack';
 
 function RegisterSide() {
@@ -56,7 +57,7 @@ function RegisterSide() {
         else {
             Cookies.set('company_token', responseObject.data.token);
             updateRoutes();
-            navigate('/election_administration/company');
+            navigate(config.routes.createElection);
         }
     }
 

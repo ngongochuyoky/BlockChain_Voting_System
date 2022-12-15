@@ -13,32 +13,44 @@ import {
     Checkbox,
 } from '@mui/material';
 import Cookies from 'js-cookie';
-import { Fragment } from 'react';
-import Dapp from '~/component/Dapp';
+import { Fragment, useEffect, useState } from 'react';
+import dapp from '~/component/Dapp';
 import config from '~/config';
 import { useNavigate } from 'react-router-dom';
 import { SnackbarProvider, useSnackbar } from 'notistack';
 
 function CreateElection() {
     const navigate = useNavigate();
+    const [isDisable, setIsDisable] = useState(false);
 
     const { enqueueSnackbar } = useSnackbar();
+    useEffect(() => {
+        return () => {
+            const componentUnMount = async () => {
+                await dapp.connectWallet();
+                const electionFactContract = dapp.getElectionFactContract();
+                electionFactContract.off('CreateElection');
+            }
+            componentUnMount();
+        }
+    },[])
 
     const handleCreateElection = async (event) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
-        const dapp = Dapp();
         //Create Elction successfully
-        await dapp.connectWallet();
         const result = await dapp.createElection({
-            electionName: formData.get('electionName'),
-            electionDescription: formData.get('electionDescription'),
+            electionName: formData.get('election-name'),
+            electionDescription: formData.get('election-description'),
         });
         if (result) {
-            const summary = await dapp.getDeployedElection();
-            Cookies.set('election_address', summary[0]);
-            console.log('oke');
-            navigate(config.routes.companyDashboard);
+            setIsDisable(true);
+            enqueueSnackbar('Blockchain is processing', {variant: 'info', anchorOrigin: { horizontal: 'right', vertical: 'top' }});
+            const electionFactContract = dapp.getElectionFactContract();
+            electionFactContract.on('CreateElection', (electionAddress) => {
+                Cookies.set('election_address', electionAddress);                
+                navigate(config.routes.companyDashboard);
+            });
         } else {
             const message = dapp.getError();
             enqueueSnackbar(message, { variant: 'error', anchorOrigin: { horizontal: 'right', vertical: 'top' } });
@@ -85,8 +97,9 @@ function CreateElection() {
                                     <Grid item xs={12}>
                                         <TextField
                                             required
-                                            id="electionName"
-                                            name="electionName"
+                                            disabled={isDisable}
+                                            id="election-name"
+                                            name="election-name"
                                             label="Election Name"
                                             fullWidth
                                             variant="standard"
@@ -95,8 +108,9 @@ function CreateElection() {
                                     <Grid item xs={12}>
                                         <TextField
                                             required
-                                            id="electionDescription"
-                                            name="electionDescription"
+                                            disabled={isDisable}
+                                            id="election-description"
+                                            name="election-description"
                                             label="Election Description"
                                             fullWidth
                                             autoComplete="shipping address-line2"
@@ -112,7 +126,7 @@ function CreateElection() {
                                 </Grid>
                             </Fragment>
                             <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                <Button variant="contained" type="submit" sx={{ mt: 3, ml: 1 }}>
+                                <Button variant="contained" disabled={isDisable} type="submit" sx={{ mt: 3, ml: 1 }}>
                                     Create
                                 </Button>
                             </Box>

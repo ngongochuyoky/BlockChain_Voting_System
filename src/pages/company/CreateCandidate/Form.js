@@ -1,32 +1,26 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import Paper from '@mui/material/Paper';
 import Avatar from '@mui/material/Avatar';
 import AvatarDefault from '~/assets/images/avatar_default.jpg';
 
 import * as IPFS from 'ipfs-core';
+import dapp from '~/component/Dapp';
 
 import { Buffer } from 'buffer/';
 import dayjs from 'dayjs';
-import { Add as AddIcon, Close as CloseIcon, Pages } from '@mui/icons-material';
 import {
     Grid,
     Stack,
-    IconButton,
     InputLabel,
-    Backdrop,
     Box,
-    Modal,
-    Fade,
     Button,
     Divider,
     TextField,
     Typography,
     Select,
     MenuItem,
-    FormControl,
 } from '@mui/material';
 
 const style = {
@@ -37,11 +31,12 @@ const style = {
 
 function TransitionsModal() {
     const [avatar, setAvatar] = useState(AvatarDefault);
-    const [position, setPosition] = useState(-1);
+    const [position, setPosition] = useState('');
     const [buffer, setBuffer] = useState(null);
     const [value, setValue] = useState();
 
     useEffect(() => {
+        
         return () => {
             URL.revokeObjectURL(avatar);
         };
@@ -50,6 +45,15 @@ function TransitionsModal() {
     const handleChangePosition = (event) => {
         setPosition(event.target.value);
     };
+
+    // const filetoBuffer = async() => {
+    //     const node = await IPFS.create();
+    //     const fileReader = new FileReader();
+    //     const blob = await (await fetch(avatar)).blob();
+    //     const file1 = new File([blob], 'fileName.jpg', { type: 'image/jpeg', lastModified: new Date() });
+    //     console.log(file1);
+        
+    // }
 
     const handlePreviewAvatar = async (e) => {
         const file = e.target.files[0];
@@ -81,9 +85,10 @@ function TransitionsModal() {
         setAvatar(avatarPreview);
     };
 
-    const handleCreateNew = (event) => {
+    const handleCreateNew = async (event) => {
         event.preventDefault();
         const dataForm = new FormData(event.currentTarget);
+        
         console.log(dataForm.get('date-of-birth'));
     };
 

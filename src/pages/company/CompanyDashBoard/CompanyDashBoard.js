@@ -3,7 +3,6 @@ import Paper from '@mui/material/Paper';
 import Orders from './Orders';
 
 function DashboardContent() {
-    
     return (
         <Grid container spacing={3}>
             {/* Recent Orders */}

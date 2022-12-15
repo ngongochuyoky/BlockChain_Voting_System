@@ -16,10 +16,10 @@ import imageLogin from '~/assets/images/photo1.jpg';
 import { useContext } from 'react';
 import Cookies from 'js-cookie';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
-import Dapp from '~/component/Dapp';
+import dapp from '~/component/Dapp';
 import config from '~/config';
 import { SnackbarProvider, useSnackbar } from 'notistack';
-import { UpdateRoutes } from '~/App';
+import {UpdateRoutes} from '~/App';
 
 function LoginSide() {
     const navigate = useNavigate();
@@ -56,7 +56,6 @@ function LoginSide() {
     };
 
     const handleNavigate = async () => {
-        const dapp = Dapp();
         await dapp.connectWallet();
         const summary = await dapp.getDeployedElection();
         if (summary) {

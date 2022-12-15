@@ -17,7 +17,7 @@ import { useContext } from 'react';
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';
-import { UpdateRoutes } from '~/App';
+import {UpdateRoutes} from '~/App';
 import { SnackbarProvider, useSnackbar } from 'notistack';
 
 function LoginSide() {
