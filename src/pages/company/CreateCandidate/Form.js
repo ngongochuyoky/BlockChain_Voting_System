@@ -6,22 +6,12 @@ import Avatar from '@mui/material/Avatar';
 import AvatarDefault from '~/assets/images/avatar_default.jpg';
 
 import * as IPFS from 'ipfs-core';
-import dapp from '~/component/Dapp';
+import ethers from '~/ethereum/ethers';
 
 import { Buffer } from 'buffer/';
-import dayjs from 'dayjs';
-import {
-    Grid,
-    Stack,
-    InputLabel,
-    Box,
-    Button,
-    Divider,
-    TextField,
-    Typography,
-    Select,
-    MenuItem,
-} from '@mui/material';
+import useSnackMessages from '~/utils/hooks/useSnackMessages';
+// import dayjs from 'dayjs';
+import { Grid, Stack, InputLabel, Box, Button, Divider, TextField, Typography, Select, MenuItem } from '@mui/material';
 
 const style = {
     bgcolor: 'background.paper',
@@ -31,65 +21,89 @@ const style = {
 
 function TransitionsModal() {
     const [avatar, setAvatar] = useState(AvatarDefault);
-    const [position, setPosition] = useState('');
+    const [positionID, setPositionID] = useState('');
+    const [positions, setPositions] = useState([]);
     const [buffer, setBuffer] = useState(null);
     const [value, setValue] = useState();
+    const { showInfoSnackbar, showErrorSnackbar } = useSnackMessages;
 
     useEffect(() => {
-        
+        const componentDidMount = async () => {
+            //Avatar default
+            const file = await dataUriToFile(AvatarDefault);
+            await fileToBuffer(file);
+            //Get Positions
+            try {
+                await ethers.connectWallet();
+                const contract = await ethers.getElectionContract();
+                const positions = await contract.getPositions();
+                setPositions(positions);
+            } catch (err) {
+                ethers.getError() && showErrorSnackbar(ethers.getError());
+            }
+        };
+        componentDidMount();
+    }, [showErrorSnackbar]);
+    useEffect(() => {
         return () => {
             URL.revokeObjectURL(avatar);
         };
     }, [avatar]);
 
     const handleChangePosition = (event) => {
-        setPosition(event.target.value);
+        setPositionID(event.target.value);
     };
 
-    // const filetoBuffer = async() => {
-    //     const node = await IPFS.create();
-    //     const fileReader = new FileReader();
-    //     const blob = await (await fetch(avatar)).blob();
-    //     const file1 = new File([blob], 'fileName.jpg', { type: 'image/jpeg', lastModified: new Date() });
-    //     console.log(file1);
-        
-    // }
+    const dataUriToFile = async (avatarDefault) => {
+        const blob = await (await fetch(avatarDefault)).blob();
+        const file = new File([blob], 'fileName.jpg', { type: 'image/jpeg', lastModified: new Date() });
+        return file;
+    };
 
+    const fileToBuffer = async (file) => {
+        const fileReader = new FileReader();
+        await fileReader.readAsArrayBuffer(file);
+        fileReader.onloadend = async function (event) {
+            const buffer = await Buffer.from(fileReader.result);
+            setBuffer(buffer);
+        };
+    };
+
+    //Preview Avatar and File to Buffer
     const handlePreviewAvatar = async (e) => {
         const file = e.target.files[0];
-        //test image khong duoc tao
-
         const avatarPreview = URL.createObjectURL(file);
-        const node = await IPFS.create();
-        const fileReader = new FileReader();
-        const blob = await (await fetch(avatar)).blob();
-        const file1 = new File([blob], 'fileName.jpg', { type: 'image/jpeg', lastModified: new Date() });
-        console.log(file1);
-        await fileReader.readAsArrayBuffer(file1);
-        fileReader.onloadend = async function (event) {
-            //  const buffer = dataUriToBuffer(AvatarDefault);
-            const buffer = await Buffer.from(fileReader.result);
-            const { path } = await node.add(buffer);
-            console.log('https://ipfs.io/ipfs/', path);
-        };
-
-        // try {
-        //     const uploadResult = await config.ipfs.add(buffer)
-        //     console.log('https://ipfs.io/ipfs/',uploadResult.path)
-        // } catch(e) {
-        //     console.log(e)
-        //     return
-        // }
-        // setBuffer(buffer);
-
+        await fileToBuffer(file);
         setAvatar(avatarPreview);
     };
 
+    // Create New Candidate
     const handleCreateNew = async (event) => {
         event.preventDefault();
         const dataForm = new FormData(event.currentTarget);
-        
-        console.log(dataForm.get('date-of-birth'));
+        //Upload image to IPFS
+        const node = await IPFS.create();
+        const { path } = await node.add(buffer);
+        const imgHash = ('https://ipfs.io/ipfs/' + path).trim();
+        await node.stop();
+        console.log(imgHash);
+        try {
+            await ethers.connectWallet();
+            const contract = ethers.getElectionContract();
+            const bool = await contract.addCandidate(
+                positionID,
+                dataForm.get('candidate-name'),
+                dataForm.get('date-of-birth'),
+                dataForm.get('description'),
+                imgHash,
+                dataForm.get('email'),
+            );
+            bool && showInfoSnackbar('Blockchain is processing');
+        } catch (error) {
+            ethers.getError()
+                ? showErrorSnackbar(ethers.getError())
+                : showErrorSnackbar('New position creation failed!!!');
+        }
     };
 
     return (
@@ -137,16 +151,20 @@ function TransitionsModal() {
                                     </InputLabel>
                                     <Select
                                         sx={{ width: '100%' }}
-                                        id="position"
-                                        value={position}
+                                        id="position-id"
+                                        value={positionID}
                                         labelId="position-label"
                                         onChange={handleChangePosition}
                                     >
                                         <MenuItem value="">
                                             <em>None</em>
                                         </MenuItem>
-                                        <MenuItem value={0}>Lớp trưởng</MenuItem>
-                                        <MenuItem value={1}>Lớp phó</MenuItem>
+                                        {positions &&
+                                            positions.map((position, index) => (
+                                                <MenuItem value={index} key={index}>
+                                                    {position}
+                                                </MenuItem>
+                                            ))}
                                     </Select>
                                 </Grid>
                                 {/* Input Email */}

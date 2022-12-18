@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 import {
     Box,
@@ -17,38 +17,13 @@ import {
 } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { visuallyHidden } from '@mui/utils';
-import AvatarDefault from '~/assets/images/avatar_default.jpg';
 import Modal from './Modal';
-import dapp from '~/component/Dapp';
 
-function createData(candidateId, name, dateOfBirth, email, voteCount, description) {
-    return {
-        candidateId,
-        name,
-        dateOfBirth,
-        email,
-        voteCount,
-        description,
-    };
-}
+
 
 // Data form
 //data = [{name, dateOfBirth, email, voteCount, description}, ...]
-const rows = [
-    createData(1, 'Cupcake', 305, 3.7, 67, 4.3),
-    createData(1, 'Donut', 452, 25.0, 51, 4.9),
-    createData(1, 'Eclair', 262, 16.0, 24, 6.0),
-    createData(1, 'Frozen yoghurt', 159, 6.0, 24, 4.0),
-    createData(1, 'Gingerbread', 356, 16.0, 49, 3.9),
-    createData(1, 'Honeycomb', 408, 3.2, 87, 6.5),
-    createData(1, 'Ice cream sandwich', 237, 9.0, 37, 4.3),
-    createData(1, 'Jelly Bean', 375, 0.0, 94, 0.0),
-    createData(1, 'KitKat', 518, 26.0, 65, 7.0),
-    createData(1, 'Lollipop', 392, 0.2, 98, 0.0),
-    createData(1, 'Marshmallow', 318, 0, 81, 2.0),
-    createData(1, 'Nougat', 360, 19.0, 9, 37.0),
-    createData(1, 'Oreo', 437, 18.0, 63, 4.0),
-];
+
 
 function descendingComparator(a, b, orderBy) {
     if (b[orderBy] < a[orderBy]) {
@@ -164,7 +139,7 @@ export default function EnhancedTable(props) {
     const [order, setOrder] = useState('asc');
     const [orderBy, setOrderBy] = useState('voteCount');
     const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
 
     const handleRequestSort = (event, property) => {
         const isAsc = orderBy === property && order === 'asc';
@@ -219,7 +194,7 @@ export default function EnhancedTable(props) {
                                                         <Box>
                                                             <Avatar
                                                                 variant="rounded"
-                                                                src={AvatarDefault}
+                                                                src={row.imgHash}
                                                                 sx={{ width: 64, height: 64 }}
                                                             >
                                                                 H
@@ -264,7 +239,7 @@ export default function EnhancedTable(props) {
                 <TablePagination
                     rowsPerPageOptions={[5, 10, 25]}
                     component="div"
-                    count={rows.length}
+                    count={props.rows.length}
                     rowsPerPage={rowsPerPage}
                     page={page}
                     onPageChange={handleChangePage}

@@ -1,16 +1,19 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { SnackbarProvider } from 'notistack';
 import App from '~/App';
 import reportWebVitals from './reportWebVitals';
-import GlobalStyle from '~/component/GlobalStyle';
+import GlobalStyle from '~/layout/component/GlobalStyle';
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.Fragment>
-    <GlobalStyle>
-        <App />
-    </GlobalStyle>
+    <SnackbarProvider maxSnack={3} autoHideDuration={3000} preventDuplicate>
+      <GlobalStyle>
+          <App />
+      </GlobalStyle>
+    </SnackbarProvider>
   </React.Fragment>,
 );
 

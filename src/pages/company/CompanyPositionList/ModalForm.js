@@ -13,10 +13,10 @@ import {
     Divider,
     TextField,
 } from '@mui/material';
-import PropTypes from 'prop-types';
 
 import Title from '~/layout/component/Title';
-import dapp from '~/component/Dapp';
+import ethers from '~/ethereum/ethers';
+import useSnackMessages from '~/utils/hooks/useSnackMessages';
 
 const style = {
     position: 'absolute',
@@ -30,24 +30,28 @@ const style = {
     p: 4,
 };
 
-export default function TransitionsModal(props) {
+export default function TransitionsModal() {
     const [open, setOpen] = useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
+    const { showInfoSnackbar, showErrorSnackbar } = useSnackMessages;
 
     const handleCreateNew = async (event) => {
         event.preventDefault();
         const dataForm = new FormData(event.currentTarget);
-        const position = await dapp.addPosition(dataForm.get('position-name'));
-        if(position) {
-            handleClose();
-            props.enqueueSnackbar('Blockchain is processing', {variant: 'info', anchorOrigin: { horizontal: 'right', vertical: 'top' }});
-        }else{
-            const message = dapp.getError();
-            props.enqueueSnackbar(message, {variant: 'error', anchorOrigin: { horizontal: 'right', vertical: 'top' }});
+        try {
+            const contract = ethers.getElectionContract();
+            const bool = await contract.addPosition(dataForm.get('position-name'));
+            if (bool) {
+                handleClose();
+                showInfoSnackbar('Blockchain is processing');
+            }
+        } catch (err) {
+            ethers.getError()
+                ? showErrorSnackbar(ethers.getError())
+                : showErrorSnackbar('New position creation failed!!!');
         }
     };
-    
 
     return (
         <div>
@@ -94,7 +98,6 @@ export default function TransitionsModal(props) {
                                                 placeholder="ABC"
                                             />
                                         </Grid>
-                                       
 
                                         {/* Button Submit */}
                                         <Grid item md={12}>
@@ -114,8 +117,4 @@ export default function TransitionsModal(props) {
             </Modal>
         </div>
     );
-}
-
-TransitionsModal.propTypes = {
-    enqueueSnackbar: PropTypes.func.isRequired,
 }

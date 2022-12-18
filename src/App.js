@@ -2,7 +2,7 @@ import { Fragment, useState, createContext } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { publicRoutes, voterPrivateRoutes, companyPrivateRoutes } from '~/routers';
 import { DefaltLayout } from './layout';
-import ProtectedRoutes from '~/component/ProtectedRoutes';
+import ProtectedRoutes from '~/utils/ProtectedRoutes';
 import Cookies from 'js-cookie';
 
 export const UpdateRoutes = createContext();
@@ -10,8 +10,8 @@ export const UpdateRoutes = createContext();
 function App() {
     const [updateNow, setUpdateNow] = useState(true);
     const updateRoutes = () => {
-        setUpdateNow(!updateNow)
-    }
+        setUpdateNow(!updateNow);
+    };
     return (
         <UpdateRoutes.Provider value={updateRoutes}>
             <Router>
@@ -39,10 +39,7 @@ function App() {
                         })}
                         <Route
                             element={
-                                <ProtectedRoutes
-                                    redirectPath="/voter_login"
-                                    isAllowed={!!Cookies.get('voter_token')}
-                                />
+                                <ProtectedRoutes redirectPath="/voter_login" isAllowed={!!Cookies.get('voterToken')} />
                             }
                         >
                             {voterPrivateRoutes.map((route, index) => {
@@ -70,7 +67,7 @@ function App() {
                             element={
                                 <ProtectedRoutes
                                     redirectPath="/company_login"
-                                    isAllowed={!!Cookies.get('company_token') }
+                                    isAllowed={!!Cookies.get('companyToken')}
                                 />
                             }
                         >

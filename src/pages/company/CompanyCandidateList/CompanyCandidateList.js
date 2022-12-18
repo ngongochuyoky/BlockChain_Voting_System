@@ -2,9 +2,10 @@ import { Grid, Paper, Divider } from '@mui/material';
 import Title from '~/layout/component/Title';
 import CandidateListTable from './CandidateListTable';
 import { useEffect, useState } from 'react';
-import dapp from '~/component/Dapp';
+import useSnackMessages from '~/utils/hooks/useSnackMessages';
+import ethers from '~/ethereum/ethers';
 
-function createData(candidateID, name, dateOfBirth, description, imgHash, voteCount, positionID, email) {
+function createData(candidateID, positionID, name, dateOfBirth, description, imgHash, voteCount, email, ...args) {
     return {
         candidateID,
         name,
@@ -18,104 +19,73 @@ function createData(candidateID, name, dateOfBirth, description, imgHash, voteCo
 }
 
 function CompanyCandidateList() {
-    const [data, setData] = useState([
-        {
-            positionName: '',
-            rows: [],
-        },
-    ]);
-    useEffect(() => {
-        const getCandidates = async () => {
-            const positions = await dapp.getPositions();
-            if (positions.length) {
-                const numOfCandidates = await dapp.getNumOfCandidates();
-                const result = positions.map((position) => ({
-                    positionName: position,
-                    rows: [],
-                }));
+    const [data, setData] = useState([{ positionName: '', rows: [] }]);
+    const { showSuccessSnackbar, showErrorSnackbar } = useSnackMessages;
 
-                for (let i = 0; i < numOfCandidates; i++) {
-                    const candidate = await dapp.getCandidate(i);
-                    data[candidate.positionID].rows.push(
-                        createData(
-                            candidate.candidateID,
-                            candidate.name,
-                            candidate.dateOfBirth,
-                            candidate.description,
-                            candidate.imgHash,
-                            candidate.voteCount,
-                            candidate.positionID,
-                            candidate.email,
-                        ),
-                    );
+    useEffect(() => {
+        const addCandidateListener = () => {
+            const contract = ethers.getElectionContract();
+            contract.on('AddCandidate', (positionID, candidateID, ...rest) => {
+                showSuccessSnackbar('Successfully created new candidate');
+                setData((preData) => {
+                    const newData = JSON.parse(JSON.stringify(preData));
+                    newData[positionID].rows.push(createData(candidateID, positionID, ...rest));
+                    return newData;
+                });
+            });
+        };
+        const getCandidates = async () => {
+            try {
+                await ethers.connectWallet();
+                const contract = ethers.getElectionContract();
+                const positions = await contract.getPositions();
+                if (positions.length) {
+                    const result = positions.map((position) => ({
+                        positionName: position,
+                        rows: [],
+                    }));
+
+                    const numOfCandidates = await contract.getNumOfCandidates();
+                    for (let i = 0; i < numOfCandidates; i++) {
+                        const candidate = await contract.getCandidate(i);
+                        result[candidate[0]].rows.push(createData(i, ...candidate));
+                    }
+                    setData(result);
                 }
-                setData(result);
+                addCandidateListener();
+            } catch (err) {
+                ethers.getError() && showErrorSnackbar(ethers.getError());
             }
         };
-        const addCandidateListener = async () => {
-            const electionContract = await dapp.getElectionContract();
-            electionContract.on(
-                'AddCandidate',
-                (candidateID, name, dateOfBirth, description, imgHash, voteCount, positionID, email) => {
-                    setData(data=>
-                        data[candidateID].rows.push(
-                            createData(
-                                candidateID,
-                                name,
-                                dateOfBirth,
-                                description,
-                                imgHash,
-                                voteCount,
-                                positionID,
-                                email,
-                            ),
-                        ),
-                    );
-                },
-            );
-        };
-        const componentDidMount = async () => {
-            await dapp.connectWallet();
-            await getCandidates();
-            await addCandidateListener();
-        };
-        componentDidMount();
-        return () => {
-            const componentUnMount = async () => {
-                const electionContract = await dapp.getElectionContract();
-                await electionContract.off('AddCandidate');
-            };
-            componentUnMount();
-        }
-    }, []);
+
+        getCandidates();
+    }, [showSuccessSnackbar, showErrorSnackbar]);
 
     return (
         <Grid container spacing={3}>
             {/* Title */}
-            {
-                data.map((position, index) => (
-                    <Grid item xs={12} key={index}>
-                        <Paper sx={{ display: 'flex', flexDirection: 'column' }}>
-                            <Grid
-                                container
-                                direction="row"
-                                justifyContent="space-between"
-                                alignItems="center"
-                                sx={{ p: 2 }}
-                            >
-                                <Grid item>
-                                    <Title>Candidate List - {position.positionName}</Title>
-                                </Grid>
+            {data.map((position, index) => (
+                <Grid item xs={12} key={index}>
+                    <Paper sx={{ display: 'flex', flexDirection: 'column' }}>
+                        <Grid
+                            container
+                            direction="row"
+                            justifyContent="space-between"
+                            alignItems="center"
+                            sx={{ p: 2 }}
+                        >
+                            <Grid item>
+                                <Title>Candidate List - {position.positionName}</Title>
                             </Grid>
+                        </Grid>
 
-                            <Divider />
-                            <Grid container direction="row" justifyContent="space-between" alignItems="center">
-                                <CandidateListTable rows={position.rows} />
-                            </Grid>
-                        </Paper>
-                    </Grid>
-                ))
-            }
+                        <Divider />
+                        <Grid container direction="row" justifyContent="space-between" alignItems="center">
+                            <CandidateListTable rows={position.rows} />
+                        </Grid>
+                    </Paper>
+                </Grid>
+            ))}
         </Grid>
     );
 }

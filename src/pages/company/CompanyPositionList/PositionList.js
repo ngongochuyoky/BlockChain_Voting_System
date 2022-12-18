@@ -2,9 +2,9 @@ import { Grid, Paper, Divider } from '@mui/material';
 import Title from '~/layout/component/Title';
 import PositionListTable from './PositionListTable';
 import ModalForm from './ModalForm';
-import { SnackbarProvider, useSnackbar } from 'notistack';
+import useSnackMessages from '~/utils/hooks/useSnackMessages';
 import { useEffect, useState } from 'react';
-import dapp from '~/component/Dapp';
+import ethers from '~/ethereum/ethers';
 
 function createData(positionID, positionName) {
     return {
@@ -12,50 +12,39 @@ function createData(positionID, positionName) {
         positionName,
     };
 }
+
 function PositionList() {
-    const { enqueueSnackbar } = useSnackbar();
     const [rows, setRows] = useState([]);
+    const { showSuccessSnackbar, showErrorSnackbar } = useSnackMessages;
+
     useEffect(() => {
-        const getPositions = async () => {
-            const positions = await dapp.getPositions();
-            if (positions) {
-                const data = positions.map((position, index) => {
-                    return createData(index, position);
-                });
-                setRows(data);
-            } else {
-                const message = await dapp.getError();
-                enqueueSnackbar(message, { variant: 'error', anchorOrigin: { horizontal: 'right', vertical: 'top' } });
-            }
-        };
-        const addPositionListener = async () => {
-            const electionContract = await dapp.getElectionContract();
-            electionContract.on('AddPosition', (positionID, positionName) => {
+        const addPositionListener = () => {
+            const contract = ethers.getElectionContract();
+            contract.on('AddPosition', (positionID, positionName) => {
+                showSuccessSnackbar('Successfully created new position');
                 setRows((preState) => {
                     return [...preState, createData(positionID, positionName)];
                 });
-                enqueueSnackbar('Successfully created new position', {
-                    variant: 'success',
-                    anchorOrigin: { horizontal: 'right', vertical: 'top' },
-                });
             });
         };
-
-        const componentDidMount = async () => {
-            await dapp.connectWallet();
-            getPositions();
-            addPositionListener();
+        const getPositions = async () => {
+            try {
+                await ethers.connectWallet();
+                const contract = ethers.getElectionContract();
+                const positions = await contract.getPositions();
+                if (positions.length) {
+                    const data = positions.map((position, index) => {
+                        return createData(index, position);
+                    });
+                    setRows(data);
+                }
+                addPositionListener();
+            } catch (err) {
+                showErrorSnackbar(ethers.getError());
+            }
         };
-        componentDidMount();
-
-        return () => {
-            const componentUnMount = async () => {
-                const electionContract = await dapp.getElectionContract();
-                await electionContract.off('AddPosition');
-            };
-            componentUnMount();
-        };
-    }, [enqueueSnackbar]);
+        getPositions();
+    }, [showSuccessSnackbar, showErrorSnackbar]);
 
     return (
         <Grid container spacing={3}>
@@ -67,7 +56,7 @@ function PositionList() {
                             <Title>Position List</Title>
                         </Grid>
                         <Grid item>
-                            <ModalForm enqueueSnackbar={enqueueSnackbar} />
+                            <ModalForm />
                         </Grid>
                     </Grid>
 
@@ -81,10 +70,4 @@ function PositionList() {
     );
 }
 
-export default function IntegrationNotistack() {
-    return (
-        <SnackbarProvider maxSnack={3}>
-            <PositionList />
-        </SnackbarProvider>
-    );
-}
+export default PositionList;

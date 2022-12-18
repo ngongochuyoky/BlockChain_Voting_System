@@ -17,7 +17,7 @@ import { useContext } from 'react';
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';
-import {UpdateRoutes} from '~/App';
+import { UpdateRoutes } from '~/App';
 import { SnackbarProvider, useSnackbar } from 'notistack';
 
 function LoginSide() {
@@ -47,7 +47,7 @@ function LoginSide() {
                 anchorOrigin: { horizontal: 'right', vertical: 'top' },
             });
         else {
-            Cookies.set('voter_token', responseObject.data.token);
+            Cookies.set('voterToken', responseObject.data.token);
             Cookies.set('voter_email', responseObject.data.email);
             updateRoutes();
 

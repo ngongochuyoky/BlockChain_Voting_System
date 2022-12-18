@@ -13,48 +13,46 @@ import {
     Checkbox,
 } from '@mui/material';
 import Cookies from 'js-cookie';
-import { Fragment, useEffect, useState } from 'react';
-import dapp from '~/component/Dapp';
+import { Fragment, useState } from 'react';
+import ethers from '~/ethereum/ethers';
 import config from '~/config';
 import { useNavigate } from 'react-router-dom';
-import { SnackbarProvider, useSnackbar } from 'notistack';
+import useSnackMessages from '~/utils/hooks/useSnackMessages';
 
 function CreateElection() {
     const navigate = useNavigate();
     const [isDisable, setIsDisable] = useState(false);
-
-    const { enqueueSnackbar } = useSnackbar();
-    useEffect(() => {
-        return () => {
-            const componentUnMount = async () => {
-                await dapp.connectWallet();
-                const electionFactContract = dapp.getElectionFactContract();
-                electionFactContract.off('CreateElection');
-            }
-            componentUnMount();
-        }
-    },[])
+    const { showErrorSnackbar, showInfoSnackbar, showSuccessSnackbar } = useSnackMessages;
 
     const handleCreateElection = async (event) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
-        //Create Elction successfully
-        const result = await dapp.createElection({
-            electionName: formData.get('election-name'),
-            electionDescription: formData.get('election-description'),
-        });
-        if (result) {
-            setIsDisable(true);
-            enqueueSnackbar('Blockchain is processing', {variant: 'info', anchorOrigin: { horizontal: 'right', vertical: 'top' }});
-            const electionFactContract = dapp.getElectionFactContract();
-            electionFactContract.on('CreateElection', (electionAddress) => {
-                Cookies.set('election_address', electionAddress);                
-                navigate(config.routes.companyDashboard);
-            });
-        } else {
-            const message = dapp.getError();
-            enqueueSnackbar(message, { variant: 'error', anchorOrigin: { horizontal: 'right', vertical: 'top' } });
+        //Create Elction
+        try {
+            await ethers.connectWallet();
+            const contract = ethers.getElectionFactContract();
+            const bool = await contract.createElection(
+                Cookies.get('company_email'),
+                formData.get('election-name'),
+                formData.get('election-description'),
+            );
+            if (bool) {
+                setIsDisable(true);
+                showInfoSnackbar('Blockchain is processing');
+                CreateElectionListerner();
+            }
+        } catch (err) {
+            ethers.getError() ? showErrorSnackbar(ethers.getError()) : showErrorSnackbar('Create election failed');
+            setIsDisable(false);
         }
+    };
+    const CreateElectionListerner = () => {
+        const electionFactContract = ethers.getElectionFactContract();
+        electionFactContract.on('CreateElection', (electionAddress) => {
+            Cookies.set('election_address', electionAddress);
+            navigate(config.routes.companyDashboard);
+            showSuccessSnackbar('Successfully created a new election');
+        });
     };
 
     return (
@@ -138,10 +136,4 @@ function CreateElection() {
     );
 }
 
-export default function IntegrationNotistack() {
-    return (
-        <SnackbarProvider maxSnack={3}>
-            <CreateElection />
-        </SnackbarProvider>
-    );
-}
+export default CreateElection;

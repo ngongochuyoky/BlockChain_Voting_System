@@ -107,7 +107,7 @@ export default function EnhancedTable(props) {
     const [order, setOrder] = useState('asc');
     const [orderBy, setOrderBy] = useState('positionID');
     const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [rowsPerPage, setRowsPerPage] = useState(25);
 
     const handleRequestSort = (event, property) => {
         const isAsc = orderBy === property && order === 'asc';

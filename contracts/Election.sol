@@ -60,12 +60,12 @@ contract Election {
 
     //Candidate
     struct Candidate {
+        uint8 position_id;
         string candidate_name;
         string candidate_date_of_birth;
         string candidate_description;
         string imgHash;
         uint8 voteCount;
-        uint8 position_id;
         string email;
     }
 
@@ -89,17 +89,16 @@ contract Election {
 
     //Events
     event AddPosition(uint8 positionID, string position_name);
-    event AddCandidate(uint8 candidateID, string candidate_name, string candidate_date_of_birth, string candidate_description, 
-    string imgHash, uint8 voteCount, uint8 positionID, string email);
+    event AddCandidate( uint8 positionID, uint8 candidateID, string candidate_name, string candidate_date_of_birth, string candidate_description, string imgHash, uint8 voteCount, string email);
     event Vote(uint8[] candidateIDList);
 
     //Add Candidate
-    function addCandidate(string memory candidate_name,string memory candidate_date_of_birth ,
-            string memory candidate_description, string memory imgHash, uint8 positionID ,string memory email) public owner{
+    function addCandidate(uint8 positionID, string memory candidate_name,string memory candidate_date_of_birth ,
+            string memory candidate_description, string memory imgHash, string memory email) public owner{
         uint8 candidateID = numCandidates++; // assign id of the candidate
         // add candidate to mapping
-        candidates[candidateID] = Candidate(candidate_name, candidate_date_of_birth, candidate_description, imgHash, 0, positionID, email);
-        emit AddCandidate(candidateID, candidate_name, candidate_date_of_birth, candidate_description, imgHash, 0, positionID, email);
+        candidates[candidateID] = Candidate(positionID, candidate_name, candidate_date_of_birth, candidate_description, imgHash, 0,  email);
+        emit AddCandidate(positionID, candidateID, candidate_name, candidate_date_of_birth, candidate_description, imgHash, 0, email);
     }
 
     //Function add Position
@@ -135,8 +134,8 @@ contract Election {
     }
 
     //function to get candidate information
-    function getCandidate(uint8 candidateID) public view returns (string memory, string memory, string memory, string memory, uint8,string memory) {
-        return (candidates[candidateID].candidate_name,candidates[candidateID].candidate_date_of_birth , candidates[candidateID].candidate_description, candidates[candidateID].imgHash, candidates[candidateID].voteCount, candidates[candidateID].email);
+    function getCandidate(uint8 candidateID) public view returns (uint8, string memory, string memory, string memory, string memory, uint8, string memory) {
+        return (candidates[candidateID].position_id, candidates[candidateID].candidate_name,candidates[candidateID].candidate_date_of_birth , candidates[candidateID].candidate_description, candidates[candidateID].imgHash, candidates[candidateID].voteCount, candidates[candidateID].email);
     } 
 
    //function to return winner candidate information

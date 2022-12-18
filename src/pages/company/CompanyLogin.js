@@ -16,60 +16,44 @@ import imageLogin from '~/assets/images/photo1.jpg';
 import { useContext } from 'react';
 import Cookies from 'js-cookie';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
-import dapp from '~/component/Dapp';
+import ethers from '~/ethereum/ethers';
 import config from '~/config';
-import { SnackbarProvider, useSnackbar } from 'notistack';
-import {UpdateRoutes} from '~/App';
+import useSnackMessages from '~/utils/hooks/useSnackMessages';
+import { companyLogin } from '~/api/auth';
+import { UpdateRoutes } from '~/App';
 
 function LoginSide() {
     const navigate = useNavigate();
     const updateRoutes = useContext(UpdateRoutes);
-
-    const { enqueueSnackbar } = useSnackbar();
+    const snackMessages = useSnackMessages;
 
     const handleLogin = async (event) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
-        const response = await fetch('http://localhost:3001/company/login', {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                email: formData.get('email'),
-                password: formData.get('password'),
-            }),
-        });
-        const responseObject = await response.json();
-        if (responseObject.data === null)
-            enqueueSnackbar(responseObject.message, {
-                variant: 'error',
-                anchorOrigin: { horizontal: 'right', vertical: 'top' },
-            });
+        const response = await companyLogin(formData.get('email'), formData.get('password'));
+        if (response.data === null) snackMessages.showErrorSnackbar(response.message);
         else {
-            Cookies.set('company_token', responseObject.data.token);
-            Cookies.set('company_email', responseObject.data.email);
+            Cookies.set('companyToken', response.data.token);
+            Cookies.set('company_email', response.data.email);
             updateRoutes();
             handleNavigate();
         }
     };
 
     const handleNavigate = async () => {
-        await dapp.connectWallet();
-        const summary = await dapp.getDeployedElection();
-        if (summary) {
+        try {
+            await ethers.connectWallet();
+            const contract = ethers.getElectionFactContract();
+            const summary = await contract.getDeployedElection(Cookies.get('company_email'));
             if (summary[2] === 'Create an election') {
                 navigate(config.routes.createElection);
             } else {
                 Cookies.set('election_address', summary[0]);
                 navigate(config.routes.companyDashboard);
             }
-        } else {
-            enqueueSnackbar(dapp.getError(), {
-                variant: 'error',
-                anchorOrigin: { horizontal: 'right', vertical: 'top' },
-            });
+        } catch (err) {
+            console.log(err.message);
+            snackMessages.showErrorSnackbar(ethers.getError());
         }
     };
 
@@ -150,10 +134,4 @@ function LoginSide() {
     );
 }
 
-export default function IntegrationNotistack() {
-    return (
-        <SnackbarProvider maxSnack={3}>
-            <LoginSide />
-        </SnackbarProvider>
-    );
-}
+export default LoginSide;

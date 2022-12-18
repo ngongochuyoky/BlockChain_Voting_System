@@ -16,48 +16,33 @@ import imageLogin from '~/assets/images/photo1.jpg';
 import { useContext } from 'react';
 import Cookies from 'js-cookie';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
-import {UpdateRoutes} from '~/App';
+import { UpdateRoutes } from '~/App';
+import { companyRegister } from '~/api/auth';
 import config from '~/config';
-import { SnackbarProvider, useSnackbar } from 'notistack';
+import useSnackMessages from '~/utils/hooks/useSnackMessages';
 
 function RegisterSide() {
     const navigate = useNavigate();
     const updateRoutes = useContext(UpdateRoutes);
-    const { enqueueSnackbar } = useSnackbar();
+    const snackMessages = useSnackMessages;
 
     async function handleRegister(event) {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
-        console.log(formData.get('company-name'));
         if (formData.get('password') !== formData.get('confirm-password')) {
-            enqueueSnackbar('Password does not match!!!', {
-                variant: 'error',
-                anchorOrigin: { horizontal: 'right', vertical: 'top' },
-            });
-        }
-        const response = await fetch('http://localhost:3001/company/register', {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                email: formData.get('email'),
-                password: formData.get('password'),
-                company_name: formData.get('company-name'),
-            }),
-        });
-        const responseObject = await response.json();
-        if (responseObject.data === null)
-           
-            enqueueSnackbar(responseObject.message, {
-                variant: 'error',
-                anchorOrigin: { horizontal: 'right', vertical: 'top' },
-            });
-        else {
-            Cookies.set('company_token', responseObject.data.token);
-            updateRoutes();
-            navigate(config.routes.createElection);
+            snackMessages.showErrorSnackbar('Password does not match!!!');
+        } else {
+            const response = await companyRegister(
+                formData.get('email'),
+                formData.get('password'),
+                formData.get('company-name'),
+            );
+            if (response.data === null) snackMessages.showErrorSnackbar(response.message);
+            else {
+                Cookies.set('companyToken', response.data.token);
+                updateRoutes();
+                navigate(config.routes.createElection);
+            }
         }
     }
 
@@ -79,7 +64,6 @@ function RegisterSide() {
             />
 
             <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
-                
                 <Box
                     sx={{
                         my: 8,
@@ -156,10 +140,4 @@ function RegisterSide() {
     );
 }
 
-export default function IntegrationNotistack() {
-    return (
-      <SnackbarProvider maxSnack={3} >
-        <RegisterSide />
-      </SnackbarProvider>
-    );
-}
+export default RegisterSide;
