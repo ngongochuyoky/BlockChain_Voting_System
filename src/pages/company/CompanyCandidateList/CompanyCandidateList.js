@@ -20,10 +20,11 @@ function createData(candidateID, positionID, name, dateOfBirth, description, img
 
 function CompanyCandidateList() {
     const [data, setData] = useState([{ positionName: '', rows: [] }]);
-    const { showSuccessSnackbar, showErrorSnackbar } = useSnackMessages;
+    const { showSuccessSnackbar, showErrorSnackbar } = useSnackMessages();
+    const [electionDetails, setElectionDetails] = useState({});
 
     useEffect(() => {
-        const addCandidateListener = () => {
+        const addCandidateListener = async () => {
             const contract = ethers.getElectionContract();
             contract.on('AddCandidate', (positionID, candidateID, ...rest) => {
                 showSuccessSnackbar('Successfully created new candidate');
@@ -39,6 +40,11 @@ function CompanyCandidateList() {
                 await ethers.connectWallet();
                 const contract = ethers.getElectionContract();
                 const positions = await contract.getPositions();
+                const summary = await contract.getElectionDetails();
+                setElectionDetails({
+                    electionName: summary[0],
+                    electionDescription: summary[1],
+                });
                 if (positions.length) {
                     const result = positions.map((position) => ({
                         positionName: position,
@@ -81,7 +87,11 @@ function CompanyCandidateList() {
 
                         <Divider />
                         <Grid container direction="row" justifyContent="space-between" alignItems="center">
-                            <CandidateListTable rows={position.rows} />
+                            <CandidateListTable
+                                rows={position.rows}
+                                electionDetails={electionDetails}
+                                positionName={position.positionName}
+                            />
                         </Grid>
                     </Paper>
                 </Grid>

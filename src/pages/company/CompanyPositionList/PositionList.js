@@ -15,7 +15,7 @@ function createData(positionID, positionName) {
 
 function PositionList() {
     const [rows, setRows] = useState([]);
-    const { showSuccessSnackbar, showErrorSnackbar } = useSnackMessages;
+    const { showSuccessSnackbar, showErrorSnackbar } = useSnackMessages();
 
     useEffect(() => {
         const addPositionListener = () => {

@@ -25,7 +25,7 @@ import { UpdateRoutes } from '~/App';
 function LoginSide() {
     const navigate = useNavigate();
     const updateRoutes = useContext(UpdateRoutes);
-    const snackMessages = useSnackMessages;
+    const snackMessages = useSnackMessages();
 
     const handleLogin = async (event) => {
         event.preventDefault();

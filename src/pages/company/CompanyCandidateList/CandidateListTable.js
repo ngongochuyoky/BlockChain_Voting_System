@@ -16,14 +16,14 @@ import {
     Button,
 } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import ForwardToInboxIcon from '@mui/icons-material/ForwardToInbox';
 import { visuallyHidden } from '@mui/utils';
 import Modal from './Modal';
-
-
+import { sendMailNotification } from '~/api/candidate';
+import useSnackMessages from '~/utils/hooks/useSnackMessages';
 
 // Data form
 //data = [{name, dateOfBirth, email, voteCount, description}, ...]
-
 
 function descendingComparator(a, b, orderBy) {
     if (b[orderBy] < a[orderBy]) {
@@ -140,6 +140,7 @@ export default function EnhancedTable(props) {
     const [orderBy, setOrderBy] = useState('voteCount');
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
+    const { showSuccessSnackbar, showErrorSnackbar } = useSnackMessages();
 
     const handleRequestSort = (event, property) => {
         const isAsc = orderBy === property && order === 'asc';
@@ -147,9 +148,13 @@ export default function EnhancedTable(props) {
         setOrderBy(property);
     };
 
-    const handleClick = (event, row) => {
+    const handleClickShow = (event, row) => {
         setSource(row);
         setOpen(true);
+    };
+    const handleClickSend = async (event, row) => {
+        const response = await sendMailNotification(row.email, props.positionName, props.electionDetails.electionName);
+        response.status === 'success' ? showSuccessSnackbar(response.message) : showErrorSnackbar(response.message);
     };
 
     const handleChangePage = (event, newPage) => {
@@ -213,10 +218,17 @@ export default function EnhancedTable(props) {
                                                 <TableCell align="right">
                                                     <Button
                                                         variant="text"
-                                                        onClick={(event) => handleClick(event, row)}
+                                                        onClick={(event) => handleClickShow(event, row)}
                                                         startIcon={<VisibilityIcon />}
                                                     >
                                                         Show
+                                                    </Button>
+                                                    <Button
+                                                        variant="text"
+                                                        onClick={(event) => handleClickSend(event, row)}
+                                                        startIcon={<ForwardToInboxIcon />}
+                                                    >
+                                                        Send
                                                     </Button>
                                                 </TableCell>
                                             </TableRow>
@@ -225,7 +237,7 @@ export default function EnhancedTable(props) {
                             ) : (
                                 <TableRow>
                                     <TableCell component="th" scope="row">
-                                    No records found
+                                        No records found
                                     </TableCell>
                                     <TableCell align="right"></TableCell>
                                     <TableCell align="right"></TableCell>
@@ -253,4 +265,6 @@ export default function EnhancedTable(props) {
 
 EnhancedTable.propTypes = {
     rows: PropTypes.array.isRequired,
+    electionDetails: PropTypes.object.isRequired,
+    positionName: PropTypes.string.isRequired,
 };

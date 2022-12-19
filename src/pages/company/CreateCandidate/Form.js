@@ -25,13 +25,13 @@ function TransitionsModal() {
     const [positions, setPositions] = useState([]);
     const [buffer, setBuffer] = useState(null);
     const [value, setValue] = useState();
-    const { showInfoSnackbar, showErrorSnackbar } = useSnackMessages;
+    const { showInfoSnackbar, showErrorSnackbar } = useSnackMessages();
 
     useEffect(() => {
         const componentDidMount = async () => {
             //Avatar default
-            const file = await dataUriToFile(AvatarDefault);
-            await fileToBuffer(file);
+            const file = await coverDataUriToFile(AvatarDefault);
+            await coverFileToBuffer(file);
             //Get Positions
             try {
                 await ethers.connectWallet();
@@ -54,13 +54,13 @@ function TransitionsModal() {
         setPositionID(event.target.value);
     };
 
-    const dataUriToFile = async (avatarDefault) => {
+    const coverDataUriToFile = async (avatarDefault) => {
         const blob = await (await fetch(avatarDefault)).blob();
         const file = new File([blob], 'fileName.jpg', { type: 'image/jpeg', lastModified: new Date() });
         return file;
     };
 
-    const fileToBuffer = async (file) => {
+    const coverFileToBuffer = async (file) => {
         const fileReader = new FileReader();
         await fileReader.readAsArrayBuffer(file);
         fileReader.onloadend = async function (event) {
@@ -73,7 +73,7 @@ function TransitionsModal() {
     const handlePreviewAvatar = async (e) => {
         const file = e.target.files[0];
         const avatarPreview = URL.createObjectURL(file);
-        await fileToBuffer(file);
+        await coverFileToBuffer(file);
         setAvatar(avatarPreview);
     };
 

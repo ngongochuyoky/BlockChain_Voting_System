@@ -22,7 +22,7 @@ import useSnackMessages from '~/utils/hooks/useSnackMessages';
 function CreateElection() {
     const navigate = useNavigate();
     const [isDisable, setIsDisable] = useState(false);
-    const { showErrorSnackbar, showInfoSnackbar, showSuccessSnackbar } = useSnackMessages;
+    const { showErrorSnackbar, showInfoSnackbar, showSuccessSnackbar } = useSnackMessages();
 
     const handleCreateElection = async (event) => {
         event.preventDefault();
@@ -42,6 +42,7 @@ function CreateElection() {
                 CreateElectionListerner();
             }
         } catch (err) {
+            
             ethers.getError() ? showErrorSnackbar(ethers.getError()) : showErrorSnackbar('Create election failed');
             setIsDisable(false);
         }

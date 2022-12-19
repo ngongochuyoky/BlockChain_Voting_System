@@ -24,7 +24,7 @@ import useSnackMessages from '~/utils/hooks/useSnackMessages';
 function RegisterSide() {
     const navigate = useNavigate();
     const updateRoutes = useContext(UpdateRoutes);
-    const snackMessages = useSnackMessages;
+    const snackMessages = useSnackMessages();
 
     async function handleRegister(event) {
         event.preventDefault();

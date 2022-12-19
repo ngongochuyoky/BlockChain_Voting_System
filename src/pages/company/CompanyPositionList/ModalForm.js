@@ -34,7 +34,7 @@ export default function TransitionsModal() {
     const [open, setOpen] = useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
-    const { showInfoSnackbar, showErrorSnackbar } = useSnackMessages;
+    const { showInfoSnackbar, showErrorSnackbar } = useSnackMessages();
 
     const handleCreateNew = async (event) => {
         event.preventDefault();
