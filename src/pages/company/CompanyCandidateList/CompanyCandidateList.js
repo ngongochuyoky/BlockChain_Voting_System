@@ -21,18 +21,21 @@ function createData(candidateID, positionID, name, dateOfBirth, description, img
 function CompanyCandidateList() {
     const [data, setData] = useState([{ positionName: '', rows: [] }]);
     const { showSuccessSnackbar, showErrorSnackbar } = useSnackMessages();
-    const [electionDetails, setElectionDetails] = useState({});
+    const [electionName, setElectionName] = useState('');
 
     useEffect(() => {
-        const addCandidateListener = async () => {
+        const addCandidateListener = (result) => {
             const contract = ethers.getElectionContract();
             contract.on('AddCandidate', (positionID, candidateID, ...rest) => {
-                showSuccessSnackbar('Successfully created new candidate');
-                setData((preData) => {
-                    const newData = JSON.parse(JSON.stringify(preData));
-                    newData[positionID].rows.push(createData(candidateID, positionID, ...rest));
-                    return newData;
-                });
+                //So sánh Candidate ID xem đã tồn tại chưa -> chưa -> thêm vào
+                if (!( result[positionID].rows?.[result[positionID].rows.length - 1]?.candidateID === candidateID)) {
+                    showSuccessSnackbar('Successfully created new candidate');
+                    setData((preData) => {
+                        const newData = JSON.parse(JSON.stringify(preData));
+                        newData[positionID].rows.push(createData(candidateID, positionID, ...rest));
+                        return newData;
+                    });
+                }
             });
         };
         const getCandidates = async () => {
@@ -41,16 +44,13 @@ function CompanyCandidateList() {
                 const contract = ethers.getElectionContract();
                 const positions = await contract.getPositions();
                 const summary = await contract.getElectionDetails();
-                setElectionDetails({
-                    electionName: summary[0],
-                    electionDescription: summary[1],
-                });
-                if (positions.length) {
-                    const result = positions.map((position) => ({
-                        positionName: position,
-                        rows: [],
-                    }));
 
+                setElectionName(summary[0]);
+                const result = positions.map((position) => ({
+                    positionName: position,
+                    rows: [],
+                }));
+                if (positions.length) {
                     const numOfCandidates = await contract.getNumOfCandidates();
                     for (let i = 0; i < numOfCandidates; i++) {
                         const candidate = await contract.getCandidate(i);
@@ -58,7 +58,7 @@ function CompanyCandidateList() {
                     }
                     setData(result);
                 }
-                addCandidateListener();
+                addCandidateListener(result);
             } catch (err) {
                 ethers.getError() && showErrorSnackbar(ethers.getError());
             }
@@ -89,7 +89,7 @@ function CompanyCandidateList() {
                         <Grid container direction="row" justifyContent="space-between" alignItems="center">
                             <CandidateListTable
                                 rows={position.rows}
-                                electionDetails={electionDetails}
+                                electionName={electionName}
                                 positionName={position.positionName}
                             />
                         </Grid>

@@ -18,13 +18,15 @@ function PositionList() {
     const { showSuccessSnackbar, showErrorSnackbar } = useSnackMessages();
 
     useEffect(() => {
-        const addPositionListener = () => {
+        const addPositionListener = (data) => {
             const contract = ethers.getElectionContract();
             contract.on('AddPosition', (positionID, positionName) => {
-                showSuccessSnackbar('Successfully created new position');
-                setRows((preState) => {
-                    return [...preState, createData(positionID, positionName)];
-                });
+                if( !(data?.[data.length-1]?.positionID === positionID)) {
+                    showSuccessSnackbar('Successfully created new position');
+                    setRows((preState) => {
+                        return [...preState, createData(positionID, positionName)];
+                    });
+                }
             });
         };
         const getPositions = async () => {
@@ -32,13 +34,14 @@ function PositionList() {
                 await ethers.connectWallet();
                 const contract = ethers.getElectionContract();
                 const positions = await contract.getPositions();
+                let data = [];
                 if (positions.length) {
-                    const data = positions.map((position, index) => {
+                    data = positions.map((position, index) => {
                         return createData(index, position);
                     });
                     setRows(data);
                 }
-                addPositionListener();
+                addPositionListener(data);
             } catch (err) {
                 showErrorSnackbar(ethers.getError());
             }

@@ -153,7 +153,8 @@ export default function EnhancedTable(props) {
         setOpen(true);
     };
     const handleClickSend = async (event, row) => {
-        const response = await sendMailNotification(row.email, props.positionName, props.electionDetails.electionName);
+        // const response = await sendMailNotification(row.email, props.positionName, props.electionDetails.electionName);
+        const response = await sendMailNotification(row.email, props.positionName, props.electionName);
         response.status === 'success' ? showSuccessSnackbar(response.message) : showErrorSnackbar(response.message);
     };
 
@@ -265,6 +266,6 @@ export default function EnhancedTable(props) {
 
 EnhancedTable.propTypes = {
     rows: PropTypes.array.isRequired,
-    electionDetails: PropTypes.object.isRequired,
+    electionName: PropTypes.string.isRequired,
     positionName: PropTypes.string.isRequired,
 };

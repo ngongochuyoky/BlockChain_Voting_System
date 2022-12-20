@@ -16,20 +16,20 @@ function useSnackMessages() {
         (text) => {
             showSnackbarVariant(text, {
                 variant: 'success',
-                anchorOrigin: { horizontal: 'right', vertical: 'bottom' },
+                anchorOrigin: { horizontal: 'left', vertical: 'bottom' },
             });
         },
         [showSnackbarVariant],
     );
     const showErrorSnackbar = useCallback(
         (text) => {
-            showSnackbarVariant(text, { variant: 'error', anchorOrigin: { horizontal: 'right', vertical: 'bottom' } });
+            showSnackbarVariant(text, { variant: 'error', anchorOrigin: { horizontal: 'left', vertical: 'bottom' } });
         },
         [showSnackbarVariant],
     );
     const showInfoSnackbar = useCallback(
         (text) => {
-            showSnackbarVariant(text, { variant: 'info', anchorOrigin: { horizontal: 'right', vertical: 'bottom' } });
+            showSnackbarVariant(text, { variant: 'info', anchorOrigin: { horizontal: 'left', vertical: 'bottom' } });
         },
         [showSnackbarVariant],
     );

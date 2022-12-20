@@ -42,7 +42,6 @@ function CreateElection() {
                 CreateElectionListerner();
             }
         } catch (err) {
-            
             ethers.getError() ? showErrorSnackbar(ethers.getError()) : showErrorSnackbar('Create election failed');
             setIsDisable(false);
         }
