@@ -1,6 +1,6 @@
 import { Grid, Paper, Divider } from '@mui/material';
 import Title from '~/layout/component/Title';
-import CandidateListTable from './CandidateListTable';
+import CandidateListTable from './ListTable';
 import { useEffect, useState } from 'react';
 import useSnackMessages from '~/utils/hooks/useSnackMessages';
 import ethers from '~/ethereum/ethers';
@@ -18,7 +18,7 @@ function createData(candidateID, positionID, name, dateOfBirth, description, img
     };
 }
 
-function CompanyCandidateList() {
+function CandidateList() {
     const [data, setData] = useState([{ positionName: '', rows: [] }]);
     const { showSuccessSnackbar, showErrorSnackbar } = useSnackMessages();
     const [electionName, setElectionName] = useState('');
@@ -100,4 +100,4 @@ function CompanyCandidateList() {
     );
 }
 
-export default CompanyCandidateList;
+export default CandidateList;

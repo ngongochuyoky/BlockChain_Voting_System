@@ -32,7 +32,7 @@ function CreateElection() {
             await ethers.connectWallet();
             const contract = ethers.getElectionFactContract();
             const bool = await contract.createElection(
-                Cookies.get('company_email'),
+                Cookies.get('companyEmail'),
                 formData.get('election-name'),
                 formData.get('election-description'),
             );
@@ -86,7 +86,7 @@ function CreateElection() {
                                         <TextField
                                             id="email"
                                             label="Email"
-                                            defaultValue={Cookies.get('company_email')}
+                                            defaultValue={Cookies.get('companyEmail')}
                                             disabled
                                             fullWidth
                                             variant="standard"

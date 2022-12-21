@@ -15,47 +15,32 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import imageLogin from '~/assets/images/photo1.jpg';
 import { useContext } from 'react';
 import Cookies from 'js-cookie';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
-import ethers from '~/ethereum/ethers';
+import { useNavigate } from 'react-router-dom';
 import config from '~/config';
-import useSnackMessages from '~/utils/hooks/useSnackMessages';
-import { companyLogin } from '~/api/auth';
 import { UpdateRoutes } from '~/App';
+import useSnackMessages from '~/utils/hooks/useSnackMessages';
+import { login } from '~/api/voter';
 
+export const isRequired = () => {
+    throw new Error('params is required');
+};
 function LoginSide() {
     const navigate = useNavigate();
     const updateRoutes = useContext(UpdateRoutes);
-    const snackMessages = useSnackMessages();
+    const { showErrorSnackbar } = useSnackMessages();
 
-    const handleLogin = async (event) => {
+    async function handleLogin(event) {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
-        const response = await companyLogin(formData.get('email'), formData.get('password'));
-        if (response.data === null) snackMessages.showErrorSnackbar(response.message);
+        const response = await login({ email: formData.get('email'), password: formData.get('password') });
+        if (response.data === null) showErrorSnackbar(response.message);
         else {
-            Cookies.set('companyToken', response.data.token);
-            Cookies.set('company_email', response.data.email);
+            Cookies.set('voterToken', response.data.token);
+            Cookies.set('voterEmail', response.data.email);
             updateRoutes();
-            handleNavigate();
+            navigate(config.routes.voterDashboard);
         }
-    };
-
-    const handleNavigate = async () => {
-        try {
-            await ethers.connectWallet();
-            const contract = ethers.getElectionFactContract();
-            const summary = await contract.getDeployedElection(Cookies.get('company_email'));
-            if (summary[2] === 'Create an election') {
-                navigate(config.routes.createElection);
-            } else {
-                Cookies.set('election_address', summary[0]);
-                navigate(config.routes.companyDashboard);
-            }
-        } catch (err) {
-            console.log(err.message);
-            snackMessages.showErrorSnackbar(ethers.getError());
-        }
-    };
+    }
 
     return (
         <Grid container component="main" sx={{ height: '100vh' }}>
@@ -90,6 +75,7 @@ function LoginSide() {
                     <Typography component="h1" variant="h5">
                         Log In
                     </Typography>
+
                     <Box component="form" validate="true" onSubmit={handleLogin} sx={{ mt: 1 }}>
                         <TextField
                             margin="normal"
@@ -113,7 +99,7 @@ function LoginSide() {
                         />
                         <FormControlLabel control={<Checkbox value="remember" color="primary" />} label="Remember me" />
                         <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
-                            Login
+                            Log In
                         </Button>
                         <Grid container>
                             <Grid item xs>
@@ -122,7 +108,7 @@ function LoginSide() {
                                 </Link>
                             </Grid>
                             <Grid item>
-                                <Link component={RouterLink} to="/company_register" variant="body2">
+                                <Link href="#" variant="body2">
                                     {"Don't have an account? Register"}
                                 </Link>
                             </Grid>

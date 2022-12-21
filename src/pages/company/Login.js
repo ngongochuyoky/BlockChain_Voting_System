@@ -15,45 +15,47 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import imageLogin from '~/assets/images/photo1.jpg';
 import { useContext } from 'react';
 import Cookies from 'js-cookie';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import ethers from '~/ethereum/ethers';
 import config from '~/config';
+import useSnackMessages from '~/utils/hooks/useSnackMessages';
+import { companyLogin } from '~/api/auth';
 import { UpdateRoutes } from '~/App';
-import { SnackbarProvider, useSnackbar } from 'notistack';
 
 function LoginSide() {
     const navigate = useNavigate();
     const updateRoutes = useContext(UpdateRoutes);
-    const { enqueueSnackbar } = useSnackbar();
+    const snackMessages = useSnackMessages();
 
-    console.log('Voter login');
-    async function handleLogin(event) {
+    const handleLogin = async (event) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
-        const response = await fetch('http://localhost:3001/voter/login', {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                email: formData.get('email'),
-                password: formData.get('password'),
-            }),
-        });
-        const responseObject = await response.json();
-        if (responseObject.data === null)
-            enqueueSnackbar(responseObject.message, {
-                variant: 'error',
-                anchorOrigin: { horizontal: 'right', vertical: 'top' },
-            });
+        const response = await companyLogin(formData.get('email'), formData.get('password'));
+        if (response.data === null) snackMessages.showErrorSnackbar(response.message);
         else {
-            Cookies.set('voterToken', responseObject.data.token);
-            Cookies.set('voter_email', responseObject.data.email);
+            Cookies.set('companyToken', response.data.token);
+            Cookies.set('companyEmail', response.data.email);
             updateRoutes();
-
-            navigate(config.routes.voterDashboard);
+            handleNavigate();
         }
-    }
+    };
+
+    const handleNavigate = async () => {
+        try {
+            await ethers.connectWallet();
+            const contract = ethers.getElectionFactContract();
+            const summary = await contract.getDeployedElection(Cookies.get('companyEmail'));
+            if (summary[2] === 'Create an election') {
+                navigate(config.routes.createElection);
+            } else {
+                Cookies.set('election_address', summary[0]);
+                navigate(config.routes.companyDashboard);
+            }
+        } catch (err) {
+            console.log(err.message);
+            snackMessages.showErrorSnackbar(ethers.getError());
+        }
+    };
 
     return (
         <Grid container component="main" sx={{ height: '100vh' }}>
@@ -88,7 +90,6 @@ function LoginSide() {
                     <Typography component="h1" variant="h5">
                         Log In
                     </Typography>
-
                     <Box component="form" validate="true" onSubmit={handleLogin} sx={{ mt: 1 }}>
                         <TextField
                             margin="normal"
@@ -112,7 +113,7 @@ function LoginSide() {
                         />
                         <FormControlLabel control={<Checkbox value="remember" color="primary" />} label="Remember me" />
                         <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
-                            Log In
+                            Login
                         </Button>
                         <Grid container>
                             <Grid item xs>
@@ -121,7 +122,7 @@ function LoginSide() {
                                 </Link>
                             </Grid>
                             <Grid item>
-                                <Link href="#" variant="body2">
+                                <Link component={RouterLink} to="/company_register" variant="body2">
                                     {"Don't have an account? Register"}
                                 </Link>
                             </Grid>
@@ -133,10 +134,4 @@ function LoginSide() {
     );
 }
 
-export default function IntegrationNotistack() {
-    return (
-        <SnackbarProvider maxSnack={3}>
-            <LoginSide />
-        </SnackbarProvider>
-    );
-}
+export default LoginSide;

@@ -1,6 +1,6 @@
 import { Grid, Paper, Divider } from '@mui/material';
 import Title from '~/layout/component/Title';
-import PositionListTable from './PositionListTable';
+import PositionListTable from './ListTable';
 import ModalForm from './ModalForm';
 import useSnackMessages from '~/utils/hooks/useSnackMessages';
 import { useEffect, useState } from 'react';

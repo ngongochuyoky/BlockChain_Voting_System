@@ -11,6 +11,7 @@ const routes = {
     companyPositionList: '/election/company/position_list',
     createElection: '/election/create_election',
     createCandidate: '/election/company/create_candidate',
+    createVoter: '/election/company/create_voter',
 
 }
 

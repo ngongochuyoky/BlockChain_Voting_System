@@ -16,10 +16,15 @@ import config from '~/config';
 function MainListItems() {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [openCandidate, setOpenCandidate] = useState(true);
+    const [openVoter, setOpenVoter] = useState(true);
 
     const handleClickCandidate = () => {
         setOpenCandidate(!openCandidate);
     };
+    const handleClickVoter = () => {
+        setOpenVoter(!openVoter);
+    };
+
     const handleListItemClick = (event, index) => {
         setSelectedIndex(index);
     };
@@ -86,17 +91,42 @@ function MainListItems() {
                 </List>
             </Collapse>
 
-            <ListItemButton
-                to={config.routes.companyVoterList}
-                component={RouteLink}
-                selected={selectedIndex === 4}
-                onClick={(event) => handleListItemClick(event, 4)}
-            >
+
+            <ListItemButton onClick={handleClickVoter}>
                 <ListItemIcon>
-                    <PeopleIcon sx={{color: '#fff'}}/>
+                    <InboxIcon sx={{color: '#fff'}}/>
                 </ListItemIcon>
-                <ListItemText primary="Voter List" />
+                <ListItemText primary="Voter" />
+                {openVoter ? <ExpandLess /> : <ExpandMore />}
             </ListItemButton>
+            <Collapse in={openVoter} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding>
+                    <ListItemButton
+                        sx={{ pl: 4 }}
+                        to={config.routes.companyVoterList}
+                        component={RouteLink}
+                        selected={selectedIndex === 4}
+                        onClick={(event) => handleListItemClick(event, 4)}
+                    >
+                        <ListItemIcon>
+                            <PeopleIcon sx={{color: '#fff'}}/>
+                        </ListItemIcon>
+                        <ListItemText primary="Voter List" />
+                    </ListItemButton>
+                    <ListItemButton
+                        sx={{ pl: 4 }}
+                        to={config.routes.createVoter}
+                        component={RouteLink}
+                        selected={selectedIndex === 5}
+                        onClick={(event) => handleListItemClick(event, 5)}
+                    >
+                        <ListItemIcon>
+                            <CreateIcon sx={{color: '#fff'}}/>
+                        </ListItemIcon>
+                        <ListItemText primary="Create Voter" />
+                    </ListItemButton>
+                </List>
+            </Collapse>
         </Fragment>
     );
 }

@@ -78,7 +78,7 @@ function TransitionsModal(props) {
                                                     sx={{ pt: 2, pb: 2 }}
                                                 >
                                                     <Typography variant="h5" color="primary" sx={{ fontWeight: 700 }}>
-                                                        78
+                                                        {props.source.voteCount}
                                                     </Typography>
                                                     <Typography variant="subtitle2">Vote Count</Typography>
                                                 </Stack>
