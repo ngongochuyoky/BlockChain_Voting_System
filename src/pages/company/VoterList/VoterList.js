@@ -1,10 +1,13 @@
 import { Grid, Paper, Divider } from '@mui/material';
 import Title from '~/layout/component/Title';
-import CandidateListTable from './ListTable';
+import ListTable from './ListTable';
+import FormCreateVoter from './FormCreateVoter';
+import ethers from '~/ethereum/ethers';
 import { useEffect, useState } from 'react';
-import useSnackMessages from '~/utils/hooks/useSnackMessages';
 import { allVoter } from '~/api/voter';
 
+
+// Data form
 function createData(email, password, name) {
     return {
         email,
@@ -12,24 +15,29 @@ function createData(email, password, name) {
         name,
     };
 }
-
 function VoterList() {
+    const [electionName, setElectionName] = useState('');
+    const [update, setUpdate] = useState(false);
     const [rows, setRows] = useState([]);
-    const { showSuccessSnackbar, showErrorSnackbar } = useSnackMessages();
+    
 
     useEffect(() => {
-        const getVoters = async () => {
+        const componentDidMount = async () => {
             try {
+                await ethers.connectWallet();
+                const contract = ethers.getElectionContract();
+                const summary = await contract.getElectionDetails();
+                setElectionName(summary[0]);
+
                 const response = await allVoter();
-                const voters = response.data.map(voter => createData(voter.email, voter.password, voter.full_name));
-                setRows(voters)
+                const voters = response.data.map((voter) => createData(voter.email, voter.password, voter.full_name));
+                setRows(voters);
             } catch (err) {
                 console.log(err.message);
             }
         };
-        getVoters();
-    }, [showSuccessSnackbar, showErrorSnackbar]);
-
+        componentDidMount();
+    }, [update]);
     return (
         <Grid container spacing={3}>
             {/* Title */}
@@ -39,13 +47,14 @@ function VoterList() {
                         <Grid item>
                             <Title>Voter List </Title>
                         </Grid>
+                        <Grid item>
+                            <FormCreateVoter electionName={electionName} update={update} setUpdate={setUpdate} />
+                        </Grid>
                     </Grid>
 
                     <Divider />
                     <Grid container direction="row" justifyContent="space-between" alignItems="center">
-                        <CandidateListTable
-                            rows={rows}
-                        />
+                        <ListTable rows={rows} electionName={electionName} update={update} setUpdate={setUpdate} />
                     </Grid>
                 </Paper>
             </Grid>

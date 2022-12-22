@@ -2,7 +2,9 @@ const routes = {
     home: '/',
     voterLogin: '/voter_login',
     voterDashboard: '/election/voter/dashboard',
-    
+    voterCandidateList: '/election/voter/candidate_list',
+    voted: '/election/voter/voted',
+
     companyLogin: '/company_login',
     companyRegister: '/company_register',
     companyDashboard: '/election/company/dashboard',
@@ -11,8 +13,6 @@ const routes = {
     companyPositionList: '/election/company/position_list',
     createElection: '/election/create_election',
     createCandidate: '/election/company/create_candidate',
-    createVoter: '/election/company/create_voter',
+};
 
-}
-
-export default routes
+export default routes;

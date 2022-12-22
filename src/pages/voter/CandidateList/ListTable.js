@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 import {
     Box,
@@ -9,23 +10,20 @@ import {
     TablePagination,
     TableRow,
     TableSortLabel,
+    Avatar,
+    Typography,
     Paper,
     Button,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
 } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import HowToVoteIcon from '@mui/icons-material/HowToVote';
 import { visuallyHidden } from '@mui/utils';
-import FormEditVoter from './FormEditVoter';
-import { deleteVoter } from '~/api/voter';
+import Modal from './Modal';
+import { sendMailNotification } from '~/api/candidate';
 import useSnackMessages from '~/utils/hooks/useSnackMessages';
-import { useState } from 'react';
 
-
+// Data form
+//data = [{name, dateOfBirth, email, voteCount, description}, ...]
 
 function descendingComparator(a, b, orderBy) {
     if (b[orderBy] < a[orderBy]) {
@@ -61,24 +59,30 @@ const headCells = [
     {
         id: 'name',
         numeric: false,
-        label: 'Full Name',
+        label: 'Name',
+        isSort: true,
+    },
+    {
+        id: 'dateOfBirth',
+        numeric: true,
+        label: 'Date of birth',
         isSort: true,
     },
     {
         id: 'email',
-        numeric: false,
+        numeric: true,
         label: 'Email',
         isSort: true,
     },
     {
-        id: 'password',
-        numeric: false,
-        label: 'Hash password',
+        id: 'voteCount',
+        numeric: true,
+        label: 'Vote Count',
         isSort: true,
     },
     {
         id: 'actions',
-        numeric: false,
+        numeric: true,
         label: 'Actions',
         isSort: false,
     },
@@ -130,47 +134,30 @@ EnhancedTableHead.propTypes = {
 };
 
 export default function EnhancedTable(props) {
-    const [openFormEditVoter, setOpenFormEditVoter] = useState(false);
-    const [openAlertDelete, setOpenAlertDelete] = useState(false);
+    const [open, setOpen] = useState(false);
     const [source, setSource] = useState();
-
     const [order, setOrder] = useState('asc');
     const [orderBy, setOrderBy] = useState('voteCount');
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
-    const { showSuccessSnackbar, showErrorSnackbar } = useSnackMessages();
+    const [voted, setVoted] = useState(-1);
 
-    //Handle Edit, Delete
-    const handleClickEdit = (event, row) => {
-        setSource(row);
-        setOpenFormEditVoter(true);
-    };
-
-    const handleClickDelete = (event, row) => {
-        setSource(row);
-        setOpenAlertDelete(true);
-    };
-    //Handle Alert Delete
-    const handleCloseAlertDelete = () => {
-        setOpenAlertDelete(false);
-    };
-    const handleAgreementDelete = async () => {
-        setOpenAlertDelete(false);
-        const response = await deleteVoter({ email: source.email });
-        if (response.status === 'success') {
-            props.setUpdate(!props.update);
-            showSuccessSnackbar(response.message);
-        } else showErrorSnackbar(response.message);
-    };
-
-    //Handle Sort
     const handleRequestSort = (event, property) => {
         const isAsc = orderBy === property && order === 'asc';
         setOrder(isAsc ? 'desc' : 'asc');
         setOrderBy(property);
     };
 
-    //Start: Handle Page
+    const handleClickShow = (event, row) => {
+        setSource(row);
+        setOpen(true);
+    };
+    
+    const handleClickVote = (event, row) => {
+        props.votedCandidates.splice(row.positionID, 1, row.candidateID);
+        setVoted(row.candidateID);
+    }
+
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
     };
@@ -179,7 +166,6 @@ export default function EnhancedTable(props) {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
     };
-    //End: Handle Page
 
     return (
         <Box sx={{ width: '100%' }}>
@@ -204,24 +190,47 @@ export default function EnhancedTable(props) {
                                         return (
                                             <TableRow hover role="checkbox" tabIndex={-1} key={index}>
                                                 <TableCell component="th" id={labelId} scope="row">
-                                                    {row.name}
+                                                    <Box
+                                                        sx={{
+                                                            display: 'flex',
+                                                            flexDirection: 'row',
+                                                            alignItems: 'center',
+                                                        }}
+                                                    >
+                                                        <Box>
+                                                            <Avatar
+                                                                variant="rounded"
+                                                                src={row.imgHash}
+                                                                sx={{ width: 64, height: 64 }}
+                                                            >
+                                                                H
+                                                            </Avatar>
+                                                        </Box>
+                                                        <Box sx={{ ml: 2 }}>
+                                                            <Typography variant="body1" sx={{ fontWeight: 700 }}>
+                                                                {row.name}
+                                                            </Typography>
+                                                        </Box>
+                                                    </Box>
                                                 </TableCell>
-                                                <TableCell>{row.email}</TableCell>
-                                                <TableCell>{row.password}</TableCell>
-                                                <TableCell>
+                                                <TableCell align="right">{row.dateOfBirth}</TableCell>
+                                                <TableCell align="right">{row.email}</TableCell>
+                                                <TableCell align="right">{row.voteCount}</TableCell>
+                                                <TableCell align="right">
                                                     <Button
                                                         variant="text"
-                                                        onClick={(event) => handleClickEdit(event, row)}
-                                                        startIcon={<EditIcon />}
+                                                        onClick={(event) => handleClickShow(event, row)}
+                                                        startIcon={<VisibilityIcon />}
                                                     >
-                                                        Edit
+                                                        Show
                                                     </Button>
                                                     <Button
+                                                        disabled={row.candidateID===voted}
                                                         variant="text"
-                                                        onClick={(event) => handleClickDelete(event, row)}
-                                                        startIcon={<DeleteIcon />}
+                                                        onClick={(event) => handleClickVote(event, row)}
+                                                        startIcon={<HowToVoteIcon />}
                                                     >
-                                                        Delete
+                                                        Vote
                                                     </Button>
                                                 </TableCell>
                                             </TableRow>
@@ -232,6 +241,7 @@ export default function EnhancedTable(props) {
                                     <TableCell component="th" scope="row">
                                         No records found
                                     </TableCell>
+                                    <TableCell align="right"></TableCell>
                                     <TableCell align="right"></TableCell>
                                     <TableCell align="right"></TableCell>
                                     <TableCell align="right"></TableCell>
@@ -250,43 +260,15 @@ export default function EnhancedTable(props) {
                     onRowsPerPageChange={handleChangeRowsPerPage}
                 />
             </Paper>
-            {/* FormEditVoter edit */}
-            {openFormEditVoter && <FormEditVoter 
-            source={source} 
-            setOpenFormEditVoter={setOpenFormEditVoter} 
-            setUpdate={props.setUpdate} 
-            update={props.update} 
-            electionName={props.electionName}
-            />}
-            {/* Alert Delete */}
-            <div>
-                <Dialog
-                    open={openAlertDelete}
-                    onClose={handleCloseAlertDelete}
-                    aria-labelledby="alert-dialog-title"
-                    aria-describedby="alert-dialog-description"
-                >
-                    <DialogTitle id="alert-dialog-title">Confirm Delete</DialogTitle>
-                    <DialogContent>
-                        <DialogContentText id="alert-dialog-description">
-                            Are you sure you want to delete this Voter account?
-                        </DialogContentText>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={handleCloseAlertDelete}>Disagree</Button>
-                        <Button onClick={handleAgreementDelete} autoFocus>
-                            Agree
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-            </div>
+            {open && <Modal source={source} setOpen={setOpen} />}
         </Box>
     );
 }
 
 EnhancedTable.propTypes = {
-    electionName: PropTypes.string.isRequired,
-    setUpdate: PropTypes.func.isRequired,
-    update: PropTypes.bool.isRequired,
     rows: PropTypes.array.isRequired,
+    electionName: PropTypes.string.isRequired,
+    positionName: PropTypes.string.isRequired,
+    votedCandidates: PropTypes.array.isRequired,
+    setVotedCandidates: PropTypes.func.isRequired,
 };

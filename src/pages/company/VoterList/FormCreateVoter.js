@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { Close as CloseIcon } from '@mui/icons-material';
+import { Add as AddIcon, Close as CloseIcon } from '@mui/icons-material';
 
 import {
     Grid,
@@ -13,12 +13,13 @@ import {
     InputLabel,
     TextField,
     Button,
-    Typography,
-    Avatar,
-    Paper,
 } from '@mui/material';
+import { useState } from 'react';
 
 import Title from '~/layout/component/Title';
+import useSnackMessages from '~/utils/hooks/useSnackMessages';
+import { createVoter } from '~/api/voter'; 
+import Cookies from 'js-cookie';
 
 const style = {
     position: 'absolute',
@@ -33,17 +34,36 @@ const style = {
 };
 
 function TransitionsModal(props) {
-    const handleClose = () => props.setOpen(false);
-    // Read image file, save image in IPFS
+    const [open, setOpen] = useState(false);
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => setOpen(false);
+    const { showErrorSnackbar, showSuccessSnackbar } = useSnackMessages();
+
     const handleCreateNew = async (event) => {
         event.preventDefault();
-        const dataForm = new FormData(event.currentTarget);
+        const dataForm = new FormData(event.currentTarget)
+        const response = await createVoter({
+            email: dataForm.get('email'),
+            password: dataForm.get('password'),
+            fullName: dataForm.get('name'),
+            electionAddress: Cookies.get('electionAddress'),
+            electionName: props.electionName,
+        });
+        if(response.data !== null) {
+            showSuccessSnackbar(response.message);
+            handleClose()
+            props.setUpdate(!props.update);
+        } else showErrorSnackbar(response.message);
     };
     return (
-        <Modal
+        <div>
+             <Button onClick={handleOpen} variant="contained" startIcon={<AddIcon />}>
+                Add
+            </Button>
+            <Modal
             aria-labelledby="transition-modal-title"
             aria-describedby="transition-modal-description"
-            open={true}
+            open={open}
             onClose={handleClose}
             closeAfterTransition
             BackdropComponent={Backdrop}
@@ -51,12 +71,12 @@ function TransitionsModal(props) {
                 timeout: 500,
             }}
         >
-            <Fade in={true}>
+            <Fade in={open}>
                 <Box sx={style}>
                     <Grid container direction="column">
                         <Grid item>
                             <Stack direction="row" justifyContent="space-between" alignItems="center">
-                                <Title>Voter Infomation</Title>
+                                <Title>Create Voter Account</Title>
                                 <IconButton onClick={handleClose}>
                                     <CloseIcon />
                                 </IconButton>
@@ -72,14 +92,14 @@ function TransitionsModal(props) {
                                             <Grid container spacing={2}>
                                                 {/* Input Voter Name */}
                                                 <Grid item lg={6} xs={12}>
-                                                    <InputLabel htmlFor="full-name" sx={{ fontWeight: 700 }}>
+                                                    <InputLabel htmlFor="name" sx={{ fontWeight: 700 }}>
                                                         Full Name
                                                     </InputLabel>
                                                     <TextField
                                                         required
                                                         fullWidth
-                                                        id="full-name"
-                                                        name="full-name"
+                                                        id="name"
+                                                        name="name"
                                                         placeholder="Alex Z"
                                                     />
                                                 </Grid>
@@ -91,7 +111,6 @@ function TransitionsModal(props) {
                                                         Email
                                                     </InputLabel>
                                                     <TextField
-                                                        required
                                                         fullWidth
                                                         id="email"
                                                         name="email"
@@ -100,15 +119,15 @@ function TransitionsModal(props) {
                                                 </Grid>
                                                 {/* Input password */}
                                                 <Grid item lg={6} xs={12}>
-                                                    <InputLabel htmlFor="email" sx={{ fontWeight: 700 }}>
+                                                    <InputLabel htmlFor="password" sx={{ fontWeight: 700 }}>
                                                         Password
                                                     </InputLabel>
-                                                    <TextField
+                                                    <TextField  
                                                         required
                                                         fullWidth
-                                                        id="email"
-                                                        name="email"
-                                                        placeholder="abc@gmail.com"
+                                                        id="password"
+                                                        name="password"
+                                                        placeholder="abc123@"
                                                     />
                                                 </Grid>
                                             </Grid>
@@ -130,12 +149,13 @@ function TransitionsModal(props) {
                 </Box>
             </Fade>
         </Modal>
+        </div>
     );
 }
 
 TransitionsModal.propTypes = {
-    source: PropTypes.object.isRequired,
-    setOpen: PropTypes.func.isRequired,
+    setUpdate: PropTypes.func.isRequired,
+    update: PropTypes.bool.isRequired,
 };
 
 export default TransitionsModal;

@@ -1,7 +1,7 @@
 import { Grid, Paper, Divider } from '@mui/material';
 import Title from '~/layout/component/Title';
 import PositionListTable from './ListTable';
-import ModalForm from './ModalForm';
+import FormCreatePosition from './FormCreatePosition';
 import useSnackMessages from '~/utils/hooks/useSnackMessages';
 import { useEffect, useState } from 'react';
 import ethers from '~/ethereum/ethers';
@@ -59,7 +59,7 @@ function PositionList() {
                             <Title>Position List</Title>
                         </Grid>
                         <Grid item>
-                            <ModalForm />
+                            <FormCreatePosition />
                         </Grid>
                     </Grid>
 

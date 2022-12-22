@@ -49,7 +49,7 @@ function CreateElection() {
     const CreateElectionListerner = () => {
         const electionFactContract = ethers.getElectionFactContract();
         electionFactContract.on('CreateElection', (electionAddress) => {
-            Cookies.set('election_address', electionAddress);
+            Cookies.set('electionAddress', electionAddress);
             navigate(config.routes.companyDashboard);
             showSuccessSnackbar('Successfully created a new election');
         });

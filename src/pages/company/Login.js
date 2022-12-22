@@ -48,7 +48,7 @@ function LoginSide() {
             if (summary[2] === 'Create an election') {
                 navigate(config.routes.createElection);
             } else {
-                Cookies.set('election_address', summary[0]);
+                Cookies.set('electionAddress', summary[0]);
                 navigate(config.routes.companyDashboard);
             }
         } catch (err) {

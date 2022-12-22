@@ -153,7 +153,11 @@ export default function EnhancedTable(props) {
         setOpen(true);
     };
     const handleClickSend = async (event, row) => {
-        const response = await sendMailNotification(row.email, props.positionName, props.electionName);
+        const response = await sendMailNotification({
+            email: row.email,
+            positionName: props.positionName, 
+            electionName: props.electionName,
+        });
         response.status === 'success' ? showSuccessSnackbar(response.message) : showErrorSnackbar(response.message);
     };
 

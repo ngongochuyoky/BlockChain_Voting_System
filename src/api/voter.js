@@ -10,24 +10,25 @@ export const allVoter = async () => {
     }
 };
 
-export const login = async ({email, password}) => {
-    try{
-        const response = await post('/voter/login', {email: email, password: password});
+export const login = async ({ email, password }) => {
+    try {
+        const response = await post('/voter/login', { email: email, password: password });
         return response;
-    }catch (err) {
+    } catch (err) {
         console.log(err.message);
     }
-}
+};
 
-export const createVoter = async ({ email, password, fullName, electionAddress }) => {
+export const createVoter = async ({ email, password, fullName, electionAddress, electionName }) => {
     try {
         const response = await post(
-            '/voter/create',
+            '/voter/register',
             {
                 email,
                 password,
                 fullName,
                 electionAddress,
+                electionName,
             },
             Cookies.get('companyToken'),
         );
@@ -37,11 +38,14 @@ export const createVoter = async ({ email, password, fullName, electionAddress }
     }
 };
 
-export const updateVoter = async ({ email, password, fullName }) => {
+export const updateVoter = async ({ email, password, fullName, electionName }) => {
     try {
-        console.log(email, password, fullName);
-        const response = await post('/voter/update', { email, password, fullName }, Cookies.get('companyToken'));
-        
+        const response = await post(
+            '/voter/update',
+            { email, password, fullName, electionName },
+            Cookies.get('companyToken'),
+        );
+
         return response;
     } catch (err) {
         console.log(err.message);

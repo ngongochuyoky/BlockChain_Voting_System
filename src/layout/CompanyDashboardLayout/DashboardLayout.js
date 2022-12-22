@@ -31,7 +31,7 @@ const AppBar = styled(MuiAppBar, {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.leavingScreen,
     }),
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
     boxShadow: 'none',
     ...(open && {
         marginLeft: drawerWidth,
@@ -78,7 +78,7 @@ const mdTheme = createTheme({
             main: '#5e35b1',
         },
         background: {
-            default: '#e3f2fd',
+            default: '#FFFFFF',
         },
     },
 });

@@ -33,7 +33,7 @@ function Ethers() {
             return errorMessage;
         },
         getElectionContract() {
-            const electionContract = new ethers.Contract(Cookies.get('election_address'), election.abi, signerEth);
+            const electionContract = new ethers.Contract(Cookies.get('electionAddress'), election.abi, signerEth);
             return electionContract;
         },
         getElectionFactContract() {

@@ -1,12 +1,10 @@
 import { Fragment, useState, createContext } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { publicRoutes, voterPrivateRoutes, companyPrivateRoutes } from '~/routers';
-import { DefaltLayout } from './layout';
 import ProtectedRoutes from '~/utils/ProtectedRoutes';
 import Cookies from 'js-cookie';
 
 export const UpdateRoutes = createContext();
-
 function App() {
     const [updateNow, setUpdateNow] = useState(true);
     const updateRoutes = () => {
@@ -15,11 +13,12 @@ function App() {
     return (
         <UpdateRoutes.Provider value={updateRoutes}>
             <Router>
-                <div className="App">
+                {/* Public Routes */}
+                <div>
                     <Routes>
                         {publicRoutes.map((route, index) => {
                             const Page = route.component;
-                            let Layout = DefaltLayout;
+                            let Layout;
                             if (route.layout) {
                                 Layout = route.layout;
                             } else if (route.layout === null) {
@@ -37,6 +36,7 @@ function App() {
                                 />
                             );
                         })}
+
                         <Route
                             element={
                                 <ProtectedRoutes redirectPath="/voter_login" isAllowed={!!Cookies.get('voterToken')} />
@@ -44,7 +44,7 @@ function App() {
                         >
                             {voterPrivateRoutes.map((route, index) => {
                                 const Page = route.component;
-                                let Layout = DefaltLayout;
+                                let Layout;
                                 if (route.layout) {
                                     Layout = route.layout;
                                 } else if (route.layout === null) {
@@ -63,6 +63,7 @@ function App() {
                                 );
                             })}
                         </Route>
+
                         <Route
                             element={
                                 <ProtectedRoutes
@@ -73,7 +74,7 @@ function App() {
                         >
                             {companyPrivateRoutes.map((route, index) => {
                                 const Page = route.component;
-                                let Layout = DefaltLayout;
+                                let Layout;
                                 if (route.layout) {
                                     Layout = route.layout;
                                 } else if (route.layout === null) {

@@ -15,7 +15,7 @@ import {
     Button,
 } from '@mui/material';
 import { updateVoter } from '~/api/voter';
-import {useState} from 'react';
+import { useState } from 'react';
 
 import Title from '~/layout/component/Title';
 import useSnackMessages from '~/utils/hooks/useSnackMessages';
@@ -33,28 +33,31 @@ const style = {
 };
 
 function TransitionsModal(props) {
-    const handleClose = () => props.setOpen(false);
+    const handleClose = () => props.setOpenFormEditVoter(false);
     const [name, setName] = useState(props.source.name);
-    const [password, setPassword] = useState();
-    const {showErrorSnackbar, showSuccessSnackbar} = useSnackMessages();
+    const [password, setPassword] = useState('');
+    const { showErrorSnackbar, showSuccessSnackbar } = useSnackMessages();
 
     const changeName = (event) => {
         setName(event.target.value);
-    }
+    };
     const changePassword = (event) => {
         setPassword(event.target.value);
-    }
+    };
 
     const handleUpdate = async (event) => {
         event.preventDefault();
-        console.log(props.source.email)
         const response = await updateVoter({
             email: props.source.email,
             password: password,
             fullName: name,
+            electionName: props.electionName,
         });
-        console.log(response);
-        response.data === null ? showErrorSnackbar(response.message) : showSuccessSnackbar(response.message)
+        if (response.data !== null) {
+            showSuccessSnackbar(response.message);
+            props.setOpenFormEditVoter(false);
+            props.setUpdate(!props.update);
+        } else showErrorSnackbar(response.message);
     };
     return (
         <Modal
@@ -73,7 +76,7 @@ function TransitionsModal(props) {
                     <Grid container direction="column">
                         <Grid item>
                             <Stack direction="row" justifyContent="space-between" alignItems="center">
-                                <Title>Edit Voter Infomation</Title>
+                                <Title>Create Voter Account</Title>
                                 <IconButton onClick={handleClose}>
                                     <CloseIcon />
                                 </IconButton>
@@ -120,7 +123,7 @@ function TransitionsModal(props) {
                                                 </Grid>
                                                 {/* Input password */}
                                                 <Grid item lg={6} xs={12}>
-                                                    <InputLabel htmlFor="email" sx={{ fontWeight: 700 }}>
+                                                    <InputLabel htmlFor="password" sx={{ fontWeight: 700 }}>
                                                         Password
                                                     </InputLabel>
                                                     <TextField
@@ -157,7 +160,10 @@ function TransitionsModal(props) {
 
 TransitionsModal.propTypes = {
     source: PropTypes.object.isRequired,
-    setOpen: PropTypes.func.isRequired,
+    setOpenFormEditVoter: PropTypes.func.isRequired,
+    setUpdate: PropTypes.func.isRequired,
+    update: PropTypes.bool.isRequired,
+    electionName: PropTypes.string.isRequired,
 };
 
 export default TransitionsModal;
