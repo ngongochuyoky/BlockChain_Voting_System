@@ -6,7 +6,6 @@ import ethers from '~/ethereum/ethers';
 import { useEffect, useState } from 'react';
 import { allVoter } from '~/api/voter';
 
-
 // Data form
 function createData(email, password, name) {
     return {
@@ -19,7 +18,6 @@ function VoterList() {
     const [electionName, setElectionName] = useState('');
     const [update, setUpdate] = useState(false);
     const [rows, setRows] = useState([]);
-    
 
     useEffect(() => {
         const componentDidMount = async () => {

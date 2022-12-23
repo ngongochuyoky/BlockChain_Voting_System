@@ -28,7 +28,7 @@ function CandidateList() {
             const contract = ethers.getElectionContract();
             contract.on('AddCandidate', (positionID, candidateID, ...rest) => {
                 //So sánh Candidate ID xem đã tồn tại chưa -> chưa -> thêm vào
-                if (!( result[positionID].rows?.[result[positionID].rows.length - 1]?.candidateID === candidateID)) {
+                if (!(result[positionID].rows?.[result[positionID].rows.length - 1]?.candidateID === candidateID)) {
                     showSuccessSnackbar('Successfully created new candidate');
                     setData((preData) => {
                         const newData = JSON.parse(JSON.stringify(preData));

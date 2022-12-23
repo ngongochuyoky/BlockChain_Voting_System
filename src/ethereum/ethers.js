@@ -3,8 +3,9 @@ import Cookies from 'js-cookie';
 import electionFact from '~/ethereum/artifacts/contracts/Election.sol/ElectionFact.json';
 import election from '~/ethereum/artifacts/contracts/Election.sol/Election.json';
 
+
 function Ethers() {
-    const electionFactAddress = '0xf21B08220b292C53c7B05Ec7aDC7a5524137712b';
+    const electionFactAddress = '0x50b3fF61ad49056fAd9E14E01679b7555473876B';
     let signerEth = null;
     let errorMessage = 'Failed !!!';
     return {
@@ -21,7 +22,6 @@ function Ethers() {
                 const chainId = await signer.getChainId();
                 if (chainId === 5) {
                     signerEth = signer;
-                    
                     errorMessage = '';
                 } else {
                     signerEth = null;

@@ -90,7 +90,7 @@ contract Election {
     //Events
     event AddPosition(uint8 positionID, string position_name);
     event AddCandidate( uint8 positionID, uint8 candidateID, string candidate_name, string candidate_date_of_birth, string candidate_description, string imgHash, uint8 voteCount, string email);
-    event Vote(uint8[] candidateIDList);
+    event Vote(string email);
 
     //Add Candidate
     function addCandidate(uint8 positionID, string memory candidate_name,string memory candidate_date_of_birth ,
@@ -117,7 +117,7 @@ contract Election {
             numVoters++;
             candidates[_candidateIDList[i]].voteCount++;//increment vote counter of candidate
         } //add the values to the mapping
-        emit Vote(_candidateIDList);
+        emit Vote(email);
     }
 
     function getPositions() public view returns (string[] memory){

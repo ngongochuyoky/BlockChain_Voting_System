@@ -6,6 +6,7 @@ function Home() {
     const logOut = () => {
         Cookies.remove('voterToken');
         Cookies.remove('companyToken');
+        Cookies.remove('electionAddress');
     };
 
     return (

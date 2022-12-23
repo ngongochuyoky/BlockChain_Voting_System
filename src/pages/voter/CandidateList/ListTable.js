@@ -19,8 +19,6 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import HowToVoteIcon from '@mui/icons-material/HowToVote';
 import { visuallyHidden } from '@mui/utils';
 import Modal from './Modal';
-import { sendMailNotification } from '~/api/candidate';
-import useSnackMessages from '~/utils/hooks/useSnackMessages';
 
 // Data form
 //data = [{name, dateOfBirth, email, voteCount, description}, ...]
@@ -152,11 +150,11 @@ export default function EnhancedTable(props) {
         setSource(row);
         setOpen(true);
     };
-    
+
     const handleClickVote = (event, row) => {
-        props.votedCandidates.splice(row.positionID, 1, row.candidateID);
+        props.votedList.splice(row.positionID, 1, row.candidateID);
         setVoted(row.candidateID);
-    }
+    };
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
@@ -186,7 +184,7 @@ export default function EnhancedTable(props) {
                                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                     .map((row, index) => {
                                         const labelId = `enhanced-table-checkbox-${index}`;
-
+                                        const voteCount = row.voteCount + (row.candidateID === voted ? 1 : 0);
                                         return (
                                             <TableRow hover role="checkbox" tabIndex={-1} key={index}>
                                                 <TableCell component="th" id={labelId} scope="row">
@@ -215,7 +213,7 @@ export default function EnhancedTable(props) {
                                                 </TableCell>
                                                 <TableCell align="right">{row.dateOfBirth}</TableCell>
                                                 <TableCell align="right">{row.email}</TableCell>
-                                                <TableCell align="right">{row.voteCount}</TableCell>
+                                                <TableCell align="right">{voteCount}</TableCell>
                                                 <TableCell align="right">
                                                     <Button
                                                         variant="text"
@@ -224,14 +222,16 @@ export default function EnhancedTable(props) {
                                                     >
                                                         Show
                                                     </Button>
-                                                    <Button
-                                                        disabled={row.candidateID===voted}
-                                                        variant="text"
-                                                        onClick={(event) => handleClickVote(event, row)}
-                                                        startIcon={<HowToVoteIcon />}
-                                                    >
-                                                        Vote
-                                                    </Button>
+                                                    {!props.isVoted && (
+                                                        <Button
+                                                            disabled={row.candidateID === voted}
+                                                            variant="text"
+                                                            onClick={(event) => handleClickVote(event, row)}
+                                                            startIcon={<HowToVoteIcon />}
+                                                        >
+                                                            Vote
+                                                        </Button>
+                                                    )}
                                                 </TableCell>
                                             </TableRow>
                                         );
@@ -260,7 +260,14 @@ export default function EnhancedTable(props) {
                     onRowsPerPageChange={handleChangeRowsPerPage}
                 />
             </Paper>
-            {open && <Modal source={source} setOpen={setOpen} />}
+            {open && <Modal 
+                isVoted={props.isVoted}
+                source={source} 
+                setVoted={setVoted} 
+                setOpen={setOpen} 
+                voted={voted}
+                votedList={props.votedList}
+            />}
         </Box>
     );
 }
@@ -269,6 +276,6 @@ EnhancedTable.propTypes = {
     rows: PropTypes.array.isRequired,
     electionName: PropTypes.string.isRequired,
     positionName: PropTypes.string.isRequired,
-    votedCandidates: PropTypes.array.isRequired,
-    setVotedCandidates: PropTypes.func.isRequired,
+    votedList: PropTypes.array.isRequired,
+    setVotedList: PropTypes.func.isRequired,
 };

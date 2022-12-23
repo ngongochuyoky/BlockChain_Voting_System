@@ -1,9 +1,20 @@
-import { Grid, Paper, Divider } from '@mui/material';
+import {
+    Grid,
+    Paper,
+    Divider,
+    Button,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogContentText,
+    DialogActions,
+} from '@mui/material';
 import Title from '~/layout/component/Title';
 import CandidateListTable from './ListTable';
 import { useEffect, useState } from 'react';
 import useSnackMessages from '~/utils/hooks/useSnackMessages';
 import ethers from '~/ethereum/ethers';
+import Cookies from 'js-cookie';
 
 function createData(candidateID, positionID, name, dateOfBirth, description, imgHash, voteCount, email, ...args) {
     return {
@@ -20,16 +31,18 @@ function createData(candidateID, positionID, name, dateOfBirth, description, img
 
 function CandidateList() {
     const [data, setData] = useState([{ positionName: '', rows: [] }]);
-    const { showSuccessSnackbar, showErrorSnackbar } = useSnackMessages();
+    const { showSuccessSnackbar, showErrorSnackbar, showInfoSnackbar } = useSnackMessages();
     const [electionName, setElectionName] = useState('');
-    const [votedCandidates, setVotedCandidates] = useState([]);
+    const [openAlertSubmit, setOpenAlertSubmit] = useState(false);
+    const [isVoted, setIsVoted] = useState(false);
+    const [votedList, setVotedList] = useState([]);
 
     useEffect(() => {
         const addCandidateListener = (result) => {
             const contract = ethers.getElectionContract();
             contract.on('AddCandidate', (positionID, candidateID, name, ...rest) => {
                 //So sánh Candidate ID xem đã tồn tại chưa -> chưa -> thêm vào
-                if (!( result[positionID].rows?.[result[positionID].rows.length - 1]?.candidateID === candidateID)) {
+                if (!(result[positionID].rows?.[result[positionID].rows.length - 1]?.candidateID === candidateID)) {
                     showSuccessSnackbar(`New candidate: ${name}`);
                     setData((preData) => {
                         const newData = JSON.parse(JSON.stringify(preData));
@@ -39,7 +52,16 @@ function CandidateList() {
                 }
             });
         };
-        const getCandidates = async () => {
+        const voteListener = () => {
+            const contract = ethers.getElectionContract();
+            contract.on('Vote', (email) => {
+                if (email === Cookies.get('voterEmail')) {
+                    showSuccessSnackbar('Voted successfully');
+                    setIsVoted(true);
+                }
+            });
+        };
+        const getData = async () => {
             try {
                 await ethers.connectWallet();
                 const contract = ethers.getElectionContract();
@@ -53,9 +75,13 @@ function CandidateList() {
                 }));
                 if (positions.length) {
                     //Array of voted candidate
-                    //Khởi tạo 1 mảng -1, trước lúc submit, filter lại mảng, vì candidateID >= 0
-                    const voted = positions.map(position => -1);
-                    setVotedCandidates(voted);
+                    //Nếu chưa vote, Khởi tạo 1 mảng -1, trước lúc submit, filter lại mảng, vì candidateID >= 0
+                    const voter = await contract.getVoter(Cookies.get('voterEmail'));
+
+                    if (!voter[0]) {
+                        const votedList = positions.map((position) => -1);
+                        setVotedList(votedList);
+                    } else setIsVoted(true);
                     const numOfCandidates = await contract.getNumOfCandidates();
                     for (let i = 0; i < numOfCandidates; i++) {
                         const candidate = await contract.getCandidate(i);
@@ -64,15 +90,31 @@ function CandidateList() {
                     setData(result);
                 }
                 addCandidateListener(result);
+                voteListener();
             } catch (err) {
                 ethers.getError() && showErrorSnackbar(ethers.getError());
             }
         };
 
-        getCandidates();
+        getData();
     }, [showSuccessSnackbar, showErrorSnackbar]);
 
+    const handleClickSubmit = () => setOpenAlertSubmit(true);
 
+    //Handle Alert
+    const handleCloseAlertSubmit = () => setOpenAlertSubmit(false);
+    const handleAgreementSubmit = async () => {
+        setOpenAlertSubmit(false);
+        const candidateIDList = votedList.filter((candidateID) => candidateID >= 0);
+        try {
+            await ethers.connectWallet();
+            const contract = ethers.getElectionContract();
+            const bool = await contract.vote(candidateIDList, Cookies.get('voterEmail'));
+            bool && showInfoSnackbar('Blockchain is processing');
+        } catch (err) {
+            ethers.getError() && showErrorSnackbar(ethers.getError());
+        }
+    };
 
     return (
         <Grid container spacing={3}>
@@ -98,13 +140,43 @@ function CandidateList() {
                                 rows={position.rows}
                                 electionName={electionName}
                                 positionName={position.positionName}
-                                votedCandidates={votedCandidates}
-                                setVotedCandidates={setVotedCandidates}
+                                votedList={votedList}
+                                setVotedList={setVotedList}
+                                isVoted={isVoted}
                             />
                         </Grid>
                     </Paper>
                 </Grid>
             ))}
+            {!isVoted && (
+                <Grid item lg={12}>
+                    <Button onClick={handleClickSubmit} variant="contained" sx={{ float: 'right', mb: 8 }}>
+                        Submit
+                    </Button>
+                </Grid>
+            )}
+            {/* Dialog Submit */}
+            <div>
+                <Dialog
+                    open={openAlertSubmit}
+                    onClose={handleCloseAlertSubmit}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                >
+                    <DialogTitle id="alert-dialog-title">Confirm Submit</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-description">
+                            Are you sure you want to vote for these candidates?
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleCloseAlertSubmit}>Disagree</Button>
+                        <Button onClick={handleAgreementSubmit} autoFocus>
+                            Agree
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+            </div>
         </Grid>
     );
 }

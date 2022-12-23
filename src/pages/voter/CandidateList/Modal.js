@@ -34,9 +34,11 @@ const style = {
 function TransitionsModal(props) {
     const handleClose = () => props.setOpen(false);
     // Read image file, save image in IPFS
-    const handleClickVote = (event) => {
-        
-    }
+    const handleClickVote = () => {
+        props.votedList.splice(props.source.positionID, 1, props.source.candidateID);
+        props.setVoted(props.source.candidateID);
+    };
+    const voteCount = props.source.voteCount + (props.voted === props.source.candidateID ? 1 : 0)
 
     return (
         <Modal
@@ -67,7 +69,11 @@ function TransitionsModal(props) {
                             <Grid container direction="row" sx={{ mt: 4 }}>
                                 <Grid item lg={4} xs={12}>
                                     <Stack direction="column" justifyContent="center" alignItems="center" spacing={2}>
-                                        <Avatar alt="Avatar" src={props.source.imgHash} sx={{ width: 200, height: 200 }} />
+                                        <Avatar
+                                            alt="Avatar"
+                                            src={props.source.imgHash}
+                                            sx={{ width: 200, height: 200 }}
+                                        />
                                         <Typography variant="h6" sx={{ fontWeight: 700 }}>
                                             {props.source.name}
                                         </Typography>
@@ -83,7 +89,7 @@ function TransitionsModal(props) {
                                                     sx={{ pt: 2, pb: 2 }}
                                                 >
                                                     <Typography variant="h5" color="primary" sx={{ fontWeight: 700 }}>
-                                                        {props.source.voteCount}
+                                                        {voteCount}
                                                     </Typography>
                                                     <Typography variant="subtitle2">Vote Count</Typography>
                                                 </Stack>
@@ -123,9 +129,15 @@ function TransitionsModal(props) {
                                     </Grid>
                                 </Grid>
                                 <Grid item lg={12} xx={12}>
-                                    <Divider sx={{mb: 4, mt: 2}}/>
+                                    <Divider sx={{ mb: 4, mt: 2 }} />
                                     <Stack justifyContent="center" alignItems="center">
-                                        <Button onClick={handleClickVote} variant='contained'  startIcon={<HowToVoteIcon/>} sx={{pl: 3, pr: 3}}>
+                                        <Button
+                                            onClick={handleClickVote}
+                                            disabled={props.isVoted || props.voted === props.source.candidateID}
+                                            variant="contained"
+                                            startIcon={<HowToVoteIcon />}
+                                            sx={{ pl: 3, pr: 3 }}
+                                        >
                                             Vote
                                         </Button>
                                     </Stack>
@@ -142,6 +154,10 @@ function TransitionsModal(props) {
 TransitionsModal.propTypes = {
     source: PropTypes.object.isRequired,
     setOpen: PropTypes.func.isRequired,
+    isVoted: PropTypes.bool.isRequired,
+    setVoted: PropTypes.func.isRequired,
+    voted: PropTypes.number.isRequired,
+    votedList: PropTypes.array.isRequired,
 };
 
 export default TransitionsModal;

@@ -37,6 +37,7 @@ function LoginSide() {
         else {
             Cookies.set('voterToken', response.data.token);
             Cookies.set('voterEmail', response.data.email);
+            Cookies.set('electionAddress', response.data.electionAddress);
             updateRoutes();
             navigate(config.routes.voterDashboard);
         }

@@ -21,7 +21,7 @@ function PositionList() {
         const addPositionListener = (data) => {
             const contract = ethers.getElectionContract();
             contract.on('AddPosition', (positionID, positionName) => {
-                if( !(data?.[data.length-1]?.positionID === positionID)) {
+                if (!(data?.[data.length - 1]?.positionID === positionID)) {
                     showSuccessSnackbar('Successfully created new position');
                     setRows((preState) => {
                         return [...preState, createData(positionID, positionName)];
