@@ -1,8 +1,8 @@
-import {post} from './httpRequest';
+import {postMethod} from './httpRequest';
 
 export const companyLogin = async (email, password) => {
     try{
-        const response = await post('/company/login', { email: email, password: password });
+        const response = await postMethod('/company/login', { email: email, password: password });
         return response;
     }catch(err){
         console.log(err.message);
@@ -10,7 +10,7 @@ export const companyLogin = async (email, password) => {
 }
 export const companyRegister = async (email, password, companyName) => {
     try{
-        const response = await post('/company/register', { email: email, password: password, companyName: companyName });
+        const response = await postMethod('/company/register', { email: email, password: password, companyName: companyName });
         return response;
     }catch(err){
         console.log(err.message);

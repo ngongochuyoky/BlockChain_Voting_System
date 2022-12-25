@@ -9,6 +9,7 @@ import CompanyPositionList from '~/pages/company/PositionList';
 import CompanyCandidateList from '~/pages/company/CandidateList';
 import CreateCandidate from '~/pages/company/CreateCandidate';
 import CompanyVoterList from '~/pages/company/VoterList';
+import TrashVoters from '~/pages/company/TrashVoters';
 import CompanyDashboardLayout from '~/layout/CompanyDashboardLayout';
 
 import VoterDashboardLayout from '~/layout/VoterDashboardLayout';
@@ -42,6 +43,7 @@ export const companyPrivateRoutes = [
     { path: config.routes.createCandidate, component: CreateCandidate, layout: CompanyDashboardLayout },
     { path: config.routes.createElection, component: CreateElection, layout: null },
     { path: config.routes.companyVoterList, component: CompanyVoterList, layout: CompanyDashboardLayout },
+    { path: config.routes.trashVoters, component: TrashVoters, layout: CompanyDashboardLayout },
 ];
 
 

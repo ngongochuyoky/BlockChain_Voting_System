@@ -37,12 +37,12 @@ function RegisterSide() {
                 formData.get('password'),
                 formData.get('company-name'),
             );
-            if (response.data === null) snackMessages.showErrorSnackbar(response.message);
-            else {
+            if (response?.data) {
                 Cookies.set('companyToken', response.data.token);
                 updateRoutes();
                 navigate(config.routes.createElection);
             }
+            else snackMessages.showErrorSnackbar(response.message);
         }
     }
 

@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import PropTypes from 'prop-types';
 import {
     Box,
@@ -10,20 +9,14 @@ import {
     TablePagination,
     TableRow,
     TableSortLabel,
-    Avatar,
-    Typography,
     Paper,
     Button,
 } from '@mui/material';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import ForwardToInboxIcon from '@mui/icons-material/ForwardToInbox';
+import RestoreIcon from '@mui/icons-material/Restore';
 import { visuallyHidden } from '@mui/utils';
-import Modal from './Modal';
-import { sendMailNotification } from '~/api/candidate';
 import useSnackMessages from '~/utils/hooks/useSnackMessages';
-
-// Data form
-//data = [{name, dateOfBirth, email, voteCount, description}, ...]
+import { useState } from 'react';
+import { restoreVoter } from '~/api/voter';
 
 function descendingComparator(a, b, orderBy) {
     if (b[orderBy] < a[orderBy]) {
@@ -59,25 +52,19 @@ const headCells = [
     {
         id: 'name',
         numeric: false,
-        label: 'Name',
-        isSort: true,
-    },
-    {
-        id: 'dateOfBirth',
-        numeric: true,
-        label: 'Date of birth',
+        label: 'Full Name',
         isSort: true,
     },
     {
         id: 'email',
-        numeric: true,
+        numeric: false,
         label: 'Email',
         isSort: true,
     },
     {
-        id: 'voteCount',
-        numeric: true,
-        label: 'Vote Count',
+        id: 'password',
+        numeric: false,
+        label: 'Hash password',
         isSort: true,
     },
     {
@@ -100,7 +87,7 @@ function EnhancedTableHead(props) {
                 {headCells.map((headCell) => (
                     <TableCell
                         key={headCell.id}
-                        align={headCell.numeric ? 'right' : 'left'}
+                        align={headCell.numeric ? 'center' : 'left'}
                         sortDirection={orderBy === headCell.id ? order : false}
                     >
                         {headCell.isSort ? (
@@ -134,33 +121,28 @@ EnhancedTableHead.propTypes = {
 };
 
 export default function EnhancedTable(props) {
-    const [open, setOpen] = useState(false);
-    const [source, setSource] = useState();
     const [order, setOrder] = useState('asc');
     const [orderBy, setOrderBy] = useState('voteCount');
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const { showSuccessSnackbar, showErrorSnackbar } = useSnackMessages();
 
+    const handleClickRestore = async (event, row) => {
+        const response = await restoreVoter({ id: row.id });
+        if (response?.data) {
+            showSuccessSnackbar('Restored successfully');
+            props.setReRender(!props.reRender);
+        } else showErrorSnackbar('Restore failed !!!');
+    };
+
+    //Handle Sort
     const handleRequestSort = (event, property) => {
         const isAsc = orderBy === property && order === 'asc';
         setOrder(isAsc ? 'desc' : 'asc');
         setOrderBy(property);
     };
 
-    const handleClickShow = (event, row) => {
-        setSource(row);
-        setOpen(true);
-    };
-    const handleClickSend = async (event, row) => {
-        const response = await sendMailNotification({
-            email: row.email,
-            positionName: props.positionName, 
-            electionName: props.electionName,
-        });
-        response.status === 'success' ? showSuccessSnackbar(response.message) : showErrorSnackbar(response.message);
-    };
-
+    //Start: Handle Page
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
     };
@@ -169,6 +151,7 @@ export default function EnhancedTable(props) {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
     };
+    //End: Handle Page
 
     return (
         <Box sx={{ width: '100%' }}>
@@ -193,46 +176,17 @@ export default function EnhancedTable(props) {
                                         return (
                                             <TableRow hover role="checkbox" tabIndex={-1} key={index}>
                                                 <TableCell component="th" id={labelId} scope="row">
-                                                    <Box
-                                                        sx={{
-                                                            display: 'flex',
-                                                            flexDirection: 'row',
-                                                            alignItems: 'center',
-                                                        }}
-                                                    >
-                                                        <Box>
-                                                            <Avatar
-                                                                variant="rounded"
-                                                                src={row.imgHash}
-                                                                sx={{ width: 64, height: 64 }}
-                                                            >
-                                                                H
-                                                            </Avatar>
-                                                        </Box>
-                                                        <Box sx={{ ml: 2 }}>
-                                                            <Typography variant="body1" sx={{ fontWeight: 700 }}>
-                                                                {row.name}
-                                                            </Typography>
-                                                        </Box>
-                                                    </Box>
+                                                    {row.name}
                                                 </TableCell>
-                                                <TableCell align="right">{row.dateOfBirth}</TableCell>
-                                                <TableCell align="right">{row.email}</TableCell>
-                                                <TableCell sx={{color: 'success.main', fontWeight: 900}} align="right">{row.voteCount}</TableCell>
-                                                <TableCell align="right">
+                                                <TableCell>{row.email}</TableCell>
+                                                <TableCell>{row.password}</TableCell>
+                                                <TableCell align="center">
                                                     <Button
                                                         variant="text"
-                                                        onClick={(event) => handleClickShow(event, row)}
-                                                        startIcon={<VisibilityIcon />}
+                                                        onClick={(event) => handleClickRestore(event, row)}
+                                                        startIcon={<RestoreIcon />}
                                                     >
-                                                        Show
-                                                    </Button>
-                                                    <Button
-                                                        variant="text"
-                                                        onClick={(event) => handleClickSend(event, row)}
-                                                        startIcon={<ForwardToInboxIcon />}
-                                                    >
-                                                        Send
+                                                        Restore
                                                     </Button>
                                                 </TableCell>
                                             </TableRow>
@@ -240,7 +194,7 @@ export default function EnhancedTable(props) {
                                     })
                             ) : (
                                 <TableRow>
-                                    <TableCell colSpan={5} align='center'>
+                                    <TableCell colSpan={4} align="center">
                                         No records found
                                     </TableCell>
                                 </TableRow>
@@ -258,13 +212,12 @@ export default function EnhancedTable(props) {
                     onRowsPerPageChange={handleChangeRowsPerPage}
                 />
             </Paper>
-            {open && <Modal source={source} setOpen={setOpen} />}
         </Box>
     );
 }
 
 EnhancedTable.propTypes = {
+    setReRender: PropTypes.func.isRequired,
+    reRender: PropTypes.bool.isRequired,
     rows: PropTypes.array.isRequired,
-    electionName: PropTypes.string.isRequired,
-    positionName: PropTypes.string.isRequired,
 };

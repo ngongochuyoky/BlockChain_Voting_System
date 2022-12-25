@@ -213,7 +213,12 @@ export default function EnhancedTable(props) {
                                                 </TableCell>
                                                 <TableCell align="right">{row.dateOfBirth}</TableCell>
                                                 <TableCell align="right">{row.email}</TableCell>
-                                                <TableCell align="right">{voteCount}</TableCell>
+                                                <TableCell
+                                                    align="right"
+                                                    sx={{ color: 'success.main', fontWeight: 900 }}
+                                                >
+                                                    {voteCount}
+                                                </TableCell>
                                                 <TableCell align="right">
                                                     <Button
                                                         variant="text"
@@ -238,13 +243,9 @@ export default function EnhancedTable(props) {
                                     })
                             ) : (
                                 <TableRow>
-                                    <TableCell component="th" scope="row">
+                                    <TableCell colSpan={5} align='center'>
                                         No records found
                                     </TableCell>
-                                    <TableCell align="right"></TableCell>
-                                    <TableCell align="right"></TableCell>
-                                    <TableCell align="right"></TableCell>
-                                    <TableCell align="right"></TableCell>
                                 </TableRow>
                             )}
                         </TableBody>
@@ -260,14 +261,16 @@ export default function EnhancedTable(props) {
                     onRowsPerPageChange={handleChangeRowsPerPage}
                 />
             </Paper>
-            {open && <Modal 
-                isVoted={props.isVoted}
-                source={source} 
-                setVoted={setVoted} 
-                setOpen={setOpen} 
-                voted={voted}
-                votedList={props.votedList}
-            />}
+            {open && (
+                <Modal
+                    isVoted={props.isVoted}
+                    source={source}
+                    setVoted={setVoted}
+                    setOpen={setOpen}
+                    voted={voted}
+                    votedList={props.votedList}
+                />
+            )}
         </Box>
     );
 }

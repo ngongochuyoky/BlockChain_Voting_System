@@ -7,6 +7,7 @@ function Home() {
         Cookies.remove('voterToken');
         Cookies.remove('companyToken');
         Cookies.remove('electionAddress');
+        Cookies.remove('companyId');
     };
 
     return (

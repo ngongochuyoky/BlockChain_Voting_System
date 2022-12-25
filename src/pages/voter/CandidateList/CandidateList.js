@@ -34,7 +34,7 @@ function CandidateList() {
     const { showSuccessSnackbar, showErrorSnackbar, showInfoSnackbar } = useSnackMessages();
     const [electionName, setElectionName] = useState('');
     const [openAlertSubmit, setOpenAlertSubmit] = useState(false);
-    const [isVoted, setIsVoted] = useState(false);
+    const [isVoted, setIsVoted] = useState(true);
     const [votedList, setVotedList] = useState([]);
 
     useEffect(() => {
@@ -81,6 +81,7 @@ function CandidateList() {
                     if (!voter[0]) {
                         const votedList = positions.map((position) => -1);
                         setVotedList(votedList);
+                        setIsVoted(false);
                     } else setIsVoted(true);
                     const numOfCandidates = await contract.getNumOfCandidates();
                     for (let i = 0; i < numOfCandidates; i++) {

@@ -33,14 +33,16 @@ function LoginSide() {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
         const response = await login({ email: formData.get('email'), password: formData.get('password') });
-        if (response.data === null) showErrorSnackbar(response.message);
-        else {
+        if (response?.data){
             Cookies.set('voterToken', response.data.token);
             Cookies.set('voterEmail', response.data.email);
             Cookies.set('electionAddress', response.data.electionAddress);
+            Cookies.set('voterId', response.data.id);
             updateRoutes();
             navigate(config.routes.voterDashboard);
-        }
+        } else{
+            response?.message ? showErrorSnackbar(response.message) : showErrorSnackbar('Login failed !!!');
+        }    
     }
 
     return (

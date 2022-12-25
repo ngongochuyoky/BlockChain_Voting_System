@@ -8,11 +8,23 @@ const httpRequest = (token='') => {
     });
 }
 
-export const post = async (path, option={}, token) => {
+export const postMethod = async (path, option={}, token) => {
     const response = await httpRequest(token).post(path, option);
     return response.data;
 }
-export const get = async (path, option={}, token) => {
+export const putMethod = async (path, option={}, token) => {
+    const response = await httpRequest(token).put(path, option);
+    return response.data;
+}
+export const deleteMethod = async (path, option={}, token) => {
+    const response = await httpRequest(token).delete(path, option);
+    return response.data;
+}
+export const getMethod = async (path, option={}, token) => {
     const response = await httpRequest(token).get(path, option);
+    return response.data;
+};
+export const patchMethod = async (path, option={}, token) => {
+    const response = await httpRequest(token).patch(path, option);
     return response.data;
 };

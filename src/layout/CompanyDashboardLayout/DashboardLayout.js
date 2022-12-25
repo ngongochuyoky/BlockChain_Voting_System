@@ -1,5 +1,5 @@
-import * as React from 'react';
-import { styled, createTheme, ThemeProvider  } from '@mui/material/styles';
+import { useEffect, useState } from 'react';
+import { styled, ThemeProvider } from '@mui/material/styles';
 import {
     Avatar,
     CssBaseline,
@@ -13,25 +13,29 @@ import {
     Container,
     IconButton,
     Badge,
+    ListItemIcon,
+    ListItemButton,
+    ListItemText,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import NotificationsIcon from '@mui/icons-material/Notifications';
-import { deepOrange } from '@mui/material/colors';
 import { MainListItems } from './ListItems';
 import { PropTypes } from 'prop-types';
+import { theme } from '~/utils/theme';
+import { getCompanyById } from '~/api/company';
+import Cookies from 'js-cookie';
+import { useNavigate } from 'react-router-dom';
+import config from '~/config';
+import AccountMenu from '~/layout/component/AccountMenu';
 
 const drawerWidth = 260;
 
-const AppBar = styled(MuiAppBar, {
-    shouldForwardProp: (prop) => prop !== 'open',
-})(({ theme, open }) => ({
+const AppBar = styled(MuiAppBar, { shouldForwardProp: (prop) => prop !== 'open' })(({ theme, open }) => ({
     zIndex: theme.zIndex.drawer + 1,
     transition: theme.transitions.create(['width', 'margin'], {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.leavingScreen,
     }),
-    backgroundColor: '#FFFFFF',
+    // backgroundColor: '#FFFFFF',
     boxShadow: 'none',
     ...(open && {
         marginLeft: drawerWidth,
@@ -43,54 +47,44 @@ const AppBar = styled(MuiAppBar, {
     }),
 }));
 
-
-
-const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(({ theme, open }) => ({
+const Drawer = styled(MuiDrawer)(({ theme }) => ({
     '& .MuiDrawer-paper': {
         position: 'relative',
         whiteSpace: 'nowrap',
         width: drawerWidth,
-        transition: theme.transitions.create('width', {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.enteringScreen,
-        }),
-        boxSizing: 'border-box',
-        background: 'rgb(17, 25, 42)',
-        color: '#fff',
 
-        ...(!open && {
-            overflowX: 'hidden',
-            transition: theme.transitions.create('width', {
-                easing: theme.transitions.easing.sharp,
-                duration: theme.transitions.duration.leavingScreen,
-            }),
-            width: theme.spacing(7),
-            [theme.breakpoints.up('sm')]: {
-                width: theme.spacing(9),
-            },
-        }),
+        boxSizing: 'border-box',
+        backgroundColor: theme.palette.neutral[900],
+        color: '#FFFFFF',
     },
 }));
 
-const mdTheme = createTheme({
-    palette: {
-        primary: {
-            main: '#5e35b1',
-        },
-        background: {
-            default: '#FFFFFF',
-        },
-    },
-});
-
 function DashboardLayout(props) {
-    const [open, setOpen] = React.useState(true);
+    const [open, setOpen] = useState(true);
     const toggleDrawer = () => {
         setOpen(!open);
     };
+    const navigate = useNavigate();
+    const [accountName, setAccountName] = useState('CompanyName');
+
+    useEffect(() => {
+        const componentDidMount = async () => {
+            const response = await getCompanyById({ id: Cookies.get('companyId') });
+            response?.data && setAccountName(response.data.company_name);
+        };
+        componentDidMount();
+    }, []);
+
+    const handleClickLogout = () => {
+        Cookies.remove('companyId');
+        Cookies.remove('companyToken');
+        Cookies.remove('electionAddress');
+        Cookies.remove('companyEmail');
+        navigate(config.routes.home);
+    };
 
     return (
-        <ThemeProvider theme={mdTheme}>
+        <ThemeProvider theme={theme}>
             <Box sx={{ display: 'flex' }}>
                 <CssBaseline />
                 <Drawer variant="permanent" open={open}>
@@ -98,19 +92,46 @@ function DashboardLayout(props) {
                         sx={{
                             display: 'flex',
                             alignItems: 'center',
-                            justifyContent: 'flex-end',
+                            justifyContent: 'center',
                             px: [1],
+                            mt: 4,
                         }}
                     >
-                       <h2>Company</h2>
-                        <IconButton onClick={toggleDrawer}>
-                            <ChevronLeftIcon sx={{ color: '#fff' }} />
-                        </IconButton>
+                        <h2>Admin</h2>
                     </Toolbar>
-                    <Divider />
+                    <Box sx={{ px: 2 }}>
+                        <Box
+                            sx={{
+                                alignItems: 'center',
+                                backgroundColor: 'rgba(255, 255, 255, 0.04)',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                px: 3,
+                                py: '11px',
+                                borderRadius: 1,
+                            }}
+                        >
+                            <div>
+                                <Typography color="inherit" variant="subtitle1">
+                                    {accountName}
+                                </Typography>
+                                <Typography color="neutral.400" variant="body2">
+                                    Email : {Cookies.get('companyEmail')}
+                                </Typography>
+                            </div>
+                        </Box>
+                    </Box>
+                    <Divider
+                        sx={{
+                            borderColor: '#2D3748',
+                            my: 3,
+                        }}
+                    />
                     <List component="nav">
                         <MainListItems />
                     </List>
+                    
                 </Drawer>
                 <AppBar position="absolute" open={open}>
                     <Toolbar
@@ -130,26 +151,16 @@ function DashboardLayout(props) {
                         >
                             <MenuIcon color="primary" />
                         </IconButton>
-                        
-                        <Typography component="h1" variant="h6" color="inherit" noWrap sx={{ flexGrow: 1 }}>
-                            Dashboard
-                        </Typography>
-                        <IconButton color="inherit">
-                            <Badge badgeContent={4} color="secondary">
-                                <NotificationsIcon sx={{ color: 'rgb(85, 105, 255)' }} />
-                            </Badge>
-                        </IconButton>
-                        <IconButton>
-                            <Avatar sx={{ bgcolor: deepOrange[500], ml: 2 }}>N</Avatar>
-                        </IconButton>
+
+                        <Box sx={{ flexGrow: 1 }} />
+
+                        <AccountMenu accountName={accountName} handleClickLogout={handleClickLogout} />
                     </Toolbar>
                 </AppBar>
 
                 <Box
                     component="main"
                     sx={{
-                        backgroundColor: (theme) =>
-                            theme.palette.mode === 'light' ? theme.palette.background : theme.palette.grey[900],
                         flexGrow: 1,
                         height: '100vh',
                         overflow: 'auto',

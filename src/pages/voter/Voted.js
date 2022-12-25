@@ -99,7 +99,7 @@ function Voted() {
                     <Grid item key={index}>
                         <Card sx={{ maxWidth: 345 }} key={index}>
                             <CardActionArea>
-                                <CardMedia component="img" height="200" image={candidate.imgHash} alt="green iguana" />
+                                <CardMedia component="img" height="300" image={candidate.imgHash} alt="green iguana" />
                                 <CardContent>
                                     <Typography gutterBottom variant="h5" component="div">
                                         {candidate.name}

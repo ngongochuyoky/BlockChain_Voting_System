@@ -48,16 +48,16 @@ function TransitionsModal(props) {
     const handleUpdate = async (event) => {
         event.preventDefault();
         const response = await updateVoter({
-            email: props.source.email,
+            id: props.source.id,
             password: password,
             fullName: name,
             electionName: props.electionName,
         });
-        if (response.data !== null) {
-            showSuccessSnackbar(response.message);
+        if (response?.data) {
+            showSuccessSnackbar('Voter account updated successfully');
             props.setOpenFormEditVoter(false);
-            props.setUpdate(!props.update);
-        } else showErrorSnackbar(response.message);
+            props.setReRender(!props.reRender);
+        } else showErrorSnackbar('Voter account update failed');
     };
     return (
         <Modal
@@ -76,7 +76,7 @@ function TransitionsModal(props) {
                     <Grid container direction="column">
                         <Grid item>
                             <Stack direction="row" justifyContent="space-between" alignItems="center">
-                                <Title>Create Voter Account</Title>
+                                <Title>Edit Voter Account</Title>
                                 <IconButton onClick={handleClose}>
                                     <CloseIcon />
                                 </IconButton>
@@ -161,8 +161,8 @@ function TransitionsModal(props) {
 TransitionsModal.propTypes = {
     source: PropTypes.object.isRequired,
     setOpenFormEditVoter: PropTypes.func.isRequired,
-    setUpdate: PropTypes.func.isRequired,
-    update: PropTypes.bool.isRequired,
+    setReRender: PropTypes.func.isRequired,
+    reRender: PropTypes.bool.isRequired,
     electionName: PropTypes.string.isRequired,
 };
 

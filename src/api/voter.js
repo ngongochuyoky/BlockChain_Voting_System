@@ -1,18 +1,27 @@
 import Cookies from 'js-cookie';
-import { get, post } from './httpRequest';
+import { getMethod, postMethod, putMethod, deleteMethod, patchMethod } from './httpRequest';
 
 export const allVoter = async () => {
     try {
-        const response = await get('/voter', {}, Cookies.get('companyToken'));
+        const response = await getMethod('/voter', {}, Cookies.get('companyToken'));
         return response;
     } catch (err) {
         console.log(err.message);
     }
 };
 
+export const getVoterById = async ({id}) => {
+    try{
+        const response = await getMethod('/voter/' + id + '/show', {}, Cookies.get('voterToken'));
+        return response;
+    }catch (err) {
+        console.log(err.message);
+    }
+};
+
 export const login = async ({ email, password }) => {
     try {
-        const response = await post('/voter/login', { email: email, password: password });
+        const response = await postMethod('/voter/login', { email: email, password: password });
         return response;
     } catch (err) {
         console.log(err.message);
@@ -21,7 +30,7 @@ export const login = async ({ email, password }) => {
 
 export const createVoter = async ({ email, password, fullName, electionAddress, electionName }) => {
     try {
-        const response = await post(
+        const response = await postMethod(
             '/voter/register',
             {
                 email,
@@ -38,11 +47,11 @@ export const createVoter = async ({ email, password, fullName, electionAddress, 
     }
 };
 
-export const updateVoter = async ({ email, password, fullName, electionName }) => {
+export const updateVoter = async ({ id, password, fullName, electionName }) => {
     try {
-        const response = await post(
-            '/voter/update',
-            { email, password, fullName, electionName },
+        const response = await putMethod(
+            '/voter/' + id,
+            { password, fullName, electionName },
             Cookies.get('companyToken'),
         );
 
@@ -52,9 +61,27 @@ export const updateVoter = async ({ email, password, fullName, electionName }) =
     }
 };
 
-export const deleteVoter = async ({ email }) => {
+export const deleteVoter = async ({ id }) => {
     try {
-        const response = await post('/voter/delete', { email }, Cookies.get('companyToken'));
+        const response = await deleteMethod('/voter/'+ id, {}, Cookies.get('companyToken'));
+        return response;
+    } catch (err) {
+        console.log(err.message);
+    }
+};
+
+export const findDeletedVoters = async () => {
+    try {
+        const response = await getMethod('/voter/trash/', {}, Cookies.get('companyToken'));
+        return response;
+    } catch (err) {
+        console.log(err.message);
+    }
+};
+
+export const restoreVoter = async ({id}) => {
+    try {
+        const response = await patchMethod('/voter/'+ id + '/restore', {}, Cookies.get('companyToken'));
         return response;
     } catch (err) {
         console.log(err.message);

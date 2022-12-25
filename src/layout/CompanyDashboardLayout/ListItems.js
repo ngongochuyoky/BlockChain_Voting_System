@@ -1,14 +1,13 @@
 import { Fragment, useState } from 'react';
-import { ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
+import { ListItemButton, ListItemIcon, ListItemText, Divider, List, Collapse } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import RecentActorsIcon from '@mui/icons-material/RecentActors';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-import List from '@mui/material/List';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import CreateIcon from '@mui/icons-material/Create';
-import Collapse from '@mui/material/Collapse';
+import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
 import PeopleIcon from '@mui/icons-material/People';
 import { Link as RouteLink } from 'react-router-dom';
 import config from '~/config';
@@ -34,7 +33,7 @@ function MainListItems() {
                 onClick={(event) => handleListItemClick(event, 0)}
             >
                 <ListItemIcon>
-                    <DashboardIcon sx={{color: '#fff'}}/>
+                    <DashboardIcon />
                 </ListItemIcon>
                 <ListItemText primary="Dashboard" />
             </ListItemButton>
@@ -46,14 +45,14 @@ function MainListItems() {
                 onClick={(event) => handleListItemClick(event, 1)}
             >
                 <ListItemIcon>
-                    <ViewListIcon sx={{color: '#fff'}}/>
+                    <ViewListIcon />
                 </ListItemIcon>
                 <ListItemText primary="Position List" />
             </ListItemButton>
 
             <ListItemButton onClick={handleClickCandidate}>
                 <ListItemIcon>
-                    <InboxIcon sx={{color: '#fff'}}/>
+                    <InboxIcon />
                 </ListItemIcon>
                 <ListItemText primary="Candidate" />
                 {openCandidate ? <ExpandLess /> : <ExpandMore />}
@@ -68,7 +67,7 @@ function MainListItems() {
                         onClick={(event) => handleListItemClick(event, 2)}
                     >
                         <ListItemIcon>
-                            <RecentActorsIcon sx={{color: '#fff'}}/>
+                            <RecentActorsIcon />
                         </ListItemIcon>
                         <ListItemText primary="Candidate List" />
                     </ListItemButton>
@@ -80,26 +79,37 @@ function MainListItems() {
                         onClick={(event) => handleListItemClick(event, 3)}
                     >
                         <ListItemIcon>
-                            <CreateIcon sx={{color: '#fff'}}/>
+                            <CreateIcon />
                         </ListItemIcon>
                         <ListItemText primary="Create Candidate" />
                     </ListItemButton>
                 </List>
             </Collapse>
-
-
             <ListItemButton
-                to={config.routes.companyVoterList}
+            
                 component={RouteLink}
+                to={config.routes.companyVoterList}
                 selected={selectedIndex === 4}
                 onClick={(event) => handleListItemClick(event, 4)}
             >
                 <ListItemIcon>
-                    <PeopleIcon sx={{color: '#fff'}}/>
+                    <PeopleIcon />
                 </ListItemIcon>
                 <ListItemText primary="Voter List" />
             </ListItemButton>
+            <Divider sx={{ borderColor: '#2D3748', mt: 2, mb: 2 }} />
+            <ListItemButton
             
+                component={RouteLink}
+                to={config.routes.trashVoters}
+                selected={selectedIndex === 5}
+                onClick={(event) => handleListItemClick(event, 5)}
+            >
+                <ListItemIcon>
+                    <RestoreFromTrashIcon />
+                </ListItemIcon>
+                <ListItemText primary="Trash Voters" />
+            </ListItemButton>
         </Fragment>
     );
 }

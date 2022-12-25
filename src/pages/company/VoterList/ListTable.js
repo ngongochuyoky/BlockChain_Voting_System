@@ -78,7 +78,7 @@ const headCells = [
     },
     {
         id: 'actions',
-        numeric: false,
+        numeric: true,
         label: 'Actions',
         isSort: false,
     },
@@ -96,7 +96,7 @@ function EnhancedTableHead(props) {
                 {headCells.map((headCell) => (
                     <TableCell
                         key={headCell.id}
-                        align={headCell.numeric ? 'right' : 'left'}
+                        align={headCell.numeric ? 'center' : 'left'}
                         sortDirection={orderBy === headCell.id ? order : false}
                     >
                         {headCell.isSort ? (
@@ -156,11 +156,11 @@ export default function EnhancedTable(props) {
     };
     const handleAgreementDelete = async () => {
         setOpenAlertDelete(false);
-        const response = await deleteVoter({ email: source.email });
-        if (response.status === 'success') {
-            props.setUpdate(!props.update);
-            showSuccessSnackbar(response.message);
-        } else showErrorSnackbar(response.message);
+        const response = await deleteVoter({ id: source.id });
+        if (response?.data) {
+            props.setReRender(!props.reRender);
+            showSuccessSnackbar('Deleted successfully');
+        } else showErrorSnackbar('Delete failed');
     };
 
     //Handle Sort
@@ -203,12 +203,12 @@ export default function EnhancedTable(props) {
 
                                         return (
                                             <TableRow hover role="checkbox" tabIndex={-1} key={index}>
-                                                <TableCell component="th" id={labelId} scope="row">
+                                                <TableCell component="th" sx={{fontWeight: 600}} id={labelId} scope="row">
                                                     {row.name}
                                                 </TableCell>
                                                 <TableCell>{row.email}</TableCell>
                                                 <TableCell>{row.password}</TableCell>
-                                                <TableCell>
+                                                <TableCell align='center'>
                                                     <Button
                                                         variant="text"
                                                         onClick={(event) => handleClickEdit(event, row)}
@@ -229,12 +229,9 @@ export default function EnhancedTable(props) {
                                     })
                             ) : (
                                 <TableRow>
-                                    <TableCell component="th" scope="row">
+                                    <TableCell colSpan={4} align='center'>
                                         No records found
                                     </TableCell>
-                                    <TableCell align="right"></TableCell>
-                                    <TableCell align="right"></TableCell>
-                                    <TableCell align="right"></TableCell>
                                 </TableRow>
                             )}
                         </TableBody>
@@ -252,11 +249,11 @@ export default function EnhancedTable(props) {
             </Paper>
             {/* FormEditVoter edit */}
             {openFormEditVoter && <FormEditVoter 
-            source={source} 
-            setOpenFormEditVoter={setOpenFormEditVoter} 
-            setUpdate={props.setUpdate} 
-            update={props.update} 
-            electionName={props.electionName}
+                source={source} 
+                setOpenFormEditVoter={setOpenFormEditVoter} 
+                setReRender={props.setReRender} 
+                reRender={props.reRender} 
+                electionName={props.electionName}
             />}
             {/* Alert Delete */}
             <div>
@@ -286,7 +283,7 @@ export default function EnhancedTable(props) {
 
 EnhancedTable.propTypes = {
     electionName: PropTypes.string.isRequired,
-    setUpdate: PropTypes.func.isRequired,
-    update: PropTypes.bool.isRequired,
+    setReRender: PropTypes.func.isRequired,
+    reRender: PropTypes.bool.isRequired,
     rows: PropTypes.array.isRequired,
 };

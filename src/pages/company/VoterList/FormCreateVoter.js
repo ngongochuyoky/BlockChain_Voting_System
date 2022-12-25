@@ -49,11 +49,11 @@ function TransitionsModal(props) {
             electionAddress: Cookies.get('electionAddress'),
             electionName: props.electionName,
         });
-        if(response.data !== null) {
-            showSuccessSnackbar(response.message);
-            handleClose()
-            props.setUpdate(!props.update);
-        } else showErrorSnackbar(response.message);
+        if(response?.data) {
+            showSuccessSnackbar('Voter account created successfully');
+            handleClose();
+            props.setReRender(!props.reRender);
+        } else showErrorSnackbar('New Account creation failed!!!');
     };
     return (
         <div>
@@ -154,8 +154,8 @@ function TransitionsModal(props) {
 }
 
 TransitionsModal.propTypes = {
-    setUpdate: PropTypes.func.isRequired,
-    update: PropTypes.bool.isRequired,
+    setReRender: PropTypes.func.isRequired,
+    reRender: PropTypes.bool.isRequired,
 };
 
 export default TransitionsModal;

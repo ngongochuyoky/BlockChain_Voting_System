@@ -25,19 +25,20 @@ import { UpdateRoutes } from '~/App';
 function LoginSide() {
     const navigate = useNavigate();
     const updateRoutes = useContext(UpdateRoutes);
-    const snackMessages = useSnackMessages();
+    const {showErrorSnackbar} = useSnackMessages();
 
     const handleLogin = async (event) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
         const response = await companyLogin(formData.get('email'), formData.get('password'));
-        if (response.data === null) snackMessages.showErrorSnackbar(response.message);
-        else {
+        if (response?.data){
             Cookies.set('companyToken', response.data.token);
             Cookies.set('companyEmail', response.data.email);
+            Cookies.set('companyId', response.data.id);
             updateRoutes();
             handleNavigate();
-        }
+        } 
+        else showErrorSnackbar('Account registration failed !!!');
     };
 
     const handleNavigate = async () => {
@@ -52,8 +53,7 @@ function LoginSide() {
                 navigate(config.routes.companyDashboard);
             }
         } catch (err) {
-            console.log(err.message);
-            snackMessages.showErrorSnackbar(ethers.getError());
+            showErrorSnackbar(ethers.getError());
         }
     };
 
