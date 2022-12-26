@@ -229,6 +229,7 @@ export default function EnhancedTable(props) {
                                                     </Button>
                                                     <Button
                                                         variant="text"
+                                                        sx={{color: 'warning.main'}}
                                                         onClick={(event) => handleClickSend(event, row)}
                                                         startIcon={<ForwardToInboxIcon />}
                                                     >

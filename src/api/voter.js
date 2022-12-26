@@ -3,21 +3,31 @@ import { getMethod, postMethod, putMethod, deleteMethod, patchMethod } from './h
 
 export const allVoter = async () => {
     try {
-        const response = await getMethod('/voter', {}, Cookies.get('companyToken'));
+        const response = await getMethod('/voter/' + Cookies.get('electionAddress') + '/allVoter', {}, Cookies.get('companyToken'));
         return response;
     } catch (err) {
         console.log(err.message);
     }
 };
 
-export const getVoterById = async ({id}) => {
-    try{
+export const getVoterById = async ({ id }) => {
+    try {
         const response = await getMethod('/voter/' + id + '/show', {}, Cookies.get('voterToken'));
         return response;
-    }catch (err) {
+    } catch (err) {
         console.log(err.message);
     }
 };
+
+export const totalVoters = async () => {
+    try {
+        const response = await getMethod('/voter/' + Cookies.get('electionAddress') + '/totalVoters', {}, Cookies.get('companyToken'));
+        return response;
+    } catch (err) {
+        console.log(err.message);
+    }
+};
+
 
 export const login = async ({ email, password }) => {
     try {
@@ -63,7 +73,7 @@ export const updateVoter = async ({ id, password, fullName, electionName }) => {
 
 export const deleteVoter = async ({ id }) => {
     try {
-        const response = await deleteMethod('/voter/'+ id, {}, Cookies.get('companyToken'));
+        const response = await deleteMethod('/voter/' + id, {}, Cookies.get('companyToken'));
         return response;
     } catch (err) {
         console.log(err.message);
@@ -72,16 +82,16 @@ export const deleteVoter = async ({ id }) => {
 
 export const findDeletedVoters = async () => {
     try {
-        const response = await getMethod('/voter/trash/', {}, Cookies.get('companyToken'));
+        const response = await getMethod('/voter/' + Cookies.get('electionAddress') + '/trash', {}, Cookies.get('companyToken'));
         return response;
     } catch (err) {
         console.log(err.message);
     }
 };
 
-export const restoreVoter = async ({id}) => {
+export const restoreVoter = async ({ id }) => {
     try {
-        const response = await patchMethod('/voter/'+ id + '/restore', {}, Cookies.get('companyToken'));
+        const response = await patchMethod('/voter/' + id + '/restore', {}, Cookies.get('companyToken'));
         return response;
     } catch (err) {
         console.log(err.message);

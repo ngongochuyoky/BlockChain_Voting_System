@@ -211,6 +211,7 @@ export default function EnhancedTable(props) {
                                                 <TableCell align='center'>
                                                     <Button
                                                         variant="text"
+                                                        sx={{color: 'rgb(87, 202, 34)'}}
                                                         onClick={(event) => handleClickEdit(event, row)}
                                                         startIcon={<EditIcon />}
                                                     >
@@ -218,6 +219,7 @@ export default function EnhancedTable(props) {
                                                     </Button>
                                                     <Button
                                                         variant="text"
+                                                        sx={{color: 'error.main'}}
                                                         onClick={(event) => handleClickDelete(event, row)}
                                                         startIcon={<DeleteIcon />}
                                                     >

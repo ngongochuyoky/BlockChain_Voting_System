@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { styled, ThemeProvider } from '@mui/material/styles';
 import {
-    Avatar,
     CssBaseline,
     Drawer as MuiDrawer,
     Box,
@@ -12,10 +11,7 @@ import {
     Divider,
     Container,
     IconButton,
-    Badge,
-    ListItemIcon,
-    ListItemButton,
-    ListItemText,
+
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { MainListItems } from './ListItems';
@@ -35,8 +31,9 @@ const AppBar = styled(MuiAppBar, { shouldForwardProp: (prop) => prop !== 'open' 
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.leavingScreen,
     }),
-    // backgroundColor: '#FFFFFF',
-    boxShadow: 'none',
+    backgroundColor: theme.palette.neutral[900],
+
+    boxShadow: theme.shadows[2],
     ...(open && {
         marginLeft: drawerWidth,
         width: `calc(100% - ${drawerWidth}px)`,
@@ -167,7 +164,7 @@ function DashboardLayout(props) {
                     }}
                 >
                     <Toolbar />
-                    <Container maxWidth="xl" sx={{ mt: 3, mb: 3 }}>
+                    <Container maxWidth="xl" sx={{  mt: 3, mb: 3 }}>
                         {props.children}
                     </Container>
                 </Box>

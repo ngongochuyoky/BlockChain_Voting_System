@@ -1,10 +1,9 @@
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import {
     Stack,
     Divider,
     Card,
     CardContent,
-    CardMedia,
     Grid,
     Typography,
     Paper,
@@ -14,13 +13,12 @@ import {
     Box,
     Modal,
     Button,
-    CardActionArea,
-    CardActions,
     Avatar,
 } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
 
 // import AvatarDefault from '~/assets/images/avatar_default.jpg';
+import BallotIcon from '@mui/icons-material/Ballot';
 import ethers from '~/ethereum/ethers';
 import Title from '~/layout/component/Title';
 import Cookies from 'js-cookie';
@@ -84,150 +82,187 @@ function Voted() {
         componentDidMount();
     }, []);
     return (
-        <div>
-            {candidates.length ? (
-                <Typography variant="h5" sx={{ mb: 3 }}>
-                    You voted for the candidates
-                </Typography>
-            ) : (
-                <Typography variant="h5" sx={{ mb: 3 }}>
-                    You haven't voted yet!!
-                </Typography>
-            )}
+        <Fragment>
+            <Paper sx={{ display: 'flex', mb: 2, p: '36px' }}>
+                <Grid container>
+                    <Grid item>
+                        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                            <Avatar
+                                variant="rounded"
+                                sx={{
+                                    background: 'rgb(255, 163, 25)',
+                                    boxShadow:
+                                        'rgb(255 163 25 / 25%) 0px 1px 4px, rgb(255 163 25 / 35%) 0px 3px 12px 2px',
+                                    height: 70,
+                                    width: 70,
+                                }}
+                            >
+                                <BallotIcon />
+                            </Avatar>
+                            {candidates.length ? (
+                                <Typography variant="h5" color="primary" sx={{ ml: 2 }}>
+                                    You voted for the candidates
+                                </Typography>
+                            ) : (
+                                <Typography variant="h5" color="primary" sx={{ ml: 2 }}>
+                                    You haven't voted yet!!
+                                </Typography>
+                            )}
+                        </Box>
+                    </Grid>
+                </Grid>
+            </Paper>
+
             <Grid container spacing={2}>
                 {candidates.map((candidate, index) => (
                     <Grid item key={index}>
-                        <Card sx={{ maxWidth: 345 }} key={index}>
-                            <CardActionArea>
-                                <CardMedia component="img" height="300" image={candidate.imgHash} alt="green iguana" />
-                                <CardContent>
-                                    <Typography gutterBottom variant="h5" component="div">
-                                        {candidate.name}
-                                    </Typography>
-                                    <Typography variant="body2" color="text.secondary">
-                                        Position: {positions[candidate.positionID]}
-                                    </Typography>
-                                </CardContent>
-                            </CardActionArea>
-                            <CardActions>
+                        <Card
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                height: '100%',
+                            }}
+                        >
+                            <CardContent>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        pb: 3,
+                                    }}
+                                >
+                                    <Avatar sx={{ height: 100, width: 100 }} src={candidate.imgHash} />
+                                </Box>
+                                <Typography align="center" color="textPrimary" gutterBottom variant="h5">
+                                    {candidate.name}
+                                </Typography>
+                                <Typography align="center" variant="body2" color="text.secondary">
+                                    Position: {positions[candidate.positionID]}
+                                </Typography>
+                            </CardContent>
+                            <Box sx={{ flexGrow: 1 }} />
+                            <Divider />
+                            <Stack container direction="row" justifyContent="center" alignItems="center">
                                 <Button
-                                    size="small"
                                     color="primary"
+                                    sx={{ width: '100%' }}
                                     onClick={(event) => handleClickShow(event, candidate)}
                                 >
                                     Show
                                 </Button>
-                            </CardActions>
+                            </Stack>
                         </Card>
                     </Grid>
                 ))}
             </Grid>
-           {open&&( <Modal
-                aria-labelledby="transition-modal-title"
-                aria-describedby="transition-modal-description"
-                open={true}
-                onClose={handleClose}
-                closeAfterTransition
-                BackdropComponent={Backdrop}
-                BackdropProps={{
-                    timeout: 500,
-                }}
-            >
-                <Fade in={true}>
-                    <Box sx={style}>
-                        <Grid container direction="column">
-                            <Grid item>
-                                <Stack direction="row" justifyContent="space-between" alignItems="center">
-                                    <Title>Candidate Infomation</Title>
-                                    <IconButton onClick={handleClose}>
-                                        <CloseIcon />
-                                    </IconButton>
-                                </Stack>
-                            </Grid>
+            {open && (
+                <Modal
+                    aria-labelledby="transition-modal-title"
+                    aria-describedby="transition-modal-description"
+                    open={true}
+                    onClose={handleClose}
+                    closeAfterTransition
+                    BackdropComponent={Backdrop}
+                    BackdropProps={{
+                        timeout: 500,
+                    }}
+                >
+                    <Fade in={true}>
+                        <Box sx={style}>
+                            <Grid container direction="column">
+                                <Grid item>
+                                    <Stack direction="row" justifyContent="space-between" alignItems="center">
+                                        <Title>Candidate Infomation</Title>
+                                        <IconButton onClick={handleClose}>
+                                            <CloseIcon />
+                                        </IconButton>
+                                    </Stack>
+                                </Grid>
 
-                            <Grid item sx={{ pt: 2 }}>
-                                <Divider sx={{ width: '100%' }} />
-                                <Grid container direction="row" sx={{ mt: 4 }}>
-                                    <Grid item lg={4} xs={12}>
-                                        <Stack
-                                            direction="column"
-                                            justifyContent="center"
-                                            alignItems="center"
-                                            spacing={2}
-                                        >
-                                            <Avatar
-                                                alt="Avatar"
-                                                src={source.imgHash}
-                                                sx={{ width: 200, height: 200 }}
-                                            />
-                                            <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                                                {source.name}
-                                            </Typography>
-                                        </Stack>
-                                    </Grid>
-                                    <Grid item lg={8} xs={12}>
-                                        <Grid container direction="row">
-                                            <Grid item lg={6} xs={12}>
-                                                <Paper sx={{ borderRadius: '10px' }}>
-                                                    <Stack
-                                                        justifyContent="center"
-                                                        alignItems="center"
-                                                        sx={{ pt: 2, pb: 2 }}
-                                                    >
-                                                        <Typography
-                                                            variant="h5"
-                                                            color="primary"
-                                                            sx={{ fontWeight: 700 }}
+                                <Grid item sx={{ pt: 2 }}>
+                                    <Divider sx={{ width: '100%' }} />
+                                    <Grid container direction="row" sx={{ mt: 4 }}>
+                                        <Grid item lg={4} xs={12}>
+                                            <Stack
+                                                direction="column"
+                                                justifyContent="center"
+                                                alignItems="center"
+                                                spacing={2}
+                                            >
+                                                <Avatar
+                                                    alt="Avatar"
+                                                    src={source.imgHash}
+                                                    sx={{ width: 200, height: 200 }}
+                                                />
+                                                <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                                                    {source.name}
+                                                </Typography>
+                                            </Stack>
+                                        </Grid>
+                                        <Grid item lg={8} xs={12}>
+                                            <Grid container direction="row">
+                                                <Grid item lg={6} xs={12}>
+                                                    <Paper sx={{ borderRadius: '10px' }}>
+                                                        <Stack
+                                                            justifyContent="center"
+                                                            alignItems="center"
+                                                            sx={{ pt: 2, pb: 2 }}
                                                         >
-                                                            {source.voteCount}
-                                                        </Typography>
-                                                        <Typography variant="subtitle2">Vote Count</Typography>
-                                                    </Stack>
-                                                </Paper>
-                                            </Grid>
-                                            <Grid item lg={6} xs={12}></Grid>
-                                            <Grid item lg={12} xs={12} sx={{ mt: 3 }}>
-                                                <Paper sx={{ borderRadius: '10px' }}>
-                                                    <Stack sx={{ p: 2 }} direction="column">
-                                                        <Stack direction="row" alignItems="center">
-                                                            <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                                                                Email
+                                                            <Typography
+                                                                variant="h5"
+                                                                color="primary"
+                                                                sx={{ fontWeight: 700 }}
+                                                            >
+                                                                {source.voteCount}
                                                             </Typography>
-                                                            <Typography variant="subtitle2" sx={{ ml: 2 }}>
-                                                                {source.email}
-                                                            </Typography>
+                                                            <Typography variant="subtitle2">Vote Count</Typography>
                                                         </Stack>
-                                                        <Stack direction="row" alignItems="center">
-                                                            <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                                                                Date of birth:
-                                                            </Typography>
-                                                            <Typography variant="subtitle2" sx={{ ml: 2 }}>
-                                                                {source.dateOfBirth}
-                                                            </Typography>
+                                                    </Paper>
+                                                </Grid>
+                                                <Grid item lg={6} xs={12}></Grid>
+                                                <Grid item lg={12} xs={12} sx={{ mt: 3 }}>
+                                                    <Paper sx={{ borderRadius: '10px' }}>
+                                                        <Stack sx={{ p: 2 }} direction="column">
+                                                            <Stack direction="row" alignItems="center">
+                                                                <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                                                                    Email
+                                                                </Typography>
+                                                                <Typography variant="subtitle2" sx={{ ml: 2 }}>
+                                                                    {source.email}
+                                                                </Typography>
+                                                            </Stack>
+                                                            <Stack direction="row" alignItems="center">
+                                                                <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                                                                    Date of birth:
+                                                                </Typography>
+                                                                <Typography variant="subtitle2" sx={{ ml: 2 }}>
+                                                                    {source.dateOfBirth}
+                                                                </Typography>
+                                                            </Stack>
+                                                            <Stack direction="row" alignItems="center">
+                                                                <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                                                                    Description
+                                                                </Typography>
+                                                                <Typography variant="subtitle2" sx={{ ml: 2 }}>
+                                                                    {source.description}
+                                                                </Typography>
+                                                            </Stack>
                                                         </Stack>
-                                                        <Stack direction="row" alignItems="center">
-                                                            <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                                                                Description
-                                                            </Typography>
-                                                            <Typography variant="subtitle2" sx={{ ml: 2 }}>
-                                                                {source.description}
-                                                            </Typography>
-                                                        </Stack>
-                                                    </Stack>
-                                                </Paper>
+                                                    </Paper>
+                                                </Grid>
                                             </Grid>
                                         </Grid>
-                                    </Grid>
-                                    <Grid item lg={12} xx={12}>
-                                        <Divider sx={{ mb: 4, mt: 2 }} />
+                                        <Grid item lg={12} xx={12}>
+                                            <Divider sx={{ mb: 4, mt: 2 }} />
+                                        </Grid>
                                     </Grid>
                                 </Grid>
                             </Grid>
-                        </Grid>
-                    </Box>
-                </Fade>
-            </Modal>)}
-        </div>
+                        </Box>
+                    </Fade>
+                </Modal>
+            )}
+        </Fragment>
     );
 }
 

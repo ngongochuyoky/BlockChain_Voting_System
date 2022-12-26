@@ -71,7 +71,7 @@ function TransitionsModal(props) {
                                 <Grid item lg={8} xs={12}>
                                     <Grid container direction="row">
                                         <Grid item lg={6} xs={12}>
-                                            <Paper sx={{ borderRadius: '10px' }}>
+                                            <Paper sx={{ borderRadius: '10px' }} elevation={24}>
                                                 <Stack
                                                     justifyContent="center"
                                                     alignItems="center"
@@ -86,7 +86,7 @@ function TransitionsModal(props) {
                                         </Grid>
                                         <Grid item lg={6} xs={12}></Grid>
                                         <Grid item lg={12} xs={12} sx={{ mt: 3 }}>
-                                            <Paper sx={{ borderRadius: '10px' }}>
+                                            <Paper sx={{ borderRadius: '10px' }} elevation={24}>
                                                 <Stack sx={{ p: 2 }} direction="column">
                                                     <Stack direction="row" alignItems="center">
                                                         <Typography variant="body1" sx={{ fontWeight: 600 }}>

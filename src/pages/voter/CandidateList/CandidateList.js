@@ -8,10 +8,15 @@ import {
     DialogContent,
     DialogContentText,
     DialogActions,
+    Typography,
+    Box, 
+    Avatar,
+
 } from '@mui/material';
 import Title from '~/layout/component/Title';
+import HowToRegIcon from '@mui/icons-material/HowToReg';
 import CandidateListTable from './ListTable';
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import useSnackMessages from '~/utils/hooks/useSnackMessages';
 import ethers from '~/ethereum/ethers';
 import Cookies from 'js-cookie';
@@ -118,7 +123,31 @@ function CandidateList() {
     };
 
     return (
-        <Grid container spacing={3}>
+        <Fragment>
+            <Paper sx={{ display: 'flex', mb: 2, p: '36px' }}>
+                <Grid container>
+                    <Grid item>
+                        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }} >
+                            <Avatar
+                                variant="rounded"
+                                sx={{
+                                    backgroundColor: 'rgb(85, 105, 255)',
+                                    boxShadow:
+                                        'rgb(85 105 255 / 25%) 0px 1px 4px, rgb(85 105 255 / 35%) 0px 3px 12px 2px',
+                                    height: 70,
+                                    width: 70,
+                                }}
+                            >
+                                <HowToRegIcon />
+                            </Avatar>
+                            <Typography variant="h5" color="primary" sx={{ml: 2}}>
+                                Candidate List
+                            </Typography>
+                        </Box>
+                    </Grid>
+                </Grid>
+            </Paper>
+            <Grid container spacing={3}>
             {/* Title */}
             {data.map((position, index) => (
                 <Grid item xs={12} key={index}>
@@ -131,7 +160,7 @@ function CandidateList() {
                             sx={{ p: 2 }}
                         >
                             <Grid item>
-                                <Title>Candidate List - {position.positionName}</Title>
+                                <Title>{position.positionName}</Title>
                             </Grid>
                         </Grid>
 
@@ -179,6 +208,8 @@ function CandidateList() {
                 </Dialog>
             </div>
         </Grid>
+        </Fragment>
+       
     );
 }
 

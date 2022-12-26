@@ -110,7 +110,7 @@ export const theme = createTheme({
     MuiTableHead: {
       styleOverrides: {
         root: {
-          backgroundColor: '#F3F4F6',
+          backgroundColor: '#22335405',
           '.MuiTableCell-root': {
             color: '#374151'
           },
@@ -153,7 +153,7 @@ export const theme = createTheme({
       disabled: 'rgba(55, 65, 81, 0.26)'
     },
     background: {
-      default: '#F9FAFC',
+      default: 'rgb(242, 245, 249)',
       paper: '#FFFFFF'
     },
     primary: {
@@ -204,6 +204,7 @@ export const theme = createTheme({
   shadows: [
     'none',
     '0px 1px 1px rgba(100, 116, 139, 0.06), 0px 1px 2px rgba(100, 116, 139, 0.1)',
+    'rgb(34 51 84 / 20%) 0px 2px 8px -3px, rgb(34 51 84 / 10%) 0px 5px 22px -4px',
     '0px 1px 2px rgba(100, 116, 139, 0.12)',
     '0px 1px 4px rgba(100, 116, 139, 0.12)',
     '0px 1px 5px rgba(100, 116, 139, 0.12)',

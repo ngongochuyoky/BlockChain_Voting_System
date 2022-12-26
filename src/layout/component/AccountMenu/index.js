@@ -56,7 +56,7 @@ function AccountMenu(props) {
                         aria-haspopup="true"
                         aria-expanded={open ? 'true' : undefined}
                     >
-                        <Avatar sx={{ width: 32, height: 32, bgcolor: deepOrange[500] }}>M</Avatar>
+                        <Avatar sx={{ width: 40, height: 40, bgcolor: deepOrange[500] }}>M</Avatar>
                     </IconButton>
                 </Tooltip>
             </Box>

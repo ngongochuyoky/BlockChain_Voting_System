@@ -36,6 +36,7 @@ const AppBar = styled(MuiAppBar, { shouldForwardProp: (prop) => prop !== 'open' 
         duration: theme.transitions.duration.leavingScreen,
     }),
     boxShadow: 'none',
+    backgroundColor: theme.palette.neutral[900],
     ...(open && {
         marginLeft: drawerWidth,
         width: `calc(100% - ${drawerWidth}px)`,

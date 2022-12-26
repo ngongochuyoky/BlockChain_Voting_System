@@ -19,6 +19,7 @@ const style = {
     p: 4,
 };
 
+
 function TransitionsModal() {
     const [avatar, setAvatar] = useState(AvatarDefault);
     const [positionID, setPositionID] = useState('');
@@ -82,11 +83,13 @@ function TransitionsModal() {
         event.preventDefault();
         const dataForm = new FormData(event.currentTarget);
         //Upload image to IPFS
-        const node = await IPFS.create();
+        let node = null;
+        node = await IPFS.create();
         const { path } = await node.add(buffer);
+        console.log(buffer);
         const imgHash = ('https://ipfs.io/ipfs/' + path).trim();
-        await node.stop();
         console.log(imgHash);
+        await node.stop();
         try {
             await ethers.connectWallet();
             const contract = ethers.getElectionContract();

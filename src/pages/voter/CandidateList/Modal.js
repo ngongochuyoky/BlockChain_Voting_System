@@ -136,7 +136,7 @@ function TransitionsModal(props) {
                                             disabled={props.isVoted || props.voted === props.source.candidateID}
                                             variant="contained"
                                             startIcon={<HowToVoteIcon />}
-                                            sx={{ pl: 3, pr: 3 }}
+                                            sx={{ pl: 3, pr: 3, backgroundColor: 'rgb(87, 202, 34)' }}
                                         >
                                             Vote
                                         </Button>

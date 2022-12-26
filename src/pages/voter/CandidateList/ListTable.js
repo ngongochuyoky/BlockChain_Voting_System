@@ -229,6 +229,7 @@ export default function EnhancedTable(props) {
                                                     </Button>
                                                     {!props.isVoted && (
                                                         <Button
+                                                            sx={{color: 'rgb(87, 202, 34)'}}
                                                             disabled={row.candidateID === voted}
                                                             variant="text"
                                                             onClick={(event) => handleClickVote(event, row)}
