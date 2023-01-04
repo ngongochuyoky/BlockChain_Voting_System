@@ -41,6 +41,7 @@ function CandidateList() {
     const [openAlertSubmit, setOpenAlertSubmit] = useState(false);
     const [isVoted, setIsVoted] = useState(true);
     const [votedList, setVotedList] = useState([]);
+    const [endedElection, setEndedElection] = useState(true);
 
     useEffect(() => {
         const addCandidateListener = (result) => {
@@ -59,10 +60,9 @@ function CandidateList() {
         };
         const voteListener = () => {
             const contract = ethers.getElectionContract();
-            contract.on('Vote', (email) => {
-                if (email === Cookies.get('voterEmail')) {
+            contract.on('Vote', (voterId) => {
+                if (voterId === Cookies.get('voterId')) {
                     showSuccessSnackbar('Voted successfully');
-                    setIsVoted(true);
                 }
             });
         };
@@ -72,6 +72,8 @@ function CandidateList() {
                 const contract = ethers.getElectionContract();
                 const positions = await contract.getPositions();
                 const summary = await contract.getElectionDetails();
+                const status = await contract.getStatus();
+                setEndedElection(status);
 
                 setElectionName(summary[0]);
                 const result = positions.map((position) => ({
@@ -81,7 +83,7 @@ function CandidateList() {
                 if (positions.length) {
                     //Array of voted candidate
                     //Nếu chưa vote, Khởi tạo 1 mảng -1, trước lúc submit, filter lại mảng, vì candidateID >= 0
-                    const voter = await contract.getVoter(Cookies.get('voterEmail'));
+                    const voter = await contract.getVoter(Cookies.get('voterId'));
 
                     if (!voter[0]) {
                         const votedList = positions.map((position) => -1);
@@ -111,13 +113,15 @@ function CandidateList() {
     const handleCloseAlertSubmit = () => setOpenAlertSubmit(false);
     const handleAgreementSubmit = async () => {
         setOpenAlertSubmit(false);
+        setIsVoted(true);
         const candidateIDList = votedList.filter((candidateID) => candidateID >= 0);
         try {
             await ethers.connectWallet();
             const contract = ethers.getElectionContract();
-            const bool = await contract.vote(candidateIDList, Cookies.get('voterEmail'));
+            const bool = await contract.vote(candidateIDList, Cookies.get('voterId'));
             bool && showInfoSnackbar('Blockchain is processing');
         } catch (err) {
+            setIsVoted(false);
             ethers.getError() && showErrorSnackbar(ethers.getError());
         }
     };
@@ -173,12 +177,13 @@ function CandidateList() {
                                 votedList={votedList}
                                 setVotedList={setVotedList}
                                 isVoted={isVoted}
+                                endedElection={endedElection}
                             />
                         </Grid>
                     </Paper>
                 </Grid>
             ))}
-            {!isVoted && (
+            {!isVoted && !endedElection &&(
                 <Grid item lg={12}>
                     <Button onClick={handleClickSubmit} variant="contained" sx={{ float: 'right', mb: 8 }}>
                         Submit

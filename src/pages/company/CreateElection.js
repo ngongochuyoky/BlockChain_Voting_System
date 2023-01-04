@@ -1,6 +1,6 @@
 import {
     CssBaseline,
-    AppBar,
+    AppBar as MuiAppBar,
     Box,
     Container,
     Toolbar,
@@ -11,6 +11,7 @@ import {
     TextField,
     FormControlLabel,
     Checkbox,
+    Link,
 } from '@mui/material';
 import Cookies from 'js-cookie';
 import { Fragment, useState } from 'react';
@@ -18,6 +19,14 @@ import ethers from '~/ethereum/ethers';
 import config from '~/config';
 import { useNavigate } from 'react-router-dom';
 import useSnackMessages from '~/utils/hooks/useSnackMessages';
+import { styled } from '@mui/material/styles';
+import { Link as RouteLink } from 'react-router-dom';
+
+
+const AppBar = styled(MuiAppBar)({
+    backgroundColor: '#111827',
+    boxShadow: 'rgb(34 51 84 / 20%) 0px 2px 8px -3px, rgb(34 51 84 / 10%) 0px 5px 22px -4px',
+});
 
 function CreateElection() {
     const navigate = useNavigate();
@@ -32,7 +41,7 @@ function CreateElection() {
             await ethers.connectWallet();
             const contract = ethers.getElectionFactContract();
             const bool = await contract.createElection(
-                Cookies.get('companyEmail'),
+                Cookies.get('companyId'),
                 formData.get('election-name'),
                 formData.get('election-description'),
             );
@@ -68,9 +77,15 @@ function CreateElection() {
                 }}
             >
                 <Toolbar>
-                    <Typography variant="h6" color="inherit" noWrap>
-                        Company name
-                    </Typography>
+                <Link
+                    component={RouteLink}
+                    underline="none"
+                    color="#fff"
+                    sx={{ fontSize: '30px', ml: 4 }}
+                    to={config.routes.home}
+                >
+                    Home
+                </Link>
                 </Toolbar>
             </AppBar>
             <Container component="main" maxWidth="sm" sx={{ mb: 4 }}>

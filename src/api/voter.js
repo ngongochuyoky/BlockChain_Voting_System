@@ -38,13 +38,12 @@ export const login = async ({ email, password }) => {
     }
 };
 
-export const createVoter = async ({ email, password, fullName, electionAddress, electionName }) => {
+export const createVoter = async ({ email, fullName, electionAddress, electionName }) => {
     try {
         const response = await postMethod(
             '/voter/register',
             {
                 email,
-                password,
                 fullName,
                 electionAddress,
                 electionName,

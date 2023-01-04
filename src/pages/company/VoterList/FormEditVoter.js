@@ -85,14 +85,13 @@ function TransitionsModal(props) {
 
                         <Grid item sx={{ pt: 2 }}>
                             <Divider sx={{ width: '100%' }} />
-                            <Grid container direction="row" sx={{ mt: 4 }}>
                                 <Box component="form" onSubmit={handleUpdate} validate="true" autoComplete="off">
-                                    <Grid container direction="row">
+                                    <Grid container direction="row" sx={{ mt: 4 }}>
                                         <Grid item lg={12} xs={12} sx={{ pt: 2 }}>
                                             <Grid container spacing={2}>
                                                 {/* Input Voter Name */}
                                                 <Grid item lg={6} xs={12}>
-                                                    <InputLabel htmlFor="name" sx={{ fontWeight: 700 }}>
+                                                    <InputLabel htmlFor="name" sx={{ fontWeight: 700, color: 'secondary.main' }}>
                                                         Full Name
                                                     </InputLabel>
                                                     <TextField
@@ -123,7 +122,7 @@ function TransitionsModal(props) {
                                                 </Grid>
                                                 {/* Input password */}
                                                 <Grid item lg={6} xs={12}>
-                                                    <InputLabel htmlFor="password" sx={{ fontWeight: 700 }}>
+                                                    <InputLabel htmlFor="password" sx={{ fontWeight: 700,  color: 'secondary.main' }}>
                                                         Password
                                                     </InputLabel>
                                                     <TextField
@@ -149,7 +148,6 @@ function TransitionsModal(props) {
                                         </Grid>
                                     </Grid>
                                 </Box>
-                            </Grid>
                         </Grid>
                     </Grid>
                 </Box>

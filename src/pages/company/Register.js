@@ -39,10 +39,12 @@ function RegisterSide() {
             );
             if (response?.data) {
                 Cookies.set('companyToken', response.data.token);
+                Cookies.set('companyEmail', response.data.email);
+                Cookies.set('companyId', response.data.id);
                 updateRoutes();
                 navigate(config.routes.createElection);
             }
-            else snackMessages.showErrorSnackbar(response.message);
+            else snackMessages.showErrorSnackbar('Account creation failed');
         }
     }
 

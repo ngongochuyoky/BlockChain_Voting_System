@@ -97,7 +97,7 @@ function MainListItems() {
                 </ListItemIcon>
                 <ListItemText primary="Voter List" />
             </ListItemButton>
-            <Divider sx={{ borderColor: '#2D3748', mt: 2, mb: 2 }} />
+            {/* <Divider sx={{ borderColor: '#2D3748', mt: 2, mb: 2 }} />
             <ListItemButton
             
                 component={RouteLink}
@@ -109,7 +109,7 @@ function MainListItems() {
                     <RestoreFromTrashIcon />
                 </ListItemIcon>
                 <ListItemText primary="Trash Voters" />
-            </ListItemButton>
+            </ListItemButton> */}
         </Fragment>
     );
 }

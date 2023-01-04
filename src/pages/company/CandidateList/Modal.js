@@ -11,11 +11,13 @@ import {
     Fade,
     Divider,
     Typography,
-    Avatar,
+    Avatar as MuiAvatar,
     Paper,
 } from '@mui/material';
+import {styled} from '@mui/material/styles';
 
 import Title from '~/layout/component/Title';
+
 
 const style = {
     position: 'absolute',
@@ -28,6 +30,11 @@ const style = {
     width: '50vw',
     p: 4,
 };
+
+const Avatar = styled(MuiAvatar) (({theme})=> ({
+    boxShadow: 'rgb(87, 202, 34) 0px 0px 0px 3px',
+    border: '3px solid rgb(255, 255, 255)',
+}))
 
 function TransitionsModal(props) {
     const handleClose = () => props.setOpen(false);
@@ -62,7 +69,7 @@ function TransitionsModal(props) {
                             <Grid container direction="row" sx={{ mt: 4 }}>
                                 <Grid item lg={4} xs={12}>
                                     <Stack direction="column" justifyContent="center" alignItems="center" spacing={2}>
-                                        <Avatar alt="Avatar" src={props.source.imgHash} sx={{ width: 200, height: 200 }} />
+                                        <Avatar alt="Avatar" src={props.source.imgHash} sx={{ width: 200, height: 200,  }} />
                                         <Typography variant="h6" sx={{ fontWeight: 700 }}>
                                             {props.source.name}
                                         </Typography>
@@ -98,11 +105,14 @@ function TransitionsModal(props) {
                                                     </Stack>
                                                     <Stack direction="row" alignItems="center">
                                                         <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                                                            Date of birth:
+                                                            Date of birth
                                                         </Typography>
                                                         <Typography variant="subtitle2" sx={{ ml: 2 }}>
                                                             {props.source.dateOfBirth}
                                                         </Typography>
+                                                    </Stack>
+                                                    <Stack>
+                                                        
                                                     </Stack>
                                                     <Stack direction="row" alignItems="center">
                                                         <Typography variant="body1" sx={{ fontWeight: 600 }}>

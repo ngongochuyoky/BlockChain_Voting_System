@@ -18,7 +18,7 @@ import { useState } from 'react';
 
 import Title from '~/layout/component/Title';
 import useSnackMessages from '~/utils/hooks/useSnackMessages';
-import { createVoter } from '~/api/voter'; 
+import { createVoter } from '~/api/voter';
 import Cookies from 'js-cookie';
 
 const style = {
@@ -41,15 +41,14 @@ function TransitionsModal(props) {
 
     const handleCreateNew = async (event) => {
         event.preventDefault();
-        const dataForm = new FormData(event.currentTarget)
+        const dataForm = new FormData(event.currentTarget);
         const response = await createVoter({
             email: dataForm.get('email'),
-            password: dataForm.get('password'),
             fullName: dataForm.get('name'),
             electionAddress: Cookies.get('electionAddress'),
             electionName: props.electionName,
         });
-        if(response?.data) {
+        if (response?.data) {
             showSuccessSnackbar('Voter account created successfully');
             handleClose();
             props.setReRender(!props.reRender);
@@ -57,42 +56,44 @@ function TransitionsModal(props) {
     };
     return (
         <div>
-             <Button onClick={handleOpen} variant="contained" startIcon={<AddIcon />}>
+            <Button onClick={handleOpen} variant="contained" startIcon={<AddIcon />}>
                 Add
             </Button>
             <Modal
-            aria-labelledby="transition-modal-title"
-            aria-describedby="transition-modal-description"
-            open={open}
-            onClose={handleClose}
-            closeAfterTransition
-            BackdropComponent={Backdrop}
-            BackdropProps={{
-                timeout: 500,
-            }}
-        >
-            <Fade in={open}>
-                <Box sx={style}>
-                    <Grid container direction="column">
-                        <Grid item>
-                            <Stack direction="row" justifyContent="space-between" alignItems="center">
-                                <Title>Create Voter Account</Title>
-                                <IconButton onClick={handleClose}>
-                                    <CloseIcon />
-                                </IconButton>
-                            </Stack>
-                        </Grid>
+                aria-labelledby="transition-modal-title"
+                aria-describedby="transition-modal-description"
+                open={open}
+                onClose={handleClose}
+                closeAfterTransition
+                BackdropComponent={Backdrop}
+                BackdropProps={{
+                    timeout: 500,
+                }}
+            >
+                <Fade in={open}>
+                    <Box sx={style}>
+                        <Grid container direction="column">
+                            <Grid item>
+                                <Stack direction="row" justifyContent="space-between" alignItems="center">
+                                    <Title>Create Voter Account</Title>
+                                    <IconButton onClick={handleClose}>
+                                        <CloseIcon />
+                                    </IconButton>
+                                </Stack>
+                            </Grid>
 
-                        <Grid item sx={{ pt: 2 }}>
-                            <Divider sx={{ width: '100%' }} />
-                            <Grid container direction="row" sx={{ mt: 4 }}>
+                            <Grid item sx={{ pt: 2 }}>
+                                <Divider sx={{ width: '100%' }} />
                                 <Box component="form" onSubmit={handleCreateNew} validate="true" autoComplete="off">
-                                    <Grid container direction="row">
+                                    <Grid container direction="row" sx={{ mt: 4 }}>
                                         <Grid item lg={12} xs={12} sx={{ pt: 2 }}>
                                             <Grid container spacing={2}>
                                                 {/* Input Voter Name */}
                                                 <Grid item lg={6} xs={12}>
-                                                    <InputLabel htmlFor="name" sx={{ fontWeight: 700 }}>
+                                                    <InputLabel
+                                                        htmlFor="name"
+                                                        sx={{ fontWeight: 700, color: 'secondary.main' }}
+                                                    >
                                                         Full Name
                                                     </InputLabel>
                                                     <TextField
@@ -104,10 +105,12 @@ function TransitionsModal(props) {
                                                     />
                                                 </Grid>
 
-                                                <Grid item lg={6} xs={12} />
                                                 {/* Input email */}
                                                 <Grid item lg={6} xs={12}>
-                                                    <InputLabel htmlFor="email" sx={{ fontWeight: 700 }}>
+                                                    <InputLabel
+                                                        htmlFor="email"
+                                                        sx={{ fontWeight: 700, color: 'secondary.main' }}
+                                                    >
                                                         Email
                                                     </InputLabel>
                                                     <TextField
@@ -118,8 +121,8 @@ function TransitionsModal(props) {
                                                     />
                                                 </Grid>
                                                 {/* Input password */}
-                                                <Grid item lg={6} xs={12}>
-                                                    <InputLabel htmlFor="password" sx={{ fontWeight: 700 }}>
+                                                {/* <Grid item lg={6} xs={12}>
+                                                    <InputLabel htmlFor="password" sx={{ fontWeight: 700, color: 'secondary.main' }}>
                                                         Password
                                                     </InputLabel>
                                                     <TextField  
@@ -129,7 +132,7 @@ function TransitionsModal(props) {
                                                         name="password"
                                                         placeholder="abc123@"
                                                     />
-                                                </Grid>
+                                                </Grid> */}
                                             </Grid>
                                         </Grid>
                                         {/* Button Submit */}
@@ -145,10 +148,9 @@ function TransitionsModal(props) {
                                 </Box>
                             </Grid>
                         </Grid>
-                    </Grid>
-                </Box>
-            </Fade>
-        </Modal>
+                    </Box>
+                </Fade>
+            </Modal>
         </div>
     );
 }

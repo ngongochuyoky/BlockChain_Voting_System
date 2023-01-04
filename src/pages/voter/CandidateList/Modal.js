@@ -11,13 +11,14 @@ import {
     Fade,
     Divider,
     Typography,
-    Avatar,
+    Avatar as MuiAvatar,
     Paper,
     Button,
 } from '@mui/material';
 
 import Title from '~/layout/component/Title';
 import HowToVoteIcon from '@mui/icons-material/HowToVote';
+import {styled} from '@mui/material/styles';
 
 const style = {
     position: 'absolute',
@@ -30,6 +31,11 @@ const style = {
     width: '50vw',
     p: 4,
 };
+
+const Avatar = styled(MuiAvatar) (({theme})=> ({
+    boxShadow: 'rgb(87, 202, 34) 0px 0px 0px 3px',
+    border: '3px solid rgb(255, 255, 255)',
+}))
 
 function TransitionsModal(props) {
     const handleClose = () => props.setOpen(false);
@@ -89,7 +95,7 @@ function TransitionsModal(props) {
                                                     sx={{ pt: 2, pb: 2 }}
                                                 >
                                                     <Typography variant="h5" color="primary" sx={{ fontWeight: 700 }}>
-                                                        {voteCount}
+                                                        {props.endedElection ? voteCount : '?'}
                                                     </Typography>
                                                     <Typography variant="subtitle2">Vote Count</Typography>
                                                 </Stack>

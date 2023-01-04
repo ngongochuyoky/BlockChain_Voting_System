@@ -213,12 +213,16 @@ export default function EnhancedTable(props) {
                                                 </TableCell>
                                                 <TableCell align="right">{row.dateOfBirth}</TableCell>
                                                 <TableCell align="right">{row.email}</TableCell>
-                                                <TableCell
+                                                
+                                                    
+                                                        <TableCell
                                                     align="right"
                                                     sx={{ color: 'success.main', fontWeight: 900 }}
                                                 >
-                                                    {voteCount}
+                                                    {props.endedElection ? voteCount : '?'}
                                                 </TableCell>
+                                                    
+                                                
                                                 <TableCell align="right">
                                                     <Button
                                                         variant="text"
@@ -270,6 +274,7 @@ export default function EnhancedTable(props) {
                     setOpen={setOpen}
                     voted={voted}
                     votedList={props.votedList}
+                    endedElection={props.endedElection}
                 />
             )}
         </Box>
@@ -282,4 +287,5 @@ EnhancedTable.propTypes = {
     positionName: PropTypes.string.isRequired,
     votedList: PropTypes.array.isRequired,
     setVotedList: PropTypes.func.isRequired,
+    endedElection: PropTypes.bool.isRequired,
 };

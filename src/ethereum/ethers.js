@@ -5,7 +5,7 @@ import election from '~/ethereum/artifacts/contracts/Election.sol/Election.json'
 
 
 function Ethers() {
-    const electionFactAddress = '0x50b3fF61ad49056fAd9E14E01679b7555473876B';
+    const electionFactAddress = '0xD9948af91E8184328526f5EEe4cC889bBB1E26d6';
     let signerEth = null;
     let errorMessage = 'Failed !!!';
     return {

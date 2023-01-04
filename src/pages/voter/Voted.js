@@ -13,7 +13,7 @@ import {
     Box,
     Modal,
     Button,
-    Avatar,
+    Avatar as MuiAvatar,
 } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
 
@@ -22,6 +22,8 @@ import BallotIcon from '@mui/icons-material/Ballot';
 import ethers from '~/ethereum/ethers';
 import Title from '~/layout/component/Title';
 import Cookies from 'js-cookie';
+import {styled} from '@mui/material/styles';
+
 
 function createData(candidateID, positionID, name, dateOfBirth, description, imgHash, voteCount, email) {
     return {
@@ -48,11 +50,18 @@ const style = {
     p: 4,
 };
 
+const Avatar = styled(MuiAvatar) (({theme})=> ({
+    boxShadow: 'rgb(87, 202, 34) 0px 0px 0px 3px',
+    border: '3px solid rgb(255, 255, 255)',
+}))
+
+
 function Voted() {
     const [candidates, setCandidates] = useState([]);
     const [positions, setPositions] = useState([]);
     const [open, setOpen] = useState(false);
     const [source, setSource] = useState();
+    const [endedElection, setEndedElection] = useState(false)
 
     const handleClose = () => setOpen(false);
     const handleClickShow = (event, candidate) => {
@@ -66,9 +75,10 @@ function Voted() {
                 await ethers.connectWallet();
                 const contract = ethers.getElectionContract();
                 const positions = await contract.getPositions();
-                console.log(positions);
+                const status = await contract.getStatus();
+                setEndedElection(status);
                 setPositions(positions);
-                const voter = await contract.getVoter(Cookies.get('voterEmail'));
+                const voter = await contract.getVoter(Cookies.get('voterId'));
                 if (voter[0]) {
                     const result = [];
                     for (let i = 0; i < voter[1].length; i++) {
@@ -87,7 +97,7 @@ function Voted() {
                 <Grid container>
                     <Grid item>
                         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                            <Avatar
+                            <MuiAvatar
                                 variant="rounded"
                                 sx={{
                                     background: 'rgb(255, 163, 25)',
@@ -98,7 +108,7 @@ function Voted() {
                                 }}
                             >
                                 <BallotIcon />
-                            </Avatar>
+                            </MuiAvatar>
                             {candidates.length ? (
                                 <Typography variant="h5" color="primary" sx={{ ml: 2 }}>
                                     You voted for the candidates
@@ -121,6 +131,7 @@ function Voted() {
                                 display: 'flex',
                                 flexDirection: 'column',
                                 height: '100%',
+                                width: '300px'
                             }}
                         >
                             <CardContent>
@@ -213,7 +224,7 @@ function Voted() {
                                                                 color="primary"
                                                                 sx={{ fontWeight: 700 }}
                                                             >
-                                                                {source.voteCount}
+                                                                {endedElection ? source.voteCount : '?'}
                                                             </Typography>
                                                             <Typography variant="subtitle2">Vote Count</Typography>
                                                         </Stack>

@@ -38,14 +38,14 @@ function LoginSide() {
             updateRoutes();
             handleNavigate();
         } 
-        else showErrorSnackbar('Account registration failed !!!');
+        else showErrorSnackbar('Login Failed !!!');
     };
 
     const handleNavigate = async () => {
         try {
             await ethers.connectWallet();
             const contract = ethers.getElectionFactContract();
-            const summary = await contract.getDeployedElection(Cookies.get('companyEmail'));
+            const summary = await contract.getDeployedElection(Cookies.get('companyId'));
             if (summary[2] === 'Create an election') {
                 navigate(config.routes.createElection);
             } else {

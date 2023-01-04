@@ -5,7 +5,7 @@ import NumVoter from './NumVoter';
 import Voted from './Voted';
 import { Fragment, useEffect, useState } from 'react';
 import ethers from '~/ethereum/ethers';
-import { totalVoters } from '~/api/voter';
+import { totalVoters, allVoter } from '~/api/voter';
 
 function DashboardContent() {
     const [voted, setVoted] = useState(0);
@@ -22,8 +22,16 @@ function DashboardContent() {
                 numPosition && setNumPosition(numPosition);
                 const numCandidate = await contract.getNumOfCandidates();
                 numCandidate && setNumCandidate(numCandidate);
-                const voted = await contract.getNumOfVoters();
-                voted && setVoted(voted);
+                const response = await allVoter();
+                if(response?.data) {
+                    for(let i = 0; i < response.data.length; i++) {
+                        const voter = await contract.getVoter(response.data[i]._id);
+                        console.log(voter);
+                        (voter?.[0] === true)&&setVoted(pre=>pre+1);
+                    }
+                    const numVoter = await totalVoters();
+                    numVoter && setNumVoter(numVoter.data);
+                }
                 const numVoter = await totalVoters();
                 numVoter && setNumVoter(numVoter.data);
                 const election = await contract.getElectionDetails();

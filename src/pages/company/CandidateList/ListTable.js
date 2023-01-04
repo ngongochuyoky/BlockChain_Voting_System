@@ -241,7 +241,7 @@ export default function EnhancedTable(props) {
                                     })
                             ) : (
                                 <TableRow>
-                                    <TableCell colSpan={5} align='center'>
+                                    <TableCell colSpan={5} >
                                         No records found
                                     </TableCell>
                                 </TableRow>
