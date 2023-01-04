@@ -1,14 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import Avatar from '@mui/material/Avatar';
 import AvatarDefault from '~/assets/images/avatar_default.jpg';
 
-import * as IPFS from 'ipfs-core';
+import { Web3Storage } from 'web3.storage';
 import ethers from '~/ethereum/ethers';
 
-import { Buffer } from 'buffer/';
 import useSnackMessages from '~/utils/hooks/useSnackMessages';
 // import dayjs from 'dayjs';
 import { Grid, Stack, InputLabel, Box, Button, Divider, TextField, Typography, Select, MenuItem } from '@mui/material';
@@ -19,20 +18,21 @@ const style = {
     p: 4,
 };
 
-
 function TransitionsModal() {
-    const [avatar, setAvatar] = useState(AvatarDefault);
+    const [avatar, setAvatar] = useState(
+        'https://bafybeigpzhpw3klgflpclub26kozd6jqlqbdoa5tpe7gl4abm5jr6gvx74.ipfs.w3s.link/avatar_default.jpg',
+    );
     const [positionID, setPositionID] = useState('');
     const [positions, setPositions] = useState([]);
     const [buffer, setBuffer] = useState(null);
     const [value, setValue] = useState();
+    const [files, setFiles] = useState('');
     const { showInfoSnackbar, showErrorSnackbar } = useSnackMessages();
+
+    const client = useMemo(() => new Web3Storage({ token: process.env.REACT_APP_API_TOKEN }), []);
 
     useEffect(() => {
         const componentDidMount = async () => {
-            //Avatar default
-            const file = await coverDataUriToFile(AvatarDefault);
-            await coverFileToBuffer(file);
             //Get Positions
             try {
                 await ethers.connectWallet();
@@ -55,41 +55,26 @@ function TransitionsModal() {
         setPositionID(event.target.value);
     };
 
-    const coverDataUriToFile = async (avatarDefault) => {
-        const blob = await (await fetch(avatarDefault)).blob();
-        const file = new File([blob], 'fileName.jpg', { type: 'image/jpeg', lastModified: new Date() });
-        return file;
-    };
-
-    const coverFileToBuffer = async (file) => {
-        const fileReader = new FileReader();
-        await fileReader.readAsArrayBuffer(file);
-        fileReader.onloadend = async function (event) {
-            const buffer = await Buffer.from(fileReader.result);
-            setBuffer(buffer);
-        };
-    };
-
     //Preview Avatar and File to Buffer
     const handlePreviewAvatar = async (e) => {
         const file = e.target.files[0];
         const avatarPreview = URL.createObjectURL(file);
-        await coverFileToBuffer(file);
         setAvatar(avatarPreview);
+        setFiles(e.target.files);
     };
 
     // Create New Candidate
     const handleCreateNew = async (event) => {
         event.preventDefault();
         const dataForm = new FormData(event.currentTarget);
-        //Upload image to IPFS
-        let node = null;
-        node = await IPFS.create();
-        const { path } = await node.add(buffer);
-        console.log(buffer);
-        const imgHash = ('https://ipfs.io/ipfs/' + path).trim();
-        console.log(imgHash);
-        await node.stop();
+
+        let imgHash = avatar;
+        if (files) {
+            const rootCid = await client.put(files);
+            imgHash = encodeURI(`https://${rootCid}.ipfs.w3s.link/${files[0].name}`);
+            console.log(imgHash);
+        }
+
         try {
             await ethers.connectWallet();
             const contract = ethers.getElectionContract();
