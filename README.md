@@ -37,3 +37,5 @@ React is allows us to obtain the injected web3 in the browser from metamask, thi
 
 The Nodejs backend was used to connect to the MongoDB database. The backend handles the basic functions of creating new data, retrieving and editing voter data stored on the MongoDB database. Create new, retrieve user's account data, send email to user.
 
+Demo: https://youtu.be/NG1hJ6M1agM
+
