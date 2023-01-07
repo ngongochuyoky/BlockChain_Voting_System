@@ -1,26 +1,17 @@
 import { Grid, Paper, Typography, Button, Box } from '@mui/material';
-import NumCandidate from './NumCandidate';
-import NumPosition from './NumPosition';
-import NumVoter from './NumVoter';
-import Voted from './Voted';
+import NumCandidate from '~/layout/component/NumCandidate';
+import NumPosition from '~/layout/component/NumPosition';
+import NumVoter from '~/layout/component/NumVoter';
+import Voted from '~/layout/component/Voted';
+import BarChart from '~/layout/component/BarChart';
+import PieChart from '~/layout/component/PieChart';
 import { Fragment, useEffect, useState } from 'react';
 import ethers from '~/ethereum/ethers';
 import { totalVoters, allVoter } from '~/api/voter';
 import useSnackMessages from '~/utils/hooks/useSnackMessages';
 import { resultMail } from '~/api/company';
+import { createCandidateData } from '~/utils/CreateData';
 
-function createData(candidateID, positionID, name, dateOfBirth, description, imgHash, voteCount, email, ...args) {
-    return {
-        candidateID,
-        name,
-        dateOfBirth,
-        description,
-        imgHash,
-        voteCount,
-        positionID,
-        email,
-    };
-}
 function DashboardContent() {
     const [voted, setVoted] = useState(0);
     const [numPosition, setNumPosition] = useState(0);
@@ -30,42 +21,65 @@ function DashboardContent() {
     const [winners, setWinners] = useState([]);
     const [endedElection, setEndedElection] = useState(false);
     const { showSuccessSnackbar, showErrorSnackbar } = useSnackMessages();
+    const [dataChart, setDataChart] = useState([]);
     useEffect(() => {
         const componentDidMount = async () => {
             try {
                 await ethers.connectWallet();
                 const contract = await ethers.getElectionContract();
-
+                //Election Status
                 const status = await contract.getStatus();
-                status && setEndedElection(status);
+                setEndedElection(status);
+                //Number of positions
                 const numPosition = await contract.getNumOfPosition();
                 numPosition && setNumPosition(numPosition);
+                const positions = await contract.getPositions();
+                //Number of candidates
                 const numCandidate = await contract.getNumOfCandidates();
                 numCandidate && setNumCandidate(numCandidate);
 
+                //Candidates
+                const candidates = [];
+                for (let i = 0; i < numCandidate; i++) {
+                    const candidate = await contract.getCandidate(i);
+                    candidates.push(createCandidateData(i, ...candidate));
+                }
+
+                const dataChart = positions.map((position) => ({
+                    positionName: position,
+                    rows: [],
+                }));
+                candidates.forEach((candidate) => {
+                    dataChart[candidate.positionID].rows.push(candidate);
+                });
+                dataChart && setDataChart(dataChart);
+
+                //Number of voters
+                const numVoter = await totalVoters();
+                numVoter && setNumVoter(numVoter.data);
+
+                //The number of voters who voted
                 const response = await allVoter();
                 if (response?.data) {
                     for (let i = 0; i < response.data.length; i++) {
                         const voter = await contract.getVoter(response.data[i]._id);
                         voter?.[0] === true && setVoted((pre) => pre + 1);
                     }
-                    const numVoter = await totalVoters();
-                    numVoter && setNumVoter(numVoter.data);
                 }
 
                 const election = await contract.getElectionDetails();
                 election && setElectionName(election[0]);
                 //Get Winners
-                const positions = await contract.getPositions();
-                const winnersID = await contract.winner();
-                const winners = [];
-                for (let i = 0; i < winnersID.length; i++) {
-                    const candidate = await contract.getCandidate(winnersID[i]);
-                    winners.push(createData(winnersID[i], ...candidate));
+                if (status) {
+                    const winnersID = await contract.winner();
+                    const winners = [];
+                    for (let i = 0; i < winnersID.length; i++) {
+                        const candidate = await contract.getCandidate(winnersID[i]);
+                        winners.push(createCandidateData(winnersID[i], ...candidate));
+                    }
+                    const result = winners.map((winner) => ({ ...winner, positionName: positions[winner.positionID] }));
+                    setWinners(result);
                 }
-                const result = winners.map(winner => ({...winner, positionName: positions[winner.positionID]}));
-                console.log(result)
-                setWinners(result);
             } catch (err) {
                 console.log(err);
             }
@@ -118,6 +132,7 @@ function DashboardContent() {
             </Paper>
             <Grid container spacing={3}>
                 {/* Recent Orders */}
+
                 <Grid item xs={3}>
                     <Voted voted={voted} />
                 </Grid>
@@ -130,6 +145,18 @@ function DashboardContent() {
                 <Grid item xs={3}>
                     <NumPosition numPosition={numPosition} />
                 </Grid>
+
+                {dataChart.length !== 0 &&
+                    dataChart.map((data, index) => (
+                        <Fragment key={index}>
+                            <Grid item xs={6}>
+                                <PieChart candidates={data.rows} positionName={data.positionName} />
+                            </Grid>
+                            <Grid item xs={6}>
+                                <BarChart candidates={data.rows} positionName={data.positionName} />
+                            </Grid>
+                        </Fragment>
+                    ))}
             </Grid>
         </Fragment>
     );

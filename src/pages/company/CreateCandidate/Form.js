@@ -3,7 +3,6 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import Avatar from '@mui/material/Avatar';
-import AvatarDefault from '~/assets/images/avatar_default.jpg';
 
 import { Web3Storage } from 'web3.storage';
 import ethers from '~/ethereum/ethers';
@@ -24,7 +23,6 @@ function TransitionsModal() {
     );
     const [positionID, setPositionID] = useState('');
     const [positions, setPositions] = useState([]);
-    const [buffer, setBuffer] = useState(null);
     const [value, setValue] = useState();
     const [files, setFiles] = useState('');
     const { showInfoSnackbar, showErrorSnackbar } = useSnackMessages();

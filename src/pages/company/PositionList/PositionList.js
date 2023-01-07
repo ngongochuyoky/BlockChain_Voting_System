@@ -7,13 +7,8 @@ import FormCreatePosition from './FormCreatePosition';
 import useSnackMessages from '~/utils/hooks/useSnackMessages';
 import { Fragment, useEffect, useState } from 'react';
 import ethers from '~/ethereum/ethers';
+import {createPositionData} from '~/utils/CreateData'
 
-function createData(positionID, positionName) {
-    return {
-        positionID,
-        positionName,
-    };
-}
 
 function PositionList() {
     const [rows, setRows] = useState([]);
@@ -26,7 +21,7 @@ function PositionList() {
                 if (!(data?.[data.length - 1]?.positionID === positionID)) {
                     showSuccessSnackbar('Successfully created new position');
                     setRows((preState) => {
-                        return [...preState, createData(positionID, positionName)];
+                        return [...preState, createPositionData(positionID, positionName)];
                     });
                 }
             });
@@ -39,7 +34,7 @@ function PositionList() {
                 let data = [];
                 if (positions.length) {
                     data = positions.map((position, index) => {
-                        return createData(index, position);
+                        return createPositionData(index, position);
                     });
                     setRows(data);
                 }

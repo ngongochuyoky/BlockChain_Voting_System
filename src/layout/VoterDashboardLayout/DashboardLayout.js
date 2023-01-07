@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { styled, ThemeProvider } from '@mui/material/styles';
 import {
-    Avatar,
     CssBaseline,
     Drawer as MuiDrawer,
     Box,
@@ -12,15 +11,11 @@ import {
     Divider,
     Container,
     IconButton,
-    Badge,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';
-import { deepOrange } from '@mui/material/colors';
 import { MainListItems } from './ListItems';
 import { PropTypes } from 'prop-types';
 import { theme } from '~/utils/theme';
@@ -78,7 +73,7 @@ function DashboardLayout(props) {
     const handleClickLogout = () => {
         Cookies.remove('voterId');
         Cookies.remove('voterToken');
-        Cookies.remove('electionAddress');
+        // Cookies.remove('electionAddress');
         Cookies.remove('voterEmail');
         navigate(config.routes.home);
     };

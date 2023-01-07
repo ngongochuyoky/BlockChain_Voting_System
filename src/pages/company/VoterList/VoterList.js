@@ -5,16 +5,9 @@ import PeopleIcon from '@mui/icons-material/PeopleOutlined';
 import ethers from '~/ethereum/ethers';
 import { Fragment, useEffect, useState } from 'react';
 import { allVoter } from '~/api/voter';
+import { createVoterData } from '~/utils/CreateData';
 
-// Data form
-function createData(id, email, password, name) {
-    return {
-        id,
-        email,
-        password,
-        name,
-    };
-}
+
 function VoterList() {
     const [electionName, setElectionName] = useState('');
     const [reRender, setReRender] = useState(false);
@@ -30,7 +23,7 @@ function VoterList() {
                 const response = await allVoter();
                 // console.log(response);
                 const voters = response.data.map((voter) =>
-                    createData(voter._id, voter.email, voter.password, voter.full_name),
+                createVoterData(voter._id, voter.email, voter.password, voter.full_name),
                 );
                 setRows(voters);
             } catch (err) {

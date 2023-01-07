@@ -3,16 +3,8 @@ import Title from '~/layout/component/Title';
 import ListTable from './ListTable';
 import { useEffect, useState } from 'react';
 import { findDeletedVoters } from '~/api/voter';
-
+import { createVoterData } from '~/utils/CreateData';
 // Data form
-function createData(id, email, password, name) {
-    return {
-        id,
-        email,
-        password,
-        name,
-    };
-}
 
 function TrashVoters() {
     const [reRender, setReRender] = useState(false);
@@ -20,15 +12,15 @@ function TrashVoters() {
 
     useEffect(() => {
         const componentDidMount = async () => {
-            try{
+            try {
                 const response = await findDeletedVoters();
-            
-            const voters = response?.data.map((voter) =>
-                createData(voter._id, voter.email, voter.password, voter.full_name),
-            );
-            voters && setRows(voters);
-            }catch(err){
-                console.log(err.message)
+
+                const voters = response?.data.map((voter) =>
+                    createVoterData(voter._id, voter.email, voter.password, voter.full_name),
+                );
+                voters && setRows(voters);
+            } catch (err) {
+                console.log(err.message);
             }
         };
         componentDidMount();

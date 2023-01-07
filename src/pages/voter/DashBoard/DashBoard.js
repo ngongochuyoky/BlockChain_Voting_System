@@ -1,11 +1,15 @@
 import { Grid, Paper, Typography, Box } from '@mui/material';
-import NumCandidate from './NumCandidate';
-import NumPosition from './NumPosition';
-import NumVoter from './NumVoter';
-import Voted from './Voted';
+import NumCandidate from '~/layout/component/NumCandidate';
+import NumPosition from '~/layout/component/NumPosition';
+import NumVoter from '~/layout/component/NumVoter';
+import Voted from '~/layout/component/Voted';
+import BarChart from '~/layout/component/BarChart';
+import PieChart from '~/layout/component/PieChart';
+
 import { Fragment, useEffect, useState } from 'react';
 import ethers from '~/ethereum/ethers';
 import { totalVoters, allVoter } from '~/api/voter';
+import { createCandidateData } from '~/utils/CreateData';
 
 function DashboardContent() {
     const [voted, setVoted] = useState(0);
@@ -13,27 +17,58 @@ function DashboardContent() {
     const [numCandidate, setNumCandidate] = useState(0);
     const [numVoter, setNumVoter] = useState(0);
     const [electionName, setElectionName] = useState('Election Name');
+    const [dataChart, setDataChart] = useState([]);
+    const [endedElection, setEndedElection] = useState(true);
+
+
     useEffect(() => {
         const componentDidMount = async () => {
             try {
                 await ethers.connectWallet();
                 const contract = await ethers.getElectionContract();
+                //Number of positions
                 const numPosition = await contract.getNumOfPosition();
                 numPosition && setNumPosition(numPosition);
+                const positions = await contract.getPositions();
+                //Number of candidates
                 const numCandidate = await contract.getNumOfCandidates();
                 numCandidate && setNumCandidate(numCandidate);
+
+                //Candidates
+                const candidates = [];
+                for (let i = 0; i < numCandidate; i++) {
+                    const candidate = await contract.getCandidate(i);
+                    candidates.push(createCandidateData(i, ...candidate));
+                }
+                //Election Status
+                const status = await contract.getStatus();
+                console.log(status)
+                setEndedElection(status);
+                
+                //Data chart
+                const dataChart = positions.map((position) => ({
+                    positionName: position,
+                    rows: [],
+                }));
+                candidates.forEach((candidate) => {
+                    dataChart[candidate.positionID].rows.push(candidate);
+                });
+                dataChart && setDataChart(dataChart);
+
+                //Number of voters
+                const numVoter = await totalVoters();
+                numVoter && setNumVoter(numVoter.data);
+                //The number of voters who voted
                 const response = await allVoter();
                 if(response?.data) {
                     for(let i = 0; i < response.data.length; i++) {
                         const voter = await contract.getVoter(response.data[i]._id);
-                        console.log(voter);
                         (voter?.[0] === true)&&setVoted(pre=>pre+1);
                     }
                     const numVoter = await totalVoters();
                     numVoter && setNumVoter(numVoter.data);
                 }
-                const numVoter = await totalVoters();
-                numVoter && setNumVoter(numVoter.data);
+                
                 const election = await contract.getElectionDetails();
                 election&&setElectionName(election[0]);
             } catch (err) {
@@ -75,6 +110,17 @@ function DashboardContent() {
                 <Grid item xs={3}>
                     <NumPosition numPosition={numPosition} />
                 </Grid>
+                {dataChart.length !== 0 && endedElection &&
+                    dataChart.map((data, index) => (
+                        <Fragment key={index}>
+                            <Grid item xs={6}>
+                                <PieChart candidates={data.rows} positionName={data.positionName} />
+                            </Grid>
+                            <Grid item xs={6}>
+                                <BarChart candidates={data.rows} positionName={data.positionName} />
+                            </Grid>
+                        </Fragment>
+                    ))}
             </Grid>
         </Fragment>
     );

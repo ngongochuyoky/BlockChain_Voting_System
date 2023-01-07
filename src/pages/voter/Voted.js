@@ -23,20 +23,9 @@ import ethers from '~/ethereum/ethers';
 import Title from '~/layout/component/Title';
 import Cookies from 'js-cookie';
 import {styled} from '@mui/material/styles';
+import { createCandidateData } from '~/utils/CreateData';
 
 
-function createData(candidateID, positionID, name, dateOfBirth, description, imgHash, voteCount, email) {
-    return {
-        candidateID,
-        name,
-        dateOfBirth,
-        description,
-        imgHash,
-        voteCount,
-        positionID,
-        email,
-    };
-}
 
 const style = {
     position: 'absolute',
@@ -83,7 +72,7 @@ function Voted() {
                     const result = [];
                     for (let i = 0; i < voter[1].length; i++) {
                         const candidate = await contract.getCandidate(voter[1][i]);
-                        result.push(createData(voter[1][i], ...candidate));
+                        result.push(createCandidateData(voter[1][i], ...candidate));
                     }
                     setCandidates(result);
                 }

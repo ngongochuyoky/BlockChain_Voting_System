@@ -1,11 +1,13 @@
 import {
     Avatar,
     Button,
+    AppBar as MuiAppBar,
     CssBaseline,
     TextField,
     FormControlLabel,
     Checkbox,
     Link,
+    Toolbar,
     Paper,
     Box,
     Grid,
@@ -15,30 +17,34 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import imageLogin from '~/assets/images/photo1.jpg';
 import { useContext } from 'react';
 import Cookies from 'js-cookie';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import { styled } from '@mui/material/styles';
+import { useNavigate, Link as RouteLink } from 'react-router-dom';
 import ethers from '~/ethereum/ethers';
 import config from '~/config';
 import useSnackMessages from '~/utils/hooks/useSnackMessages';
 import { companyLogin } from '~/api/auth';
 import { UpdateRoutes } from '~/App';
 
+const AppBar = styled(MuiAppBar)({
+    backgroundColor: '#111827',
+    boxShadow: 'rgb(34 51 84 / 20%) 0px 2px 8px -3px, rgb(34 51 84 / 10%) 0px 5px 22px -4px',
+});
 function LoginSide() {
     const navigate = useNavigate();
     const updateRoutes = useContext(UpdateRoutes);
-    const {showErrorSnackbar} = useSnackMessages();
+    const { showErrorSnackbar } = useSnackMessages();
 
     const handleLogin = async (event) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
         const response = await companyLogin(formData.get('email'), formData.get('password'));
-        if (response?.data){
+        if (response?.data) {
             Cookies.set('companyToken', response.data.token);
             Cookies.set('companyEmail', response.data.email);
             Cookies.set('companyId', response.data.id);
             updateRoutes();
             handleNavigate();
-        } 
-        else showErrorSnackbar('Login Failed !!!');
+        } else showErrorSnackbar('Login Failed !!!');
     };
 
     const handleNavigate = async () => {
@@ -72,7 +78,29 @@ function LoginSide() {
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                 }}
-            />
+            >
+                <AppBar
+                    position="absolute"
+                    color="default"
+                    elevation={0}
+                    sx={{
+                        position: 'relative',
+                        borderBottom: (t) => `1px solid ${t.palette.divider}`,
+                    }}
+                >
+                    <Toolbar>
+                        <Link
+                            component={RouteLink}
+                            underline="none"
+                            color="#fff"
+                            sx={{ fontSize: '25px', ml: 4 }}
+                            to={config.routes.home}
+                        >
+                            Home
+                        </Link>
+                    </Toolbar>
+                </AppBar>
+            </Grid>
 
             <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
                 <Box
@@ -112,7 +140,12 @@ function LoginSide() {
                             autoComplete="current-password"
                         />
                         <FormControlLabel control={<Checkbox value="remember" color="primary" />} label="Remember me" />
-                        <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
+                        <Button
+                            type="submit"
+                            fullWidth
+                            variant="contained"
+                            sx={{ mt: 3, mb: 2, p: '10px', borderRadius: 2 }}
+                        >
                             Login
                         </Button>
                         <Grid container>
@@ -122,7 +155,7 @@ function LoginSide() {
                                 </Link>
                             </Grid>
                             <Grid item>
-                                <Link component={RouterLink} to="/company_register" variant="body2">
+                                <Link component={RouteLink} to="/company_register" variant="body2">
                                     {"Don't have an account? Register"}
                                 </Link>
                             </Grid>

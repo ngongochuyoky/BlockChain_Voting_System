@@ -5,19 +5,9 @@ import { Fragment, useEffect, useState } from 'react';
 import useSnackMessages from '~/utils/hooks/useSnackMessages';
 import ethers from '~/ethereum/ethers';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
+import {createCandidateData} from '~/utils/CreateData';
 
-function createData(candidateID, positionID, name, dateOfBirth, description, imgHash, voteCount, email, ...args) {
-    return {
-        candidateID,
-        name,
-        dateOfBirth,
-        description,
-        imgHash,
-        voteCount,
-        positionID,
-        email,
-    };
-}
+
 
 function CandidateList() {
     const [data, setData] = useState([{ positionName: '', rows: [] }]);
@@ -33,7 +23,7 @@ function CandidateList() {
                     showSuccessSnackbar('Successfully created new candidate');
                     setData((preData) => {
                         const newData = JSON.parse(JSON.stringify(preData));
-                        newData[positionID].rows.push(createData(candidateID, positionID, ...rest));
+                        newData[positionID].rows.push(createCandidateData(candidateID, positionID, ...rest));
                         return newData;
                     });
                 }
@@ -55,7 +45,7 @@ function CandidateList() {
                     const numOfCandidates = await contract.getNumOfCandidates();
                     for (let i = 0; i < numOfCandidates; i++) {
                         const candidate = await contract.getCandidate(i);
-                        result[candidate[0]].rows.push(createData(i, ...candidate));
+                        result[candidate[0]].rows.push(createCandidateData(i, ...candidate));
                     }
                     setData(result);
                 }

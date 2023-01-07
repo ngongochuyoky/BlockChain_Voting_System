@@ -17,7 +17,6 @@ import {
 import Title from '~/layout/component/Title';
 import ethers from '~/ethereum/ethers';
 import useSnackMessages from '~/utils/hooks/useSnackMessages';
-import Cookies from 'js-cookie';
 
 const style = {
     position: 'absolute',

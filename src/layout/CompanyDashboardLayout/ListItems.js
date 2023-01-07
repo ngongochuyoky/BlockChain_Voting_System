@@ -1,5 +1,5 @@
 import { Fragment, useState } from 'react';
-import { ListItemButton, ListItemIcon, ListItemText, Divider, List, Collapse } from '@mui/material';
+import { ListItemButton, ListItemIcon, ListItemText, List, Collapse } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import RecentActorsIcon from '@mui/icons-material/RecentActors';
 import ExpandLess from '@mui/icons-material/ExpandLess';
@@ -7,7 +7,7 @@ import ExpandMore from '@mui/icons-material/ExpandMore';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import CreateIcon from '@mui/icons-material/Create';
-import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
+// import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
 import PeopleIcon from '@mui/icons-material/People';
 import { Link as RouteLink } from 'react-router-dom';
 import config from '~/config';

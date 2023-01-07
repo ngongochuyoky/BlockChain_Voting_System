@@ -1,6 +1,8 @@
 import {
     Avatar,
     Button,
+    AppBar as MuiAppBar,
+    Toolbar,
     CssBaseline,
     TextField,
     FormControlLabel,
@@ -13,14 +15,19 @@ import {
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import imageLogin from '~/assets/images/photo1.jpg';
+import { styled } from '@mui/material/styles';
 import { useContext } from 'react';
 import Cookies from 'js-cookie';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import { useNavigate, Link as RouteLink } from 'react-router-dom';
 import { UpdateRoutes } from '~/App';
 import { companyRegister } from '~/api/auth';
 import config from '~/config';
 import useSnackMessages from '~/utils/hooks/useSnackMessages';
 
+const AppBar = styled(MuiAppBar)({
+    backgroundColor: '#111827',
+    boxShadow: 'rgb(34 51 84 / 20%) 0px 2px 8px -3px, rgb(34 51 84 / 10%) 0px 5px 22px -4px',
+});
 function RegisterSide() {
     const navigate = useNavigate();
     const updateRoutes = useContext(UpdateRoutes);
@@ -43,8 +50,7 @@ function RegisterSide() {
                 Cookies.set('companyId', response.data.id);
                 updateRoutes();
                 navigate(config.routes.createElection);
-            }
-            else snackMessages.showErrorSnackbar('Account creation failed');
+            } else snackMessages.showErrorSnackbar('Account creation failed');
         }
     }
 
@@ -63,7 +69,29 @@ function RegisterSide() {
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                 }}
-            />
+            >
+                <AppBar
+                    position="absolute"
+                    color="default"
+                    elevation={0}
+                    sx={{
+                        position: 'relative',
+                        borderBottom: (t) => `1px solid ${t.palette.divider}`,
+                    }}
+                >
+                    <Toolbar>
+                        <Link
+                            component={RouteLink}
+                            underline="none"
+                            color="#fff"
+                            sx={{ fontSize: '25px', ml: 4 }}
+                            to={config.routes.home}
+                        >
+                            Home
+                        </Link>
+                    </Toolbar>
+                </AppBar>
+            </Grid>
 
             <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
                 <Box
@@ -125,12 +153,17 @@ function RegisterSide() {
                             control={<Checkbox value="agree" color="primary" />}
                             label="I have read the Terms and Conditions"
                         />
-                        <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
+                        <Button
+                            type="submit"
+                            fullWidth
+                            variant="contained"
+                            sx={{ mt: 3, mb: 2, p: '10px', borderRadius: 2 }}
+                        >
                             Register
                         </Button>
                         <Grid container>
                             <Grid item>
-                                <Link component={RouterLink} to="/company_login" variant="body2">
+                                <Link component={RouteLink} to="/company_login" variant="body2">
                                     {'Have an account'}
                                 </Link>
                             </Grid>
