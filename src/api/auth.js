@@ -16,3 +16,5 @@ export const companyRegister = async (email, password, companyName) => {
         console.log(err.message);
     }
 }
+
+

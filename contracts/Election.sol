@@ -103,7 +103,7 @@ contract Election {
     }
 
     //Function add Position
-    function addPosition(string memory _positionName) public {
+    function addPosition(string memory _positionName) public { //owner
         require(!end, "Error: The election is over ");
         uint8 _positionId = numPosition++;
         positions[_positionId] = _positionName;
@@ -111,11 +111,11 @@ contract Election {
     }
 
     //function to vote and check for double voting
-    function vote(uint8[] memory _candidateIdList,string memory voterId) public {
+    function vote(uint8[] memory _candidateIdList,string memory voterId) public { //owner
         require(!end, "Error: The election is over ");
         // if false the vote will be registered
         require(!voters[voterId].voted, "Error:You cannot double vote"); 
-        voters[voterId] = Voter(true, _candidateIdList);
+        voters[voterId] = Voter(true, _candidateIdList); 
         for(uint8 i = 0; i < _candidateIdList.length; i++){
             numVoters++;
             candidates[_candidateIdList[i]].voteCount++;//increment vote counter of candidate

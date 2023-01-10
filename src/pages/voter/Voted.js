@@ -142,7 +142,7 @@ function Voted() {
                             </CardContent>
                             <Box sx={{ flexGrow: 1 }} />
                             <Divider />
-                            <Stack container direction="row" justifyContent="center" alignItems="center">
+                            <Stack  direction="row" justifyContent="center" alignItems="center">
                                 <Button
                                     color="primary"
                                     sx={{ width: '100%' }}
