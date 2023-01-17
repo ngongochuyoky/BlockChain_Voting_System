@@ -10,15 +10,20 @@ export const getCompanyById = async ({ id }) => {
     }
 };
 
-export const resultMail = async ({electionName, winners}) => {
-    try{
-        const response = await postMethod('/company/resultMail', {
-            electionAddress: Cookies.get('electionAddress'),
-            electionName,
-            winners,    
-        }, Cookies.get('companyToken'));
+export const resultMail = async ({ electionName, winners }) => {
+    try {
+        const response = await postMethod(
+            '/company/resultMail',
+            {
+                electionAddress: Cookies.get('companyElectionAddress'),
+                electionName,
+                winners,
+            },
+            Cookies.get('companyToken'),
+        );
         return response;
-    }catch (err) {
+    } catch (err) {
         console.log(err);
     }
 };
+

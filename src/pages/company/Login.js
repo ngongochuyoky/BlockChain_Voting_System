@@ -1,34 +1,15 @@
-import {
-    Avatar,
-    Button,
-    AppBar as MuiAppBar,
-    CssBaseline,
-    TextField,
-    FormControlLabel,
-    Checkbox,
-    Link,
-    Toolbar,
-    Paper,
-    Box,
-    Grid,
-    Typography,
-} from '@mui/material';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import { TextField, FormControlLabel, Checkbox, Link, Paper, Box, Grid, Typography } from '@mui/material';
 import imageLogin from '~/assets/images/photo1.jpg';
 import { useContext } from 'react';
 import Cookies from 'js-cookie';
-import { styled } from '@mui/material/styles';
 import { useNavigate, Link as RouteLink } from 'react-router-dom';
 import ethers from '~/ethereum/ethers';
 import config from '~/config';
 import useSnackMessages from '~/utils/hooks/useSnackMessages';
 import { companyLogin } from '~/api/auth';
 import { UpdateRoutes } from '~/App';
+import { ButtonFullWidth } from '~/layout/component/CustomStyle';
 
-const AppBar = styled(MuiAppBar)({
-    backgroundColor: '#111827',
-    boxShadow: 'rgb(34 51 84 / 20%) 0px 2px 8px -3px, rgb(34 51 84 / 10%) 0px 5px 22px -4px',
-});
 function LoginSide() {
     const navigate = useNavigate();
     const updateRoutes = useContext(UpdateRoutes);
@@ -37,7 +18,7 @@ function LoginSide() {
     const handleLogin = async (event) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
-        const response = await companyLogin(formData.get('email'), formData.get('password'));
+        const response = await companyLogin({ email: formData.get('email'), password: formData.get('password') });
         if (response?.data) {
             Cookies.set('companyToken', response.data.token);
             Cookies.set('companyEmail', response.data.email);
@@ -55,7 +36,8 @@ function LoginSide() {
             if (summary[2] === 'Create an election') {
                 navigate(config.routes.createElection);
             } else {
-                Cookies.set('electionAddress', summary[0]);
+                Cookies.set('companyElectionAddress', summary[0]);
+                console.log(summary[0]);
                 navigate(config.routes.companyDashboard);
             }
         } catch (err) {
@@ -64,8 +46,7 @@ function LoginSide() {
     };
 
     return (
-        <Grid container component="main" sx={{ height: '100vh' }}>
-            <CssBaseline />
+        <Grid container component="main" sx={{ height: '85vh' }}>
             <Grid
                 item
                 xs={false}
@@ -78,29 +59,7 @@ function LoginSide() {
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                 }}
-            >
-                <AppBar
-                    position="absolute"
-                    color="default"
-                    elevation={0}
-                    sx={{
-                        position: 'relative',
-                        borderBottom: (t) => `1px solid ${t.palette.divider}`,
-                    }}
-                >
-                    <Toolbar>
-                        <Link
-                            component={RouteLink}
-                            underline="none"
-                            color="#fff"
-                            sx={{ fontSize: '25px', ml: 4 }}
-                            to={config.routes.home}
-                        >
-                            Home
-                        </Link>
-                    </Toolbar>
-                </AppBar>
-            </Grid>
+            ></Grid>
 
             <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
                 <Box
@@ -112,10 +71,7 @@ function LoginSide() {
                         alignItems: 'center',
                     }}
                 >
-                    <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-                        <LockOutlinedIcon />
-                    </Avatar>
-                    <Typography component="h1" variant="h5">
+                    <Typography variant="h4" color="primary.main" sx={{ fontWeight: 900, mt: 3, mb: 3 }}>
                         Log In
                     </Typography>
                     <Box component="form" validate="true" onSubmit={handleLogin} sx={{ mt: 1 }}>
@@ -140,22 +96,17 @@ function LoginSide() {
                             autoComplete="current-password"
                         />
                         <FormControlLabel control={<Checkbox value="remember" color="primary" />} label="Remember me" />
-                        <Button
-                            type="submit"
-                            fullWidth
-                            variant="contained"
-                            sx={{ mt: 3, mb: 2, p: '10px', borderRadius: 2 }}
-                        >
+                        <ButtonFullWidth type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2, p: '10px' }}>
                             Login
-                        </Button>
-                        <Grid container>
+                        </ButtonFullWidth>
+                        <Grid container sx={{ mt: 2 }}>
                             <Grid item xs>
-                                <Link href="#" variant="body2">
+                                <Link href="#" variant="body2" underline="hover">
                                     Forgot password?
                                 </Link>
                             </Grid>
                             <Grid item>
-                                <Link component={RouteLink} to="/company_register" variant="body2">
+                                <Link component={RouteLink} to="/company_register" variant="body2" underline="hover">
                                     {"Don't have an account? Register"}
                                 </Link>
                             </Grid>

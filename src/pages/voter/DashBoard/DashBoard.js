@@ -1,4 +1,5 @@
 import { Grid, Paper, Typography, Box } from '@mui/material';
+import Cookies from 'js-cookie';
 import NumCandidate from '~/layout/component/NumCandidate';
 import NumPosition from '~/layout/component/NumPosition';
 import NumVoter from '~/layout/component/NumVoter';
@@ -6,33 +7,45 @@ import Voted from '~/layout/component/Voted';
 import BarChart from '~/layout/component/BarChart';
 import PieChart from '~/layout/component/PieChart';
 
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import ethers from '~/ethereum/ethers';
-import { totalVoters, allVoter } from '~/api/voter';
+import { searchByElectionAddress } from '~/api/election';
 import { createCandidateData } from '~/utils/CreateData';
+import { getVotersVoted } from '~/api/ballot';
+import dayjs from 'dayjs';
 
 function DashboardContent() {
     const [voted, setVoted] = useState(0);
     const [numPosition, setNumPosition] = useState(0);
     const [numCandidate, setNumCandidate] = useState(0);
     const [numVoter, setNumVoter] = useState(0);
+    const [election, setElection] = useState({});
     const [electionName, setElectionName] = useState('Election Name');
     const [dataChart, setDataChart] = useState([]);
-    const [endedElection, setEndedElection] = useState(true);
+    const [statusElection, setStatusElection] = useState(false);
+    const [endedElection, setEndedElection] = useState(false)
 
-
+    //Time CountDown
+    const [days, setDays] = useState(0);
+    const [hours, setHours] = useState(0);
+    const [minutes, setMinutes] = useState(0);
+    const [seconds, setSeconds] = useState(0);
+    const timeId = useRef();
     useEffect(() => {
         const componentDidMount = async () => {
             try {
                 await ethers.connectWallet();
-                const contract = await ethers.getElectionContract();
+                const contract = await ethers.getElectionContract(Cookies.get('voterElectionAddress'));
+                const end = await contract.getStatus();
+                console.log(end)
+                setEndedElection(end)
                 //Number of positions
                 const numPosition = await contract.getNumOfPosition();
-                numPosition && setNumPosition(numPosition);
+                setNumPosition(numPosition);
                 const positions = await contract.getPositions();
                 //Number of candidates
                 const numCandidate = await contract.getNumOfCandidates();
-                numCandidate && setNumCandidate(numCandidate);
+                setNumCandidate(numCandidate);
 
                 //Candidates
                 const candidates = [];
@@ -40,11 +53,7 @@ function DashboardContent() {
                     const candidate = await contract.getCandidate(i);
                     candidates.push(createCandidateData(i, ...candidate));
                 }
-                //Election Status
-                const status = await contract.getStatus();
-                console.log(status)
-                setEndedElection(status);
-                
+
                 //Data chart
                 const dataChart = positions.map((position) => ({
                     positionName: position,
@@ -53,24 +62,37 @@ function DashboardContent() {
                 candidates.forEach((candidate) => {
                     dataChart[candidate.positionID].rows.push(candidate);
                 });
-                dataChart && setDataChart(dataChart);
+                setDataChart(dataChart);
 
-                //Number of voters
-                const numVoter = await totalVoters();
-                numVoter && setNumVoter(numVoter.data);
+                //get Election
+                const responseElection = await searchByElectionAddress({
+                    electionAddress: Cookies.get('voterElectionAddress'),
+                    token: Cookies.get('voterToken'),
+                });
+                const election = {
+                    companyId: responseElection.data.company,
+                    voters: responseElection.data.voters,
+                    startTime: responseElection.data.startTime,
+                    time: responseElection.data.time,
+                };
+                setElection(election);
+                election.time && timeCountDown(election);
+                //Election Status
+                const status = election.start ? true : false;
+                setStatusElection(status);
+
+                //The number of voters
+                setNumVoter(election.voters.length);
+
                 //The number of voters who voted
-                const response = await allVoter();
-                if(response?.data) {
-                    for(let i = 0; i < response.data.length; i++) {
-                        const voter = await contract.getVoter(response.data[i]._id);
-                        (voter?.[0] === true)&&setVoted(pre=>pre+1);
-                    }
-                    const numVoter = await totalVoters();
-                    numVoter && setNumVoter(numVoter.data);
-                }
-                
-                const election = await contract.getElectionDetails();
-                election&&setElectionName(election[0]);
+                const responseNumbVoted = await getVotersVoted({
+                    companyId: responseElection.data.company,
+                    token: Cookies.get('voterToken'),
+                });
+                setVoted(responseNumbVoted.data.number);
+
+                const electionDetails = await contract.getElectionDetails();
+                setElectionName(electionDetails[0]);
             } catch (err) {
                 console.log(err);
             }
@@ -78,7 +100,30 @@ function DashboardContent() {
         componentDidMount();
     }, []);
 
-   
+    const timeCountDown = (election) => {
+        timeId.current = setInterval(() => {
+            let totalSeconds = dayjs(election.time).diff(dayjs(), 'second');
+            if (totalSeconds <= 0) {
+                clearInterval(timeId.current);
+            }else{
+                let totalDays = Math.floor(totalSeconds / (60 * 60 * 24));
+                setDays(totalDays);
+                totalSeconds = totalSeconds - totalDays * 60 * 60 * 24;
+    
+                let totalHours = Math.floor(totalSeconds / (60 * 60));
+                setHours(totalHours);
+    
+                // console.log({ totalHours });
+                totalSeconds = totalSeconds - totalHours * 60 * 60; // Pull those hours out of totalSeconds
+    
+                let totalMinutes = Math.floor(totalSeconds / 60); //With hours out this will retun minutes
+                setMinutes(totalMinutes);
+                totalSeconds = totalSeconds - totalMinutes * 60;
+                setSeconds(totalSeconds);
+            }
+            
+        }, 1000);
+    };
     return (
         <Fragment>
             <Paper sx={{ display: 'flex', mb: 2, p: '36px' }}>
@@ -93,7 +138,14 @@ function DashboardContent() {
                             </Typography>
                         </Box>
                     </Grid>
-                    
+                    <Grid item sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', ml: 24 }}>
+                        <Box>
+                            <Typography variant="h4">
+                                {days > 0 ? days : '00'} : {hours > 0 ? hours : '00'} : {minutes > 0 ? minutes : '00'} :{' '}
+                                {seconds > 0 ? seconds : '00'}
+                            </Typography>
+                        </Box>
+                    </Grid>
                 </Grid>
             </Paper>
             <Grid container spacing={3}>
@@ -110,7 +162,8 @@ function DashboardContent() {
                 <Grid item xs={3}>
                     <NumPosition numPosition={numPosition} />
                 </Grid>
-                {dataChart.length !== 0 && endedElection &&
+                {dataChart.length !== 0 &&
+                    endedElection &&
                     dataChart.map((data, index) => (
                         <Fragment key={index}>
                             <Grid item xs={6}>

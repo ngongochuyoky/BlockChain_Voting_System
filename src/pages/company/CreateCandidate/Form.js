@@ -6,10 +6,12 @@ import Avatar from '@mui/material/Avatar';
 
 import { Web3Storage } from 'web3.storage';
 import ethers from '~/ethereum/ethers';
+import Cookies from 'js-cookie';
 
 import useSnackMessages from '~/utils/hooks/useSnackMessages';
 // import dayjs from 'dayjs';
 import { Grid, Stack, InputLabel, Box, Button, Divider, TextField, Typography, Select, MenuItem } from '@mui/material';
+import { searchByElectionAddress } from '~/api/election';
 
 const style = {
     bgcolor: 'background.paper',
@@ -26,6 +28,8 @@ function TransitionsModal() {
     const [value, setValue] = useState();
     const [files, setFiles] = useState('');
     const { showInfoSnackbar, showErrorSnackbar } = useSnackMessages();
+    const [startElection, setStartElection] = useState(true);
+
 
     const client = useMemo(() => new Web3Storage({ token: process.env.REACT_APP_API_TOKEN }), []);
 
@@ -34,9 +38,16 @@ function TransitionsModal() {
             //Get Positions
             try {
                 await ethers.connectWallet();
-                const contract = await ethers.getElectionContract();
+                const contract = ethers.getElectionContract(Cookies.get('companyElectionAddress'));
                 const positions = await contract.getPositions();
                 setPositions(positions);
+
+                const responseElection = await searchByElectionAddress({
+                    electionAddress: Cookies.get('companyElectionAddress'),
+                    token: Cookies.get('companyToken'),
+                });
+                const startElection = responseElection.data.startTime ? true : false;
+                setStartElection(startElection);
             } catch (err) {
                 ethers.getError() && showErrorSnackbar(ethers.getError());
             }
@@ -75,7 +86,7 @@ function TransitionsModal() {
 
         try {
             await ethers.connectWallet();
-            const contract = ethers.getElectionContract();
+            const contract = ethers.getElectionContract(Cookies.get('companyElectionAddress'));
             const bool = await contract.addCandidate(
                 positionID,
                 dataForm.get('candidate-name'),
@@ -88,7 +99,7 @@ function TransitionsModal() {
         } catch (error) {
             ethers.getError()
                 ? showErrorSnackbar(ethers.getError())
-                : showErrorSnackbar('New position creation failed!!!');
+                : showErrorSnackbar('New candidate creation failed!!!');
         }
     };
 
@@ -210,7 +221,7 @@ function TransitionsModal() {
                         <Grid item lg={12} sx={{ mt: 4, pb: 4 }}>
                             <Divider sx={{ width: '100%' }} />
                             <Box sx={{ float: 'right' }}>
-                                <Button type="submit" variant="contained" sx={{ mt: 3, pl: 4, pr: 4 }}>
+                                <Button disabled={startElection} type="submit" variant="contained" sx={{ mt: 3, pl: 4, pr: 4 }}>
                                     Create
                                 </Button>
                             </Box>

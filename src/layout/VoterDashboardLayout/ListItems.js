@@ -1,10 +1,15 @@
 import { Fragment, useState } from 'react';
-import { ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
+import { ListItemButton, ListItemIcon as MuiListItemIcon, ListItemText } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import PeopleIcon from '@mui/icons-material/People';
 import { Link as RouteLink } from 'react-router-dom';
 import config from '~/config';
+import {styled} from '@mui/material/styles'
+
+const ListItemIcon = styled(MuiListItemIcon)(({theme}) => ({
+    color: '#fff'
+}))
 
 function MainListItems() {
     const [selectedIndex, setSelectedIndex] = useState(0);
@@ -49,6 +54,7 @@ function MainListItems() {
                 </ListItemIcon>
                 <ListItemText primary="Voted" />
             </ListItemButton>
+            
         </Fragment>
     );
 }

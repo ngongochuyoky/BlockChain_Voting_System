@@ -1,20 +1,14 @@
 import {
-    Avatar,
-    Button,
     CssBaseline,
-    AppBar as MuiAppBar,
     TextField,
     FormControlLabel,
     Checkbox,
     Link,
     Paper,
-    Toolbar,
     Box,
     Grid,
     Typography,
 } from '@mui/material';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import { styled } from '@mui/material/styles';
 import imageLogin from '~/assets/images/photo1.jpg';
 import { useContext } from 'react';
 import Cookies from 'js-cookie';
@@ -22,15 +16,14 @@ import { useNavigate, Link as RouteLink } from 'react-router-dom';
 import config from '~/config';
 import { UpdateRoutes } from '~/App';
 import useSnackMessages from '~/utils/hooks/useSnackMessages';
-import { login } from '~/api/voter';
+import { voterLogin } from '~/api/auth';
+import { ButtonFullWidth } from '~/layout/component/CustomStyle';
+
 
 export const isRequired = () => {
     throw new Error('params is required');
 };
-const AppBar = styled(MuiAppBar)({
-    backgroundColor: '#111827',
-    boxShadow: 'rgb(34 51 84 / 20%) 0px 2px 8px -3px, rgb(34 51 84 / 10%) 0px 5px 22px -4px',
-});
+
 function LoginSide() {
     const navigate = useNavigate();
     const updateRoutes = useContext(UpdateRoutes);
@@ -39,21 +32,21 @@ function LoginSide() {
     async function handleLogin(event) {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
-        const response = await login({ email: formData.get('email'), password: formData.get('password') });
+        const response = await voterLogin({ email: formData.get('email'), password: formData.get('password') });
         if (response?.data) {
+            console.log(response.data);
             Cookies.set('voterToken', response.data.token);
             Cookies.set('voterEmail', response.data.email);
-            Cookies.set('electionAddress', response.data.electionAddress);
             Cookies.set('voterId', response.data.id);
             updateRoutes();
-            navigate(config.routes.voterDashboard);
+            navigate(config.routes.voterElectionList);
         } else {
             response?.message ? showErrorSnackbar(response.message) : showErrorSnackbar('Login failed !!!');
         }
     }
 
     return (
-        <Grid container component="main" sx={{ height: '100vh' }}>
+        <Grid container component="main" sx={{ height: '85vh' }}>
             <CssBaseline />
             <Grid
                 item
@@ -67,29 +60,9 @@ function LoginSide() {
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                 }}
-            >
-                <AppBar
-                    position="absolute"
-                    color="default"
-                    elevation={0}
-                    sx={{
-                        position: 'relative',
-                        borderBottom: (t) => `1px solid ${t.palette.divider}`,
-                    }}
-                >
-                    <Toolbar>
-                        <Link
-                            component={RouteLink}
-                            underline="none"
-                            color="#fff"
-                            sx={{ fontSize: '25px', ml: 4 }}
-                            to={config.routes.home}
-                        >
-                            Home
-                        </Link>
-                    </Toolbar>
-                </AppBar>
-            </Grid>
+            />
+                
+            
 
             <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
                 <Box
@@ -101,10 +74,8 @@ function LoginSide() {
                         alignItems: 'center',
                     }}
                 >
-                    <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-                        <LockOutlinedIcon />
-                    </Avatar>
-                    <Typography component="h1" variant="h5">
+                    
+                    <Typography variant="h4" color="primary.main" sx={{ fontWeight: 900, mt: 3, mb: 3 }}>
                         Log In
                     </Typography>
 
@@ -130,22 +101,17 @@ function LoginSide() {
                             autoComplete="current-password"
                         />
                         <FormControlLabel control={<Checkbox value="remember" color="primary" />} label="Remember me" />
-                        <Button
-                            type="submit"
-                            fullWidth
-                            variant="contained"
-                            sx={{ mt: 3, mb: 2, p: '10px', borderRadius: 2 }}
-                        >
-                            Log In
-                        </Button>
+                        <ButtonFullWidth type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2, p: '10px' }}>
+                            Login
+                        </ButtonFullWidth>
                         <Grid container>
                             <Grid item xs>
-                                <Link href="#" variant="body2">
+                                <Link href="#"  underline='hover' variant="body2">
                                     Forgot password?
                                 </Link>
                             </Grid>
                             <Grid item>
-                                <Link href="#" variant="body2">
+                                <Link component={RouteLink} underline='hover' to="/voter_register" variant="body2">
                                     {"Don't have an account? Register"}
                                 </Link>
                             </Grid>

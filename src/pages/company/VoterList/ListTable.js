@@ -59,6 +59,12 @@ function stableSort(array, comparator) {
 
 const headCells = [
     {
+        id: 'id',
+        numeric: false,
+        label: 'Voter ID',
+        isSort: true,
+    },
+    {
         id: 'name',
         numeric: false,
         label: 'Full Name',
@@ -71,15 +77,15 @@ const headCells = [
         isSort: true,
     },
     {
-        id: 'password',
+        id: 'date',
         numeric: false,
-        label: 'Hash password',
+        label: 'Created Date',
         isSort: true,
     },
     {
-        id: 'actions',
+        id: 'status',
         numeric: true,
-        label: 'Actions',
+        label: 'Status',
         isSort: false,
     },
 ];
@@ -130,9 +136,7 @@ EnhancedTableHead.propTypes = {
 };
 
 export default function EnhancedTable(props) {
-    const [openFormEditVoter, setOpenFormEditVoter] = useState(false);
-    const [openAlertDelete, setOpenAlertDelete] = useState(false);
-    const [source, setSource] = useState();
+   
 
     const [order, setOrder] = useState('asc');
     const [orderBy, setOrderBy] = useState('voteCount');
@@ -140,28 +144,7 @@ export default function EnhancedTable(props) {
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const { showSuccessSnackbar, showErrorSnackbar } = useSnackMessages();
 
-    //Handle Edit, Delete
-    const handleClickEdit = (event, row) => {
-        setSource(row);
-        setOpenFormEditVoter(true);
-    };
-
-    const handleClickDelete = (event, row) => {
-        setSource(row);
-        setOpenAlertDelete(true);
-    };
-    //Handle Alert Delete
-    const handleCloseAlertDelete = () => {
-        setOpenAlertDelete(false);
-    };
-    const handleAgreementDelete = async () => {
-        setOpenAlertDelete(false);
-        const response = await deleteVoter({ id: source.id });
-        if (response?.data) {
-            props.setReRender(!props.reRender);
-            showSuccessSnackbar('Deleted successfully');
-        } else showErrorSnackbar('Delete failed');
-    };
+   
 
     //Handle Sort
     const handleRequestSort = (event, property) => {
@@ -204,34 +187,34 @@ export default function EnhancedTable(props) {
                                         return (
                                             <TableRow hover role="checkbox" tabIndex={-1} key={index}>
                                                 <TableCell component="th" sx={{fontWeight: 600}} id={labelId} scope="row">
-                                                    {row.name}
+                                                    {row.id}
                                                 </TableCell>
+                                                <TableCell sx={{color: 'rgb(255, 163, 25)', fontWeight: 500}}>{row.name}</TableCell>
                                                 <TableCell>{row.email}</TableCell>
-                                                <TableCell>{row.password}</TableCell>
-                                                <TableCell align='center'>
-                                                    <Button
-                                                        variant="text"
-                                                        sx={{color: 'rgb(87, 202, 34)'}}
-                                                        onClick={(event) => handleClickEdit(event, row)}
-                                                        startIcon={<EditIcon />}
-                                                    >
-                                                        Edit
-                                                    </Button>
-                                                    <Button
-                                                        variant="text"
-                                                        sx={{color: 'error.main'}}
-                                                        onClick={(event) => handleClickDelete(event, row)}
-                                                        startIcon={<DeleteIcon />}
-                                                    >
-                                                        Delete
-                                                    </Button>
+                                                <TableCell>{row.dateCreateAccount}</TableCell>
+                                                <TableCell>
+                                                <Box
+                                                         sx={{
+                                                             color: 'rgb(255, 255, 255)',
+                                                             display: 'flex',
+                                                             alignItems: 'center',
+                                                             justifyContent : 'center',
+                                                             borderRadius: '10px',
+                                                             width: '100px',
+                                                             backgroundColor: 'rgb(87, 202, 34)',
+                                                             fontSize: '0.8rem'
+                                                         }}
+                                                     >
+                                                         ACTIVE
+                                                     </Box>
                                                 </TableCell>
+                                                
                                             </TableRow>
                                         );
                                     })
                             ) : (
                                 <TableRow>
-                                    <TableCell colSpan={4} align='center'>
+                                    <TableCell colSpan={5} align='center'>
                                         No records found
                                     </TableCell>
                                 </TableRow>
@@ -249,36 +232,7 @@ export default function EnhancedTable(props) {
                     onRowsPerPageChange={handleChangeRowsPerPage}
                 />
             </Paper>
-            {/* FormEditVoter edit */}
-            {openFormEditVoter && <FormEditVoter 
-                source={source} 
-                setOpenFormEditVoter={setOpenFormEditVoter} 
-                setReRender={props.setReRender} 
-                reRender={props.reRender} 
-                electionName={props.electionName}
-            />}
-            {/* Alert Delete */}
-            <div>
-                <Dialog
-                    open={openAlertDelete}
-                    onClose={handleCloseAlertDelete}
-                    aria-labelledby="alert-dialog-title"
-                    aria-describedby="alert-dialog-description"
-                >
-                    <DialogTitle id="alert-dialog-title">Confirm Delete</DialogTitle>
-                    <DialogContent>
-                        <DialogContentText id="alert-dialog-description">
-                            Are you sure you want to delete this Voter account?
-                        </DialogContentText>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={handleCloseAlertDelete}>Disagree</Button>
-                        <Button onClick={handleAgreementDelete} autoFocus>
-                            Agree
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-            </div>
+           
         </Box>
     );
 }
