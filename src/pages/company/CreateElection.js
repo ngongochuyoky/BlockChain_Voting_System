@@ -1,38 +1,30 @@
-import {
-    CssBaseline,
-    AppBar as MuiAppBar,
-    Box,
-    Container,
-    Toolbar,
-    Paper,
-    Button,
-    Typography,
-    Grid,
-    TextField,
-    FormControlLabel,
-    Checkbox,
-    Link,
-} from '@mui/material';
+import { Box, Container, Paper, Button, Typography, Grid, TextField, FormControlLabel, Checkbox } from '@mui/material';
 import Cookies from 'js-cookie';
-import { Fragment, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import ethers from '~/ethereum/ethers';
 import config from '~/config';
 import { useNavigate } from 'react-router-dom';
 import useSnackMessages from '~/utils/hooks/useSnackMessages';
-import { styled } from '@mui/material/styles';
-import { Link as RouteLink } from 'react-router-dom';
-
-
-const AppBar = styled(MuiAppBar)({
-    backgroundColor: '#111827',
-    boxShadow: 'rgb(34 51 84 / 20%) 0px 2px 8px -3px, rgb(34 51 84 / 10%) 0px 5px 22px -4px',
-});
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import { createElection, searchByCompanyId } from '~/api/election';
+import { ButtonFullWidth } from '~/layout/component/CustomStyle';
 
 function CreateElection() {
     const navigate = useNavigate();
+    const [success, setSuccess] = useState(false);
     const [isDisable, setIsDisable] = useState(false);
     const { showErrorSnackbar, showInfoSnackbar, showSuccessSnackbar } = useSnackMessages();
 
+    useEffect(() => {
+        const componentDidMount = async () => {
+            const response = await searchByCompanyId({
+                companyId: Cookies.get('companyId'),
+                token: Cookies.get('companyToken'),
+            });
+            response.data && navigate(config.routes.companyDashboard);
+        };
+        componentDidMount();
+    }, [navigate]);
     const handleCreateElection = async (event) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
@@ -48,106 +40,94 @@ function CreateElection() {
             if (bool) {
                 setIsDisable(true);
                 showInfoSnackbar('Blockchain is processing');
-                CreateElectionListerner();
+                createElectionListerner();
             }
         } catch (err) {
             ethers.getError() ? showErrorSnackbar(ethers.getError()) : showErrorSnackbar('Create election failed');
             setIsDisable(false);
         }
     };
-    const CreateElectionListerner = () => {
+    const createElectionListerner = () => {
         const electionFactContract = ethers.getElectionFactContract();
         electionFactContract.on('CreateElection', (electionAddress) => {
-            Cookies.set('electionAddress', electionAddress);
-            navigate(config.routes.companyDashboard);
+            Cookies.set('companyElectionAddress', electionAddress);
+            setSuccess(true);
             showSuccessSnackbar('Successfully created a new election');
         });
     };
 
+    const handleClick = async () => {
+        const response = await createElection();
+        response.data && navigate(config.routes.companyDashboard);
+    };
+
     return (
-        <Fragment>
-            <CssBaseline />
-            <AppBar
-                position="absolute"
-                color="default"
-                elevation={0}
-                sx={{
-                    position: 'relative',
-                    borderBottom: (t) => `1px solid ${t.palette.divider}`,
-                }}
-            >
-                <Toolbar>
-                <Link
-                    component={RouteLink}
-                    underline="none"
-                    color="#fff"
-                    sx={{ fontSize: '30px', ml: 4 }}
-                    to={config.routes.home}
-                >
-                    Home
-                </Link>
-                </Toolbar>
-            </AppBar>
-            <Container component="main" maxWidth="sm" sx={{ mb: 4 }}>
-                <Paper variant="outlined" sx={{ my: { xs: 3, md: 6 }, p: { xs: 2, md: 3 } }}>
-                    <Typography component="h1" variant="h4" align="center">
-                        Create Election
-                    </Typography>
+        <Container component="main" maxWidth="sm" sx={{ mb: 4 }}>
+            <Paper sx={{ my: { xs: 3, md: 6 }, p: { xs: 2, md: 4 } }}>
+                <Typography variant="h4" color="primary" sx={{ fontWeight: 500, mt: 2 }}>
+                    Create Election
+                </Typography>
+                <Box component="form" validate="true" onSubmit={handleCreateElection} sx={{ mt: 3 }}>
                     <Fragment>
-                        <Box component="form" validate="true" onSubmit={handleCreateElection} sx={{ mt: 1 }}>
-                            <Fragment>
-                                <Grid container spacing={3}>
-                                    <Grid item xs={12}>
-                                        <TextField
-                                            id="email"
-                                            label="Email"
-                                            defaultValue={Cookies.get('companyEmail')}
-                                            disabled
-                                            fullWidth
-                                            variant="standard"
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12}>
-                                        <TextField
-                                            required
-                                            disabled={isDisable}
-                                            id="election-name"
-                                            name="election-name"
-                                            label="Election Name"
-                                            fullWidth
-                                            variant="standard"
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12}>
-                                        <TextField
-                                            required
-                                            disabled={isDisable}
-                                            id="election-description"
-                                            name="election-description"
-                                            label="Election Description"
-                                            fullWidth
-                                            autoComplete="shipping address-line2"
-                                            variant="standard"
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12}>
-                                        <FormControlLabel
-                                            control={<Checkbox color="secondary" name="saveAddress" value="yes" />}
-                                            label="Use this information to create a new Election"
-                                        />
-                                    </Grid>
-                                </Grid>
-                            </Fragment>
-                            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                <Button variant="contained" disabled={isDisable} type="submit" sx={{ mt: 3, ml: 1 }}>
-                                    Create
-                                </Button>
-                            </Box>
-                        </Box>
+                        <Grid container spacing={3}>
+                            <Grid item xs={12}>
+                                <TextField
+                                    id="email"
+                                    label="Email"
+                                    defaultValue={Cookies.get('companyEmail')}
+                                    disabled
+                                    fullWidth
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <TextField
+                                    required
+                                    disabled={isDisable}
+                                    id="election-name"
+                                    name="election-name"
+                                    label="Election Name"
+                                    fullWidth
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <TextField
+                                    required
+                                    disabled={isDisable}
+                                    id="election-description"
+                                    name="election-description"
+                                    label="Election Description"
+                                    fullWidth
+                                    autoComplete="shipping address-line2"
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <FormControlLabel
+                                    control={<Checkbox color="secondary" name="saveAddress" value="yes" />}
+                                    label="Use this information to create a new Election"
+                                />
+                            </Grid>
+                        </Grid>
                     </Fragment>
-                </Paper>
-            </Container>
-        </Fragment>
+
+                    <ButtonFullWidth
+                        variant="contained"
+                        width="100%"
+                        disabled={isDisable}
+                        type="submit"
+                        sx={{ mt: 3, mb: 2 }}
+                    >
+                        Create
+                    </ButtonFullWidth>
+                </Box>
+            </Paper>
+            {success && (
+                <Box align="right">
+                    <Button variant="contained" endIcon={<ArrowForwardIcon />} onClick={handleClick}>
+                        DashBoard
+                    </Button>
+                </Box>
+            )}
+        </Container>
     );
 }
 

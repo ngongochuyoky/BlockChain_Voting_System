@@ -5,9 +5,8 @@ import { Fragment, useEffect, useState } from 'react';
 import useSnackMessages from '~/utils/hooks/useSnackMessages';
 import ethers from '~/ethereum/ethers';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
-import {createCandidateData} from '~/utils/CreateData';
-
-
+import { createCandidateData } from '~/utils/CreateData';
+import Cookies from 'js-cookie';
 
 function CandidateList() {
     const [data, setData] = useState([{ positionName: '', rows: [] }]);
@@ -16,7 +15,7 @@ function CandidateList() {
 
     useEffect(() => {
         const addCandidateListener = (result) => {
-            const contract = ethers.getElectionContract();
+            const contract = ethers.getElectionContract(Cookies.get('companyElectionAddress'));
             contract.on('AddCandidate', (positionID, candidateID, ...rest) => {
                 //So sánh Candidate ID xem đã tồn tại chưa -> chưa -> thêm vào
                 if (!(result[positionID].rows?.[result[positionID].rows.length - 1]?.candidateID === candidateID)) {
@@ -32,7 +31,7 @@ function CandidateList() {
         const getCandidates = async () => {
             try {
                 await ethers.connectWallet();
-                const contract = ethers.getElectionContract();
+                const contract = ethers.getElectionContract(Cookies.get('companyElectionAddress'));
                 const positions = await contract.getPositions();
                 const summary = await contract.getElectionDetails();
 
@@ -63,7 +62,7 @@ function CandidateList() {
             <Paper sx={{ display: 'flex', mb: 2, p: '36px' }}>
                 <Grid container>
                     <Grid item>
-                        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }} >
+                        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                             <Avatar
                                 variant="rounded"
                                 sx={{
@@ -76,7 +75,7 @@ function CandidateList() {
                             >
                                 <HowToRegIcon />
                             </Avatar>
-                            <Typography variant="h5" color="primary" sx={{ml: 2}}>
+                            <Typography variant="h5" color="primary" sx={{ ml: 2 }}>
                                 Candidate List
                             </Typography>
                         </Box>

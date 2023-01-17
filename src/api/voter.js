@@ -1,14 +1,15 @@
 import Cookies from 'js-cookie';
 import { getMethod, postMethod, putMethod, deleteMethod, patchMethod } from './httpRequest';
 
-export const allVoter = async () => {
-    try {
-        const response = await getMethod('/voter/' + Cookies.get('electionAddress') + '/allVoter', {}, Cookies.get('companyToken'));
+export const getAllVoter = async () => {
+    try{
+        const response = await getMethod('/voter/', {}, Cookies.get('companyToken'));
         return response;
-    } catch (err) {
+    }catch(err) {
         console.log(err.message);
     }
-};
+}
+
 
 export const getVoterById = async ({ id }) => {
     try {
@@ -19,29 +20,11 @@ export const getVoterById = async ({ id }) => {
     }
 };
 
-export const totalVoters = async () => {
-    try {
-        const response = await getMethod('/voter/' + Cookies.get('electionAddress') + '/totalVoters', {}, Cookies.get('companyToken'));
-        return response;
-    } catch (err) {
-        console.log(err.message);
-    }
-};
-
-
-export const login = async ({ email, password }) => {
-    try {
-        const response = await postMethod('/voter/login', { email: email, password: password });
-        return response;
-    } catch (err) {
-        console.log(err.message);
-    }
-};
 
 export const createVoter = async ({ email, fullName, electionAddress, electionName }) => {
     try {
         const response = await postMethod(
-            '/voter/register',
+            '/voter/create',
             {
                 email,
                 fullName,
@@ -79,9 +62,14 @@ export const deleteVoter = async ({ id }) => {
     }
 };
 
+//sửa lại
 export const findDeletedVoters = async () => {
     try {
-        const response = await getMethod('/voter/' + Cookies.get('electionAddress') + '/trash', {}, Cookies.get('companyToken'));
+        const response = await getMethod(
+            '/voter/' + Cookies.get('electionAddress') + '/trash',
+            {},
+            Cookies.get('companyToken'),
+        );
         return response;
     } catch (err) {
         console.log(err.message);

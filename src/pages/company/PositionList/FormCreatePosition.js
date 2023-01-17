@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Add as AddIcon, Close as CloseIcon } from '@mui/icons-material';
+import Cookies from 'js-cookie';
 import {
     Grid,
     Stack,
@@ -17,6 +18,7 @@ import {
 import Title from '~/layout/component/Title';
 import ethers from '~/ethereum/ethers';
 import useSnackMessages from '~/utils/hooks/useSnackMessages';
+import { searchByElectionAddress } from '~/api/election';
 
 const style = {
     position: 'absolute',
@@ -35,12 +37,27 @@ export default function TransitionsModal() {
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
     const { showInfoSnackbar, showErrorSnackbar } = useSnackMessages();
+    const [startElection, setStartElection] = useState(true);
+
+
+    useEffect(() => {
+        const componentDidMount = async () => {
+            const responseElection = await searchByElectionAddress({
+                electionAddress: Cookies.get('companyElectionAddress'),
+                token: Cookies.get('companyToken'),
+            });
+            const startElection = responseElection.data.startTime ? true : false;
+            setStartElection(startElection);
+        }
+        componentDidMount()
+       
+    },[])
 
     const handleCreateNew = async (event) => {
         event.preventDefault();
         const dataForm = new FormData(event.currentTarget);
         try {
-            const contract = ethers.getElectionContract();
+            const contract = ethers.getElectionContract(Cookies.get('companyElectionAddress'));
             const bool = await contract.addPosition(dataForm.get('position-name'));
             if (bool) {
                 handleClose();
@@ -55,7 +72,7 @@ export default function TransitionsModal() {
 
     return (
         <div>
-            <Button onClick={handleOpen} variant="contained" startIcon={<AddIcon />}>
+            <Button disabled={startElection} onClick={handleOpen} variant="contained" startIcon={<AddIcon />}>
                 Add
             </Button>
             <Modal

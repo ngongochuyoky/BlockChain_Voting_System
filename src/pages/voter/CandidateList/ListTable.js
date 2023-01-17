@@ -283,7 +283,6 @@ export default function EnhancedTable(props) {
 
 EnhancedTable.propTypes = {
     rows: PropTypes.array.isRequired,
-    electionName: PropTypes.string.isRequired,
     positionName: PropTypes.string.isRequired,
     votedList: PropTypes.array.isRequired,
     setVotedList: PropTypes.func.isRequired,

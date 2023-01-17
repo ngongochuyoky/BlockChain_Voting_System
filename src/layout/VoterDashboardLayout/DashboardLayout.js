@@ -20,39 +20,8 @@ import { MainListItems } from './ListItems';
 import { PropTypes } from 'prop-types';
 import { theme } from '~/utils/theme';
 import { getVoterById } from '~/api/voter';
-import AccountMenu from '~/layout/component/AccountMenu';
-
-const drawerWidth = 260;
-
-const AppBar = styled(MuiAppBar, { shouldForwardProp: (prop) => prop !== 'open' })(({ theme, open }) => ({
-    zIndex: theme.zIndex.drawer + 1,
-    transition: theme.transitions.create(['width', 'margin'], {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen,
-    }),
-    boxShadow: 'none',
-    backgroundColor: theme.palette.neutral[900],
-    ...(open && {
-        marginLeft: drawerWidth,
-        width: `calc(100% - ${drawerWidth}px)`,
-        transition: theme.transitions.create(['width', 'margin'], {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.enteringScreen,
-        }),
-    }),
-}));
-
-const Drawer = styled(MuiDrawer)(({ theme }) => ({
-    '& .MuiDrawer-paper': {
-        position: 'relative',
-        whiteSpace: 'nowrap',
-        width: drawerWidth,
-
-        boxSizing: 'border-box',
-        backgroundColor: theme.palette.neutral[900],
-        color: '#FFFFFF',
-    },
-}));
+import AccountMenu from '~/layout/component/VoterAccountMenu';
+import { AppBar, Drawer} from '~/layout/component/CustomStyle';
 
 function DashboardLayout(props) {
     const [open, setOpen] = useState(true);
@@ -73,7 +42,7 @@ function DashboardLayout(props) {
     const handleClickLogout = () => {
         Cookies.remove('voterId');
         Cookies.remove('voterToken');
-        // Cookies.remove('electionAddress');
+        Cookies.remove('voterElectionAddress');
         Cookies.remove('voterEmail');
         navigate(config.routes.home);
     };

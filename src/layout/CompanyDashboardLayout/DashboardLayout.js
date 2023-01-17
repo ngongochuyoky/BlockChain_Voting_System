@@ -11,7 +11,6 @@ import {
     Divider,
     Container,
     IconButton,
-
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { MainListItems } from './ListItems';
@@ -22,39 +21,8 @@ import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 import config from '~/config';
 import AccountMenu from '~/layout/component/AccountMenu';
+import { AppBar, Drawer} from '~/layout/component/CustomStyle';
 
-const drawerWidth = 260;
-
-const AppBar = styled(MuiAppBar, { shouldForwardProp: (prop) => prop !== 'open' })(({ theme, open }) => ({
-    zIndex: theme.zIndex.drawer + 1,
-    transition: theme.transitions.create(['width', 'margin'], {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen,
-    }),
-    backgroundColor: theme.palette.neutral[900],
-
-    boxShadow: theme.shadows[2],
-    ...(open && {
-        marginLeft: drawerWidth,
-        width: `calc(100% - ${drawerWidth}px)`,
-        transition: theme.transitions.create(['width', 'margin'], {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.enteringScreen,
-        }),
-    }),
-}));
-
-const Drawer = styled(MuiDrawer)(({ theme }) => ({
-    '& .MuiDrawer-paper': {
-        position: 'relative',
-        whiteSpace: 'nowrap',
-        width: drawerWidth,
-
-        boxSizing: 'border-box',
-        backgroundColor: theme.palette.neutral[900],
-        color: '#FFFFFF',
-    },
-}));
 
 function DashboardLayout(props) {
     const [open, setOpen] = useState(true);
@@ -75,8 +43,9 @@ function DashboardLayout(props) {
     const handleClickLogout = () => {
         Cookies.remove('companyId');
         Cookies.remove('companyToken');
-        Cookies.remove('electionAddress');
+        Cookies.remove('companyElectionAddress');
         Cookies.remove('companyEmail');
+        Cookies.remove('electionAddress');
         navigate(config.routes.home);
     };
 
@@ -128,7 +97,6 @@ function DashboardLayout(props) {
                     <List component="nav">
                         <MainListItems />
                     </List>
-                    
                 </Drawer>
                 <AppBar position="absolute" open={open}>
                     <Toolbar
@@ -164,7 +132,7 @@ function DashboardLayout(props) {
                     }}
                 >
                     <Toolbar />
-                    <Container maxWidth="xl" sx={{  mt: 3, mb: 3 }}>
+                    <Container maxWidth="xl" sx={{ mt: 3, mb: 3 }}>
                         {props.children}
                     </Container>
                 </Box>

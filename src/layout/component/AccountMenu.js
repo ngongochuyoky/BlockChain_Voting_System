@@ -18,6 +18,7 @@ import config from '~/config';
 import PropTypes from 'prop-types';
 import { Link as RouteLink } from 'react-router-dom';
 import { deepOrange } from '@mui/material/colors';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 function AccountMenu(props) {
     const [anchorEl, setAnchorEl] = useState(null);
@@ -104,6 +105,13 @@ function AccountMenu(props) {
                 <Typography >{props.accountName}</Typography>
                
                 <Divider />
+                
+                <MenuItem component={RouteLink} to={config.routes.companyAccountSetting}>
+                    <ListItemIcon>
+                        <AccountCircleIcon fontSize="small" />
+                    </ListItemIcon>
+                    My Account
+                </MenuItem>
                 
                 <MenuItem onClick={props.handleClickLogout}>
                     <ListItemIcon>

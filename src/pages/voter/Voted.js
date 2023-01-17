@@ -16,16 +16,15 @@ import {
     Avatar as MuiAvatar,
 } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
+import imageEmpty from '~/assets/images/empty.png';
 
 // import AvatarDefault from '~/assets/images/avatar_default.jpg';
 import BallotIcon from '@mui/icons-material/Ballot';
 import ethers from '~/ethereum/ethers';
 import Title from '~/layout/component/Title';
 import Cookies from 'js-cookie';
-import {styled} from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 import { createCandidateData } from '~/utils/CreateData';
-
-
 
 const style = {
     position: 'absolute',
@@ -39,18 +38,17 @@ const style = {
     p: 4,
 };
 
-const Avatar = styled(MuiAvatar) (({theme})=> ({
+const Avatar = styled(MuiAvatar)(({ theme }) => ({
     boxShadow: 'rgb(87, 202, 34) 0px 0px 0px 3px',
     border: '3px solid rgb(255, 255, 255)',
-}))
-
+}));
 
 function Voted() {
     const [candidates, setCandidates] = useState([]);
     const [positions, setPositions] = useState([]);
     const [open, setOpen] = useState(false);
     const [source, setSource] = useState();
-    const [endedElection, setEndedElection] = useState(false)
+    const [endedElection, setEndedElection] = useState(false);
 
     const handleClose = () => setOpen(false);
     const handleClickShow = (event, candidate) => {
@@ -62,7 +60,7 @@ function Voted() {
         const componentDidMount = async () => {
             try {
                 await ethers.connectWallet();
-                const contract = ethers.getElectionContract();
+                const contract = ethers.getElectionContract(Cookies.get('voterElectionAddress'));
                 const positions = await contract.getPositions();
                 const status = await contract.getStatus();
                 setEndedElection(status);
@@ -104,7 +102,7 @@ function Voted() {
                                 </Typography>
                             ) : (
                                 <Typography variant="h5" color="primary" sx={{ ml: 2 }}>
-                                    You haven't voted yet!!
+                                    Can't see your vote results !!
                                 </Typography>
                             )}
                         </Box>
@@ -113,14 +111,14 @@ function Voted() {
             </Paper>
 
             <Grid container spacing={2}>
-                {candidates.map((candidate, index) => (
+                {candidates.length ? candidates.map((candidate, index) => (
                     <Grid item key={index}>
                         <Card
                             sx={{
                                 display: 'flex',
                                 flexDirection: 'column',
                                 height: '100%',
-                                width: '300px'
+                                width: '300px',
                             }}
                         >
                             <CardContent>
@@ -142,7 +140,7 @@ function Voted() {
                             </CardContent>
                             <Box sx={{ flexGrow: 1 }} />
                             <Divider />
-                            <Stack  direction="row" justifyContent="center" alignItems="center">
+                            <Stack direction="row" justifyContent="center" alignItems="center">
                                 <Button
                                     color="primary"
                                     sx={{ width: '100%' }}
@@ -153,7 +151,19 @@ function Voted() {
                             </Stack>
                         </Card>
                     </Grid>
-                ))}
+                )) : (
+                    <Grid item xs={12}>
+                        <Box
+                            sx={{
+                                backgroundImage: `url(${imageEmpty})`,
+                                backgroundRepeat: 'no-repeat',
+                                backgroundSize: 'contain',
+                                backgroundPosition: 'center',
+                                height: '40vh',
+                            }}
+                        />
+                    </Grid>
+                )}
             </Grid>
             {open && (
                 <Modal

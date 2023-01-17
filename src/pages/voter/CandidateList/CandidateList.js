@@ -9,9 +9,8 @@ import {
     DialogContentText,
     DialogActions,
     Typography,
-    Box, 
+    Box,
     Avatar,
-
 } from '@mui/material';
 import Title from '~/layout/component/Title';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
@@ -21,72 +20,75 @@ import useSnackMessages from '~/utils/hooks/useSnackMessages';
 import ethers from '~/ethereum/ethers';
 import Cookies from 'js-cookie';
 import { createCandidateData } from '~/utils/CreateData';
+import { vote, getVote } from '~/api/ballot';
+import dayjs from 'dayjs';
+
+import { searchByElectionAddress } from '~/api/election';
 
 function CandidateList() {
     const [data, setData] = useState([{ positionName: '', rows: [] }]);
+    const [election, setElection] = useState({});
     const { showSuccessSnackbar, showErrorSnackbar, showInfoSnackbar } = useSnackMessages();
-    const [electionName, setElectionName] = useState('');
     const [openAlertSubmit, setOpenAlertSubmit] = useState(false);
     const [isVoted, setIsVoted] = useState(true);
     const [votedList, setVotedList] = useState([]);
     const [endedElection, setEndedElection] = useState(true);
 
     useEffect(() => {
-        const addCandidateListener = (result) => {
-            const contract = ethers.getElectionContract();
-            contract.on('AddCandidate', (positionID, candidateID, name, ...rest) => {
-                //So sánh Candidate ID xem đã tồn tại chưa -> chưa -> thêm vào
-                if (!(result[positionID].rows?.[result[positionID].rows.length - 1]?.candidateID === candidateID)) {
-                    showSuccessSnackbar(`New candidate: ${name}`);
-                    setData((preData) => {
-                        const newData = JSON.parse(JSON.stringify(preData));
-                        newData[positionID].rows.push(createCandidateData(candidateID, positionID, name, ...rest));
-                        return newData;
-                    });
-                }
-            });
-        };
-        const voteListener = () => {
-            const contract = ethers.getElectionContract();
-            contract.on('Vote', (voterId) => {
-                if (voterId === Cookies.get('voterId')) {
-                    showSuccessSnackbar('Voted successfully');
-                }
-            });
-        };
         const getData = async () => {
             try {
                 await ethers.connectWallet();
-                const contract = ethers.getElectionContract();
+                const contract = ethers.getElectionContract(Cookies.get('voterElectionAddress'));
                 const positions = await contract.getPositions();
-                const summary = await contract.getElectionDetails();
+                //get Status election from contract
                 const status = await contract.getStatus();
                 setEndedElection(status);
 
-                setElectionName(summary[0]);
-                const result = positions.map((position) => ({
-                    positionName: position,
-                    rows: [],
-                }));
+                const responseElection = await searchByElectionAddress({
+                    electionAddress: Cookies.get('voterElectionAddress'),
+                    token: Cookies.get('voterToken'),
+                });
+                const election = {
+                    companyId: responseElection.data.company,
+                    voters: responseElection.data.voters,
+                    startTime: responseElection.data.startTime,
+                    time: responseElection.data.time,
+                };
+
+                setElection(election);
+
                 if (positions.length) {
                     //Array of voted candidate
                     //Nếu chưa vote, Khởi tạo 1 mảng -1, trước lúc submit, filter lại mảng, vì candidateID >= 0
-                    const voter = await contract.getVoter(Cookies.get('voterId'));
-
-                    if (!voter[0]) {
+                    const responseVote = await getVote({
+                        voterId: Cookies.get('voterId'),
+                        companyId: responseElection.data.company,
+                        token: Cookies.get('voterToken'),
+                    });
+                    //Allow Vote, sẽ không được vote khi cuộc bầu chọn chưa mở hoặc đã đóng hoặc đã vote
+                    let totalSeconds = dayjs(election?.time).diff(dayjs(), 'second');
+                    console.log(totalSeconds)                    
+                    if (totalSeconds >= 0 && !responseVote.data?.id) {
                         const votedList = positions.map((position) => -1);
                         setVotedList(votedList);
                         setIsVoted(false);
-                    } else setIsVoted(true);
+                        
+                    } else {
+                        setIsVoted(true);
+                    }
+
                     const numOfCandidates = await contract.getNumOfCandidates();
+                    //Tạo danh sách candidate
+                    const result = positions.map((position) => ({
+                        positionName: position,
+                        rows: [],
+                    }));
                     for (let i = 0; i < numOfCandidates; i++) {
                         const candidate = await contract.getCandidate(i);
                         result[candidate[0]].rows.push(createCandidateData(i, ...candidate));
                     }
                     setData(result);
                 }
-                addCandidateListener(result);
-                voteListener();
             } catch (err) {
                 ethers.getError() && showErrorSnackbar(ethers.getError());
             }
@@ -104,10 +106,11 @@ function CandidateList() {
         setIsVoted(true);
         const candidateIDList = votedList.filter((candidateID) => candidateID >= 0);
         try {
-            await ethers.connectWallet();
-            const contract = ethers.getElectionContract();
-            const bool = await contract.vote(candidateIDList, Cookies.get('voterId'));
-            bool && showInfoSnackbar('Blockchain is processing');
+            const response = await vote({
+                candidateIdList: candidateIDList,
+                companyId: election.companyId,
+            });
+            response.data && showSuccessSnackbar('Voted successfully');
         } catch (err) {
             setIsVoted(false);
             ethers.getError() && showErrorSnackbar(ethers.getError());
@@ -119,7 +122,7 @@ function CandidateList() {
             <Paper sx={{ display: 'flex', mb: 2, p: '36px' }}>
                 <Grid container>
                     <Grid item>
-                        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }} >
+                        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                             <Avatar
                                 variant="rounded"
                                 sx={{
@@ -132,7 +135,7 @@ function CandidateList() {
                             >
                                 <HowToRegIcon />
                             </Avatar>
-                            <Typography variant="h5" color="primary" sx={{ml: 2}}>
+                            <Typography variant="h5" color="primary" sx={{ ml: 2 }}>
                                 Candidate List
                             </Typography>
                         </Box>
@@ -140,69 +143,67 @@ function CandidateList() {
                 </Grid>
             </Paper>
             <Grid container spacing={3}>
-            {/* Title */}
-            {data.map((position, index) => (
-                <Grid item xs={12} key={index}>
-                    <Paper sx={{ display: 'flex', flexDirection: 'column' }}>
-                        <Grid
-                            container
-                            direction="row"
-                            justifyContent="space-between"
-                            alignItems="center"
-                            sx={{ p: 2 }}
-                        >
-                            <Grid item>
-                                <Title>{position.positionName}</Title>
+                {/* Title */}
+                {data.map((position, index) => (
+                    <Grid item xs={12} key={index}>
+                        <Paper sx={{ display: 'flex', flexDirection: 'column' }}>
+                            <Grid
+                                container
+                                direction="row"
+                                justifyContent="space-between"
+                                alignItems="center"
+                                sx={{ p: 2 }}
+                            >
+                                <Grid item>
+                                    <Title>{position.positionName}</Title>
+                                </Grid>
                             </Grid>
-                        </Grid>
 
-                        <Divider />
-                        <Grid container direction="row" justifyContent="space-between" alignItems="center">
-                            <CandidateListTable
-                                rows={position.rows}
-                                electionName={electionName}
-                                positionName={position.positionName}
-                                votedList={votedList}
-                                setVotedList={setVotedList}
-                                isVoted={isVoted}
-                                endedElection={endedElection}
-                            />
-                        </Grid>
-                    </Paper>
-                </Grid>
-            ))}
-            {!isVoted && !endedElection &&(
-                <Grid item lg={12}>
-                    <Button onClick={handleClickSubmit} variant="contained" sx={{ float: 'right', mb: 8 }}>
-                        Submit
-                    </Button>
-                </Grid>
-            )}
-            {/* Dialog Submit */}
-            <div>
-                <Dialog
-                    open={openAlertSubmit}
-                    onClose={handleCloseAlertSubmit}
-                    aria-labelledby="alert-dialog-title"
-                    aria-describedby="alert-dialog-description"
-                >
-                    <DialogTitle id="alert-dialog-title">Confirm Submit</DialogTitle>
-                    <DialogContent>
-                        <DialogContentText id="alert-dialog-description">
-                            Are you sure you want to vote for these candidates?
-                        </DialogContentText>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={handleCloseAlertSubmit}>Disagree</Button>
-                        <Button onClick={handleAgreementSubmit} autoFocus>
-                            Agree
+                            <Divider />
+                            <Grid container direction="row" justifyContent="space-between" alignItems="center">
+                                <CandidateListTable
+                                    rows={position.rows}
+                                    positionName={position.positionName}
+                                    votedList={votedList}
+                                    setVotedList={setVotedList}
+                                    isVoted={isVoted}
+                                    endedElection={endedElection}
+                                />
+                            </Grid>
+                        </Paper>
+                    </Grid>
+                ))}
+                {!isVoted && !endedElection && (
+                    <Grid item lg={12}>
+                        <Button onClick={handleClickSubmit} variant="contained" sx={{ float: 'right', mb: 8 }}>
+                            Submit
                         </Button>
-                    </DialogActions>
-                </Dialog>
-            </div>
-        </Grid>
+                    </Grid>
+                )}
+                {/* Dialog Submit */}
+                <div>
+                    <Dialog
+                        open={openAlertSubmit}
+                        onClose={handleCloseAlertSubmit}
+                        aria-labelledby="alert-dialog-title"
+                        aria-describedby="alert-dialog-description"
+                    >
+                        <DialogTitle id="alert-dialog-title">Confirm Submit</DialogTitle>
+                        <DialogContent>
+                            <DialogContentText id="alert-dialog-description">
+                                Are you sure you want to vote for these candidates?
+                            </DialogContentText>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={handleCloseAlertSubmit}>Disagree</Button>
+                            <Button onClick={handleAgreementSubmit} autoFocus>
+                                Agree
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
+                </div>
+            </Grid>
         </Fragment>
-       
     );
 }
 

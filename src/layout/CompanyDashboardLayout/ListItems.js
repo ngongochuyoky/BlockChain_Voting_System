@@ -1,23 +1,35 @@
 import { Fragment, useState } from 'react';
-import { ListItemButton, ListItemIcon, ListItemText, List, Collapse } from '@mui/material';
+import { ListItemButton, ListItemIcon as MuiListItemIcon, ListItemText, List, Collapse } from '@mui/material';
+import {styled} from '@mui/material/styles';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import RecentActorsIcon from '@mui/icons-material/RecentActors';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import ViewListIcon from '@mui/icons-material/ViewList';
+import HowToVoteIcon from '@mui/icons-material/HowToVote';
 import CreateIcon from '@mui/icons-material/Create';
 // import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
 import PeopleIcon from '@mui/icons-material/People';
 import { Link as RouteLink } from 'react-router-dom';
 import config from '~/config';
 
+const ListItemIcon = styled(MuiListItemIcon)(({theme}) => ({
+    color: '#fff'
+}))
+
+
 function MainListItems() {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [openCandidate, setOpenCandidate] = useState(true);
+    const [openVoter, setOpenVoter] = useState(true);
 
     const handleClickCandidate = () => {
         setOpenCandidate(!openCandidate);
+    };
+
+    const handleClickVoter = () => {
+        setOpenVoter(!openVoter);
     };
 
     const handleListItemClick = (event, index) => {
@@ -32,7 +44,7 @@ function MainListItems() {
                 selected={selectedIndex === 0}
                 onClick={(event) => handleListItemClick(event, 0)}
             >
-                <ListItemIcon>
+                <ListItemIcon >
                     <DashboardIcon />
                 </ListItemIcon>
                 <ListItemText primary="Dashboard" />
@@ -49,7 +61,7 @@ function MainListItems() {
                 </ListItemIcon>
                 <ListItemText primary="Position List" />
             </ListItemButton>
-
+            {/* Candidate */}
             <ListItemButton onClick={handleClickCandidate}>
                 <ListItemIcon>
                     <InboxIcon />
@@ -85,17 +97,52 @@ function MainListItems() {
                     </ListItemButton>
                 </List>
             </Collapse>
+            {/* Voter */}
+            <ListItemButton onClick={handleClickVoter}>
+                <ListItemIcon>
+                    <InboxIcon />
+                </ListItemIcon>
+                <ListItemText primary="Voter" />
+                {openVoter ? <ExpandLess /> : <ExpandMore />}
+            </ListItemButton>
+            <Collapse in={openVoter} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding>
+                    <ListItemButton
+                        sx={{ pl: 4 }}
+                        component={RouteLink}
+                        to={config.routes.companyVoterList}
+                        selected={selectedIndex === 4}
+                        onClick={(event) => handleListItemClick(event, 4)}
+                    >
+                        <ListItemIcon>
+                            <PeopleIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="Voter List" />
+                    </ListItemButton>
+                    <ListItemButton
+                        sx={{ pl: 4 }}
+                        component={RouteLink}
+                        to={config.routes.addVoters}
+                        selected={selectedIndex === 5}
+                        onClick={(event) => handleListItemClick(event, 5)}
+                    >
+                        <ListItemIcon>
+                            <CreateIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="Add Voters" />
+                    </ListItemButton>
+                </List>
+            </Collapse>
             <ListItemButton
-            
+                to={config.routes.voteList}
                 component={RouteLink}
-                to={config.routes.companyVoterList}
-                selected={selectedIndex === 4}
-                onClick={(event) => handleListItemClick(event, 4)}
+                selected={selectedIndex === 6}
+                onClick={(event) => handleListItemClick(event, 6)}
             >
                 <ListItemIcon>
-                    <PeopleIcon />
+                    <HowToVoteIcon />
                 </ListItemIcon>
-                <ListItemText primary="Voter List" />
+                <ListItemText primary="Vote List" />
             </ListItemButton>
             {/* <Divider sx={{ borderColor: '#2D3748', mt: 2, mb: 2 }} />
             <ListItemButton

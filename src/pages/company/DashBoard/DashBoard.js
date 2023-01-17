@@ -1,4 +1,21 @@
-import { Grid, Paper, Typography, Button, Box } from '@mui/material';
+import {
+    Grid,
+    Paper,
+    Typography,
+    Button,
+    Box,
+    Stack,
+    IconButton,
+    InputLabel,
+    Backdrop,
+    Modal,
+    Fade,
+    Divider,
+    TextField,
+} from '@mui/material';
+import Title from '~/layout/component/Title';
+import { Add as AddIcon, Close as CloseIcon } from '@mui/icons-material';
+
 import NumCandidate from '~/layout/component/NumCandidate';
 import NumPosition from '~/layout/component/NumPosition';
 import NumVoter from '~/layout/component/NumVoter';
@@ -7,36 +24,66 @@ import BarChart from '~/layout/component/BarChart';
 import PieChart from '~/layout/component/PieChart';
 import { Fragment, useEffect, useState } from 'react';
 import ethers from '~/ethereum/ethers';
-import { totalVoters, allVoter } from '~/api/voter';
 import useSnackMessages from '~/utils/hooks/useSnackMessages';
 import { resultMail } from '~/api/company';
 import { createCandidateData } from '~/utils/CreateData';
+import Cookies from 'js-cookie';
+import { getVotersVoted } from '~/api/ballot';
+import { searchByElectionAddress, updateTimeStart } from '~/api/election';
+
+import dayjs, { Dayjs } from 'dayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { getHashSignature } from '~/api/key';
+
+const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    borderRadius: '10px',
+    width: '40vw',
+    height: '80vh',
+    p: 4,
+};
 
 function DashboardContent() {
+    const [openFormStart, setOpenFormStart] = useState(false);
+    const [value, setValue] = useState(dayjs('2023-01-14T21:11:54')); //Date Start
     const [voted, setVoted] = useState(0);
     const [numPosition, setNumPosition] = useState(0);
     const [numCandidate, setNumCandidate] = useState(0);
     const [numVoter, setNumVoter] = useState(0);
+    const [startElection, setStartElection] = useState(true);
+    const [election, setElection] = useState({});
     const [electionName, setElectionName] = useState('Election Name');
     const [winners, setWinners] = useState([]);
     const [endedElection, setEndedElection] = useState(false);
-    const { showSuccessSnackbar, showErrorSnackbar } = useSnackMessages();
+    const { showSuccessSnackbar, showErrorSnackbar, showInfoSnackbar } = useSnackMessages();
     const [dataChart, setDataChart] = useState([]);
+
+    const handleOpenFormStart = () => setOpenFormStart(true);
+    const handleCloseFormStart = () => setOpenFormStart(false);
     useEffect(() => {
         const componentDidMount = async () => {
             try {
                 await ethers.connectWallet();
-                const contract = await ethers.getElectionContract();
+                const contract = await ethers.getElectionContract(Cookies.get('companyElectionAddress'));
                 //Election Status
                 const status = await contract.getStatus();
                 setEndedElection(status);
+
                 //Number of positions
                 const numPosition = await contract.getNumOfPosition();
-                numPosition && setNumPosition(numPosition);
+                setNumPosition(numPosition);
                 const positions = await contract.getPositions();
+
                 //Number of candidates
                 const numCandidate = await contract.getNumOfCandidates();
-                numCandidate && setNumCandidate(numCandidate);
+                setNumCandidate(numCandidate);
 
                 //Candidates
                 const candidates = [];
@@ -52,23 +99,36 @@ function DashboardContent() {
                 candidates.forEach((candidate) => {
                     dataChart[candidate.positionID].rows.push(candidate);
                 });
-                dataChart && setDataChart(dataChart);
+                setDataChart(dataChart);
 
-                //Number of voters
-                const numVoter = await totalVoters();
-                numVoter && setNumVoter(numVoter.data);
+                //get Election
+                const responseElection = await searchByElectionAddress({
+                    electionAddress: Cookies.get('companyElectionAddress'),
+                    token: Cookies.get('companyToken'),
+                });
+                
+                const election = {
+                    companyId: responseElection.data.company,
+                    voters: responseElection.data.voters,
+                    startTime: responseElection.data.startTime,
+                    time: responseElection.data.time,
+                };
+                setElection(election);
+                const startElection = election.startTime ? true : false;
+                setStartElection(startElection);
+
+                //The number of voters
+                setNumVoter(election.voters.length);
 
                 //The number of voters who voted
-                const response = await allVoter();
-                if (response?.data) {
-                    for (let i = 0; i < response.data.length; i++) {
-                        const voter = await contract.getVoter(response.data[i]._id);
-                        voter?.[0] === true && setVoted((pre) => pre + 1);
-                    }
-                }
+                const responseNumbVoted = await getVotersVoted({
+                    companyId: responseElection.data.company,
+                    token: Cookies.get('companyToken'),
+                });
+                setVoted(responseNumbVoted.data.number);
 
-                const election = await contract.getElectionDetails();
-                election && setElectionName(election[0]);
+                const electionDetails = await contract.getElectionDetails();
+                setElectionName(electionDetails[0]);
                 //Get Winners
                 if (status) {
                     const winnersID = await contract.winner();
@@ -89,12 +149,35 @@ function DashboardContent() {
 
     const handleEndElection = async () => {
         await ethers.connectWallet();
-        const contract = await ethers.getElectionContract();
+        const contract = await ethers.getElectionContract(Cookies.get('companyElectionAddress'));
         const bool = await contract.setEnd();
         bool && setEndedElection(true);
     };
 
-    const handleresultEmail = async () => {
+    //Xử lý ngày tháng
+
+    const handleChange = (newValue) => {
+        setValue(newValue);
+    };
+
+    const handleStartElection = async (event) => {
+        event.preventDefault();
+        const responseHashSignature = await getHashSignature();
+        if(responseHashSignature?.data) {
+            const election = await updateTimeStart({
+                timeOut: value,
+            });
+            if (election.data) {
+                setStartElection(true);
+                showSuccessSnackbar('Successfully started the election');
+                setOpenFormStart(false);
+            } else showErrorSnackbar('Failed election start');
+            
+        }else{
+            showInfoSnackbar('Please create key first !!!');
+        }
+    };
+    const handleResultEmail = async () => {
         const response = await resultMail({ electionName: electionName, winners: winners });
         response?.data
             ? showSuccessSnackbar('Send email to report successful results')
@@ -115,6 +198,16 @@ function DashboardContent() {
                         </Box>
                     </Grid>
                     <Grid item>
+                        <Button
+                            disabled={startElection}
+                            variant="contained"
+                            color="success"
+                            sx={{ mr: 2 }}
+                            onClick={handleOpenFormStart}
+                        >
+                            Start election
+                        </Button>
+
                         <Button disabled={endedElection} variant="contained" color="error" onClick={handleEndElection}>
                             End election
                         </Button>
@@ -123,7 +216,7 @@ function DashboardContent() {
                             variant="contained"
                             color="warning"
                             sx={{ ml: 2 }}
-                            onClick={handleresultEmail}
+                            onClick={handleResultEmail}
                         >
                             Result Mail
                         </Button>
@@ -158,6 +251,70 @@ function DashboardContent() {
                         </Fragment>
                     ))}
             </Grid>
+            <Modal
+                aria-labelledby="transition-modal-title"
+                aria-describedby="transition-modal-description"
+                open={openFormStart}
+                onClose={handleCloseFormStart}
+                closeAfterTransition
+                BackdropComponent={Backdrop}
+                BackdropProps={{
+                    timeout: 500,
+                }}
+            >
+                <Fade in={openFormStart}>
+                    <Box sx={style}>
+                        <Grid container direction="column">
+                            <Grid item>
+                                <Stack direction="row" justifyContent="space-between" alignItems="center">
+                                    <Title>Create a new position</Title>
+                                    <IconButton onClick={handleCloseFormStart}>
+                                        <CloseIcon />
+                                    </IconButton>
+                                </Stack>
+                            </Grid>
+                            <Grid item sx={{ pt: 2 }}>
+                                <Box component="form" onSubmit={handleStartElection} validate="true" autoComplete="off">
+                                    <Grid container spacing={2}>
+                                        {/* Input Description */}
+                                        <Grid item md={4} xs={12}>
+                                            <InputLabel htmlFor="email" sx={{ fontWeight: 700 }}>
+                                                Voting time
+                                            </InputLabel>
+                                        </Grid>
+                                        <Grid item md={8} xs={12}>
+                                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                                <Stack spacing={3}>
+                                                    <DateTimePicker
+                                                        label="Date&Time picker"
+                                                        value={value}
+                                                        onChange={handleChange}
+                                                        renderInput={(params) => <TextField {...params} />}
+                                                    />
+                                                </Stack>
+                                            </LocalizationProvider>
+                                        </Grid>
+
+                                        {/* Button Submit */}
+                                        <Grid item md={12} sx={{ mt: '60%' }}>
+                                            <Divider sx={{ width: '100%' }} />
+                                            <Box sx={{ float: 'right' }}>
+                                                <Button
+                                                    type="submit"
+                                                    variant="contained"
+                                                    sx={{ mt: 3, pl: 3, pr: 3, width: '300px' }}
+                                                >
+                                                    Start
+                                                </Button>
+                                            </Box>
+                                        </Grid>
+                                    </Grid>
+                                </Box>
+                            </Grid>
+                        </Grid>
+                    </Box>
+                </Fade>
+            </Modal>
         </Fragment>
     );
 }
