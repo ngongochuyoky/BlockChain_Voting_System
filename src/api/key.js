@@ -1,17 +1,13 @@
 import Cookies from 'js-cookie';
-import { getMethod, postMethod } from './httpRequest';
+import { getMethod } from './httpRequest';
 
 //Tạo khóa
 export const generateKey = async () => {
     try {
-        const response = await getMethod(
-            '/key/' + Cookies.get('companyId') + '/keys',
-            {},
-            Cookies.get('companyToken'),
-        );
+        const response = await getMethod('/key/' + Cookies.get('companyId') + '/keys', {}, Cookies.get('companyToken'));
         return response;
     } catch (err) {
-        console.log(err);
+        return err.response.data;
     }
 };
 
@@ -25,6 +21,6 @@ export const getHashSignature = async () => {
         );
         return response;
     } catch (err) {
-        console.log(err);
+        return err.response.data;
     }
 };

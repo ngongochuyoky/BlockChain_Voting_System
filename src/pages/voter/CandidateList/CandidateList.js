@@ -68,7 +68,7 @@ function CandidateList() {
                     //Allow Vote, sẽ không được vote khi cuộc bầu chọn chưa mở hoặc đã đóng hoặc đã vote
                     let totalSeconds = dayjs(election?.time).diff(dayjs(), 'second');
                     console.log(totalSeconds)                    
-                    if (totalSeconds >= 0 && !responseVote.data?.id) {
+                    if (totalSeconds >= 0 && !responseVote?.data?.id) {
                         const votedList = positions.map((position) => -1);
                         setVotedList(votedList);
                         setIsVoted(false);

@@ -6,7 +6,7 @@ export const getCompanyById = async ({ id }) => {
         const response = await getMethod('/company/' + id, {}, Cookies.get('companyToken'));
         return response;
     } catch (err) {
-        console.log(err);
+        return err.response.data;
     }
 };
 
@@ -23,7 +23,6 @@ export const resultMail = async ({ electionName, winners }) => {
         );
         return response;
     } catch (err) {
-        console.log(err);
+        return err.response.data;
     }
 };
-

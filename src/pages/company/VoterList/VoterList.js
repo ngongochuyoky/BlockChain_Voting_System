@@ -12,7 +12,7 @@ function VoterList() {
     const [electionName, setElectionName] = useState('');
     const [reRender, setReRender] = useState(false);
     const [rows, setRows] = useState([]);
-
+    
     useEffect(() => {
         const componentDidMount = async () => {
             try {
@@ -24,7 +24,6 @@ function VoterList() {
                     companyId: Cookies.get('companyId'),
                     token: Cookies.get('companyToken'),
                 });
-                // console.log(response);
                 const voters = response.data.map((voter) =>
                     createVoterData(voter._id, voter.full_name, voter.email, voter.createdAt),
                 );

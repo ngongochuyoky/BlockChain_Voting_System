@@ -37,7 +37,6 @@ function DashboardContent() {
                 await ethers.connectWallet();
                 const contract = await ethers.getElectionContract(Cookies.get('voterElectionAddress'));
                 const end = await contract.getStatus();
-                console.log(end)
                 setEndedElection(end)
                 //Number of positions
                 const numPosition = await contract.getNumOfPosition();

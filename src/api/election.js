@@ -13,7 +13,7 @@ export const createElection = async () => {
         );
         return response;
     } catch (err) {
-        console.log(err.message);
+        return err.response.data;
     }
 };
 
@@ -22,16 +22,16 @@ export const searchByVoterId = async ({ voterId, token }) => {
         const response = await getMethod('/election/' + voterId + '/searchByVoterId', {}, token);
         return response;
     } catch (err) {
-        console.log(err.message);
+        return err.response.data;
     }
 };
 
-export const searchByCompanyId = async ({ companyId, token }) => {
+export const searchElection = async ({ companyId, token }) => {
     try {
-        const response = await getMethod('/election/' + companyId + '/searchByCompanyId', {}, token);
+        const response = await getMethod('/election/' + companyId + '/searchElection', {}, token);
         return response;
     } catch (err) {
-        console.log(err.message);
+        return err.response.data;
     }
 };
 
@@ -40,7 +40,7 @@ export const searchByElectionAddress = async ({ electionAddress, token }) => {
         const response = await getMethod('/election/' + electionAddress + '/searchByElectionAddress', {}, token);
         return response;
     } catch (err) {
-        console.log(err.message);
+        return err.response.data;
     }
 };
 
@@ -49,7 +49,7 @@ export const getVoterList = async ({ companyId, token }) => {
         const response = await getMethod('/election/' + companyId + '/voterList', {}, token);
         return response;
     } catch (err) {
-        console.log(err.message);
+        return err.response.data;
     }
 };
 
@@ -64,7 +64,7 @@ export const saveChange = async ({ voters }) => {
         );
         return response;
     } catch (err) {
-        console.log(err.message);
+        return err.response.data;
     }
 };
 
@@ -77,6 +77,6 @@ export const updateTimeStart = async ({ timeOut }) => {
         );
         return response;
     } catch (err) {
-        console.log(err.message);
+        return err.response.data;
     }
 };

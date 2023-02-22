@@ -2,24 +2,22 @@ import Cookies from 'js-cookie';
 import { getMethod, postMethod, putMethod, deleteMethod, patchMethod } from './httpRequest';
 
 export const getAllVoter = async () => {
-    try{
+    try {
         const response = await getMethod('/voter/', {}, Cookies.get('companyToken'));
         return response;
-    }catch(err) {
-        console.log(err.message);
+    } catch (err) {
+        return err.response.data;
     }
-}
-
+};
 
 export const getVoterById = async ({ id }) => {
     try {
         const response = await getMethod('/voter/' + id + '/show', {}, Cookies.get('voterToken'));
         return response;
     } catch (err) {
-        console.log(err.message);
+        return err.response.data;
     }
 };
-
 
 export const createVoter = async ({ email, fullName, electionAddress, electionName }) => {
     try {
@@ -35,7 +33,7 @@ export const createVoter = async ({ email, fullName, electionAddress, electionNa
         );
         return response;
     } catch (err) {
-        console.log(err.message);
+        return err.response.data;
     }
 };
 
@@ -49,7 +47,7 @@ export const updateVoter = async ({ id, password, fullName, electionName }) => {
 
         return response;
     } catch (err) {
-        console.log(err.message);
+        return err.response.data;
     }
 };
 
@@ -58,7 +56,7 @@ export const deleteVoter = async ({ id }) => {
         const response = await deleteMethod('/voter/' + id, {}, Cookies.get('companyToken'));
         return response;
     } catch (err) {
-        console.log(err.message);
+        return err.response.data;
     }
 };
 
@@ -72,7 +70,7 @@ export const findDeletedVoters = async () => {
         );
         return response;
     } catch (err) {
-        console.log(err.message);
+        return err.response.data;
     }
 };
 
@@ -81,6 +79,6 @@ export const restoreVoter = async ({ id }) => {
         const response = await patchMethod('/voter/' + id + '/restore', {}, Cookies.get('companyToken'));
         return response;
     } catch (err) {
-        console.log(err.message);
+        return err.response.data;
     }
 };

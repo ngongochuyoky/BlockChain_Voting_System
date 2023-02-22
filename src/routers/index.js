@@ -60,36 +60,3 @@ export const companyPrivateRoutes = [
     { path: config.routes.companyAccountSetting, component: CompanyAccountSetting, layout: CompanyDashboardLayout },
     { path: config.routes.voteList, component: VoteList, layout: CompanyDashboardLayout },
 ];
-
-
-
-
-
-
-
-
-// //Public Routes
-// export const publicRoutes = [
-//     { path: config.routes.home, component: Home, layout: null},
-//     { path: config.routes.voterLogin, component: VoterLogin, layout: null },
-//     { path: config.routes.companyLogin, component: CompanyLogin, layout: null },
-//     { path: config.routes.companyRegister, component: CompanyRegister, layout: null },
-// ];
-
-// //Private Routes
-
-// export const voterPrivateRoutes = [
-//     { path: config.routes.voterDashboard, component: VoterDashBoard, layout: VoterDashboardLayout },
-//     { path: config.routes.voterCandidateList, component: VoterCandidateList, layout: VoterDashboardLayout },
-//     { path: config.routes.voted, component: Voted, layout: VoterDashboardLayout },
-// ];
-
-// // Admin Routes
-// export const companyPrivateRoutes = [
-//     { path: config.routes.companyDashboard, component: CompanyDashBoard, layout: CompanyDashboardLayout },
-//     { path: config.routes.companyCandidateList, component: CompanyCandidateList, layout: CompanyDashboardLayout },
-//     { path: config.routes.companyPositionList, component: CompanyPositionList, layout: CompanyDashboardLayout },
-//     { path: config.routes.createCandidate, component: CreateCandidate, layout: CompanyDashboardLayout },
-//     { path: config.routes.createElection, component: CreateElection, layout: null },
-//     { path: config.routes.companyVoterList, component: CompanyVoterList, layout: CompanyDashboardLayout },
-// ];

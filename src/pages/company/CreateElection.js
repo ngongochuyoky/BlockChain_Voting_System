@@ -6,7 +6,7 @@ import config from '~/config';
 import { useNavigate } from 'react-router-dom';
 import useSnackMessages from '~/utils/hooks/useSnackMessages';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import { createElection, searchByCompanyId } from '~/api/election';
+import { createElection, searchElection } from '~/api/election';
 import { ButtonFullWidth } from '~/layout/component/CustomStyle';
 
 function CreateElection() {
@@ -17,7 +17,7 @@ function CreateElection() {
 
     useEffect(() => {
         const componentDidMount = async () => {
-            const response = await searchByCompanyId({
+            const response = await searchElection({
                 companyId: Cookies.get('companyId'),
                 token: Cookies.get('companyToken'),
             });

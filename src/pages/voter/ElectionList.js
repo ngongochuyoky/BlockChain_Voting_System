@@ -65,7 +65,6 @@ function ElectionList() {
                                 status,
                             ),
                         );
-                        console.log(elections)
                     }
                 }
                 elections.length && setElections(elections);

@@ -34,7 +34,6 @@ function DashboardLayout(props) {
     useEffect(() => {
         const componentDidMount = async () => {
             const response = await getVoterById({ id: Cookies.get('voterId') });
-            console.log(response);
             response?.data && setAccountName(response.data.full_name);
         };
         componentDidMount();

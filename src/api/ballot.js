@@ -13,7 +13,7 @@ export const vote = async ({ candidateIdList, companyId }) => {
         );
         return response;
     } catch (err) {
-        console.log(err);
+        return err.response.data;
     }
 };
 
@@ -22,7 +22,7 @@ export const getVote = async ({ voterId, companyId, token }) => {
         const response = await getMethod('/ballot/' + companyId + '/' + voterId + '/searchVote', {}, token);
         return response;
     } catch (err) {
-        console.log(err);
+        return err.response.data;
     }
 };
 
@@ -31,7 +31,7 @@ export const getVotersVoted = async ({ companyId, token }) => {
         const response = await getMethod('/ballot/' + companyId + '/numVoted', {}, token);
         return response;
     } catch (err) {
-        console.log(err);
+        return err.response.data;
     }
 };
 
@@ -40,7 +40,7 @@ export const getVotes = async ({ companyId, token }) => {
         const response = await getMethod('/ballot/' + companyId + '/votes', {}, token);
         return response;
     } catch (err) {
-        console.log(err);
+        return err.response.data;
     }
 };
 
@@ -55,7 +55,7 @@ export const decryptContent = async ({ privateKey, id }) => {
         );
         return response;
     } catch (err) {
-        console.log(err);
+        return err.response.data;
     }
 };
 
@@ -64,6 +64,6 @@ export const updateIsCheck = async ({ id }) => {
         const response = await patchMethod('/ballot/' + id + '/updateIsCheck', {}, Cookies.get('companyToken'));
         return response;
     } catch (err) {
-        console.log(err);
+        return err.response.data;
     }
 };

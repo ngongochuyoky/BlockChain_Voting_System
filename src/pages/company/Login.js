@@ -37,7 +37,6 @@ function LoginSide() {
                 navigate(config.routes.createElection);
             } else {
                 Cookies.set('companyElectionAddress', summary[0]);
-                console.log(summary[0]);
                 navigate(config.routes.companyDashboard);
             }
         } catch (err) {

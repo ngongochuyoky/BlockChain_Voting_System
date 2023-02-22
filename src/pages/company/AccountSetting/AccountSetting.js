@@ -25,7 +25,7 @@ import config from '~/config';
 import { generateKey, getHashSignature } from '~/api/key';
 import { useNavigate } from 'react-router-dom';
 import { getCompanyById } from '~/api/company';
-import { searchByCompanyId } from '~/api/election';
+import { searchElection } from '~/api/election';
 import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { Fragment, useEffect, useState } from 'react';
@@ -63,7 +63,7 @@ function AccountSetting() {
             });
 
             //lấy dữ liệu election
-            const election = await searchByCompanyId({
+            const election = await searchElection({
                 companyId: Cookies.get('companyId'),
                 token: Cookies.get('companyToken'),
             });
@@ -77,6 +77,7 @@ function AccountSetting() {
 
             //Kiểm tra xem đã tạo key chưa
             const responseCheck = await getHashSignature();
+            console.log(responseCheck);
             responseCheck && setHashSignature(responseCheck);
         };
         componentDidMount();
@@ -254,7 +255,7 @@ function AccountSetting() {
                                             variant="contained"
                                             onClick={handleGenerateKey}
                                             startIcon={<AddCircleIcon />}
-                                            // disabled={hashSignature ? true : false}
+                                            disabled={hashSignature ? true : false}
                                         >
                                             Generate Key
                                         </Button>
