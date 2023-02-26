@@ -2,6 +2,7 @@
 
 Technology used: ReactJS, ExpressJS, MongoDB, Hardhat, Metamask, Alchemy.
 
+***Backend:*** https://github.com/ngongochuyoky/back_end_voting_app
 # The development plan 
 
 Here is an idea of all the steps to build voting Dapp:
